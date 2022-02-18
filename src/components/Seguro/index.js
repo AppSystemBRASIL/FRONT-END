@@ -36,6 +36,11 @@ const Seguro = ({ dados }) => {
       <div>
         <h3>INFORMAÇÕES DO SEGURO:</h3>
         <div>
+          <label>PLACA:</label>
+          <Input type='text' style={{cursor: 'default', fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}} readOnly disabled value={dados.veiculo.placa} />
+        </div>
+        <br/>
+        <div>
           <label>SEGURADORA:</label>
           {(dados.seguroVinculado) ? (
             <Input type='text' style={{cursor: 'default', border: 'none', outline: 'none', background: 'white', fontSize: 17, color: colors.text.secondary, fontWeight: 'bold', padding: 0}} value={String(dados.seguradora.razao_social).toUpperCase()} disabled readOnly />
@@ -65,11 +70,6 @@ const Seguro = ({ dados }) => {
               onChange={(e) => setFinalVigencia(maskDate(e.target.value))}
             />
           )}
-        </div>
-        <br/>
-        <div>
-          <label>PLACA:</label>
-          <Input type='text' style={{cursor: 'default', fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}} readOnly disabled value={dados.veiculo.placa} />
         </div>
       </div>
     </>
