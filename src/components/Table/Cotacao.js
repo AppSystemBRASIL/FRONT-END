@@ -129,7 +129,7 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
             <>
               {loadingData && (
                 <span style={{ fontSize: '.6rem' }}>
-                  SEGURO {dados.tipo.toUpperCase()} {(dados.tipo === 'veicular') && `- ${dados.veiculo.placa}`}
+                  SEGURO {(dados.tipo || dados.seguro.tipo).toUpperCase()} {((dados.tipo === 'veicular' || dados.seguro.tipo === 'veicular')) && `- ${dados.veiculo.placa}`}
                 </span>
               )}
               <div className={!loadingData && 'skeleton'}>

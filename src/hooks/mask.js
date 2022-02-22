@@ -20,12 +20,25 @@ export const maskCNPJ = value => {
   };
 
 // (00) 00000-0000
-export const maskPhone = value => {
-  return value
-    .replace(/\D/g, "")
-    .replace(/(\d{2})(\d)/, "($1) $2")
-    .replace(/(\d{5})(\d{4})/, "$1-$2").slice(0, 15);
-};
+export const maskPhone = (value) => {
+  value=value.replace(/\D/g,"");
+
+  if(value.length <= 11) {
+    value=value.replace(/^(\d{2})(\d)/g,"($1) $2");
+  }else {
+    value=value.replace(/^(\d{4})(\d)/g,"$1 $2");
+  }
+
+  if(value.length === 11) {
+    value=value.replace(/(\d)(\d{1})$/,"$1-$2");
+  }
+
+  if(value.length >= 12) {
+    value=value.replace(/(\d)(\d{4})$/,"$1-$2");
+  }
+
+  return String(value);
+}
 
 // 00000-000
 export const maskCEP = value => {

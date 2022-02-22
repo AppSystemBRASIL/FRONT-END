@@ -74,11 +74,11 @@ const Seguradoras = () => {
         {
           telefones: [
             {
-              locais: 'CAPITAIS E REGIÕES METROPOLITANAS',
+              locais: '',
               telefone: '',
             },
             {
-              locais: 'TODAS AS REGIÕES',
+              locais: '',
               telefone: '',
             },
           ],
@@ -147,9 +147,8 @@ const Seguradoras = () => {
                         <br/>
                         <Input
                         value={item1.telefone}
-                        placeholder='(00) 00000-0000'
                         onChange={async (e) => {
-                          const telefone = maskPhone(e.target.value);
+                          const telefone = e.target.value;
                           novaSeguradora.contatos[index].telefones[index1].telefone = telefone;
 
                           await setNovaSeguradora(response => ({ ...response }));

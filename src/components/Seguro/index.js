@@ -36,8 +36,13 @@ const Seguro = ({ dados }) => {
       <div>
         <h3>INFORMAÇÕES DO SEGURO:</h3>
         <div>
+          <label>VEÍCULO:</label>
+          <Input type='text' style={{cursor: 'default', fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}} readOnly disabled value={dados.veiculo.veiculo || ''} />
+        </div>
+        <br/>
+        <div>
           <label>PLACA:</label>
-          <Input type='text' style={{cursor: 'default', fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}} readOnly disabled value={dados.veiculo.placa} />
+          <Input type='text' style={{cursor: 'default', fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}} readOnly disabled value={dados.veiculo.placa || 'A AVISAR'} />
         </div>
         <br/>
         <div>

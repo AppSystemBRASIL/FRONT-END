@@ -106,31 +106,31 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
       >
         <Table.Column
           width={300}
-          key="nomeCompleto"
-          dataIndex="nomeCompleto"
+          key="segurado"
+          dataIndex="segurado"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                NOME
+                SEGURADO
               </div>
             ]
           }
-          render={(nomeCompleto, dados) => (
+          render={(segurado, dados) => (
             <>
               {loadingData && (
                 <span style={{ fontSize: '.6rem' }}>
-                  SEGURO {dados.tipo.toUpperCase()} {(dados.tipo === 'veicular') && `- ${dados.placa}`}
+                  SEGURO {dados.tipo.toUpperCase()} {(dados.tipo === 'veicular') && `- ${dados.veiculo.placa}`}
                 </span>
               )}
               <div className={!loadingData && 'skeleton'}>
-                {nomeCompleto ? String(nomeCompleto) : '000000000'}
+                {segurado ? String(segurado.nome) : '000000000'}
               </div>
             </>
           )}
         />
         <Table.Column
-          key="celular"
-          dataIndex="celular"
+          key="segurado"
+          dataIndex="segurado"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -138,17 +138,17 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
               </div>
             ]
           }
-          render={(celular) => (
+          render={(segurado) => (
             <div className={!loadingData && 'skeleton'}>
               <center>
-                {celular ? celular : '00000000000'}
+                {segurado ? segurado.celular : '00000000000'}
               </center>
             </div>
           )}
         />
         <Table.Column
-          key="finalVigencia"
-          dataIndex="finalVigencia"
+          key="seguro"
+          dataIndex="seguro"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -156,28 +156,10 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
               </div>
             ]
           }
-          render={(finalVigencia) => (
+          render={(seguro) => (
             <div className={!loadingData && 'skeleton'}>
               <center>
-                {finalVigencia ? finalVigencia : '00000000000'}
-              </center>
-            </div>
-          )}
-        />
-        <Table.Column
-          key="created"
-          dataIndex="created"
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                <center>CRIADA</center>
-              </div>
-            ]
-          }
-          render={(created) => (
-            <div className={!loadingData && 'skeleton'}>
-              <center>
-                {created ? format(new Date(created.toDate()), 'dd/MM/yyyy') : '00/00/0000'}
+                {seguro ? seguro.vigencia : '00000000000'}
               </center>
             </div>
           )}
