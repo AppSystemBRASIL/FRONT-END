@@ -5,14 +5,18 @@ import verifyCode from '../auth/errors';
 import { notification, Modal, Input } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import Router from 'next/router';
+import colors from 'utils/colors';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [businessInfo, setBusinessInfo] = useState({
     displayName: 'XCAR SEGUROS',
-    slogan: 'seguro',
-    theme: 'blue'
+    slogan: 'sistema de gestão',
+    theme: {
+      primary: colors.primary.default,
+      secondary: colors.primary.hover
+    }
   })
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,11 +67,10 @@ export const AuthProvider = ({ children }) => {
                       const dataCorretora = doc1.data();
                       setCorretora(data => ({...data, ...dataCorretora}));
 
-                      setBusinessInfo({
-                        displayName: dataCorretora.razao_social,
-                        slogan: dataCorretora.slogan,
-                        theme: dataCorretora.layout.theme
-                      });
+                      setBusinessInfo(response => ({
+                        ...response,
+                        ...dataCorretora,
+                      }));
 
                       setUser(data => ({...data, emailVerified: user.emailVerified, ...doc.data()}));
                       setLogged(true);

@@ -35,17 +35,23 @@ const SideBar = ({ collapsed, responsive }) => {
 
   return (
     <Side
-      backgroundPrimary={colors.primary.default}
-      backgroundHover={colors.primary.hover}
+      backgroundPrimary={businessInfo.theme.primary}
+      backgroundHover={businessInfo.theme.secondary}
       className={(collapsed && 'close')+' '+(responsive && 'updateTheme')}
     >
-      <div className="logo-details">
-        <i style={{fontSize: 45}} className='bx bx-car' />
-        <span className="logo_name" style={{lineHeight: .7}}>
-          {businessInfo.displayName}
+      <div className="logo-details" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10 }}>
+        {businessInfo.icon ? (
+          <img width={50} preview={false} style={{ marginRight: 10 }} src={businessInfo.icon} />
+        ) : (
+          <i style={{fontSize: 45}} className='bx bx-car' />
+        )}
+        <span className="logo_name" style={{ marginTop: String(businessInfo.razao_social).length > 10 && 20, lineHeight: String(businessInfo.razao_social).length > 10 ? 1 : .7}}>
+          <span style={{ fontSize: String(businessInfo.razao_social).length > 10 && 20 }}>
+            {businessInfo.razao_social}
+          </span>
           <br/>
           <span style={{fontSize: 13}}>
-            {businessInfo.slogan}
+            sistema de gestão
           </span>
         </span>
       </div>

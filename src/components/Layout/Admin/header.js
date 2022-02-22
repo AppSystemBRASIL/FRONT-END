@@ -12,12 +12,12 @@ import Router from 'next/router';
 import router from '../../../router';
 
 const Header = ({ collapsed }) => {
-  const { user, setUser, signOut, businessInfo, setCollapsedSideBar } = useAuth();
+  const { user, signOut, businessInfo, setCollapsedSideBar } = useAuth();
 
   const [activeMenu, setActiveMenu] = useState('main');
 
   return (
-    <HeaderComponent sidebar={true} mobile={window.screen.width < 768} className={'home-section '+ (collapsed && 'close')}>
+    <HeaderComponent colorPrimary={businessInfo.theme.primary} colorSecondary={businessInfo.theme.secondary} sidebar={true} mobile={window.screen.width < 768} className={'home-section '+ (collapsed && 'close')}>
       <div style={{ paddingTop: 6 }} className='home-content'>
         <div style={{display: 'flex', alignItems: 'center'}}>
           {true ? (
@@ -47,7 +47,7 @@ const Header = ({ collapsed }) => {
                   <span style={{fontSize: 10}}>{businessInfo.slogan}</span>
                 </span>
               </div>
-              <MenuHeader style={{marginLeft: 25}}>
+              <MenuHeader colorPrimary={businessInfo.theme.primary} colorSecondary={businessInfo.theme.secondary} style={{marginLeft: 25}}>
                 <ul>
                   {router.slice(0, 5).map((item, index) => {
                     if(!item.pages)
@@ -118,7 +118,7 @@ const Header = ({ collapsed }) => {
             <div>{String(user.tipo).toUpperCase()}</div>
           </div>
           <Image style={{width: 45, height: 45, borderRadius: 8, marginLeft: 10}} preview={false} src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
-          <DropdownMenu className={'dropdown-menu '}>
+          <DropdownMenu colorPrimary={businessInfo.theme.primary} colorSecondary={businessInfo.theme.secondary} className={'dropdown-menu '}>
             <div className={'content '+(collapsed ? 'collapsed' : null)}>
               <CSSTransition
                 in={activeMenu === 'main'}
@@ -159,7 +159,7 @@ const HeaderComponent = styled.section`
   padding-right: 20px;
   height: 70px;
   align-items: center;
-  background-color:  ${props => props.sidebar ? '#FFFFFF' : colors.primary.default};
+  background-color:  ${props => props.sidebar ? '#FFFFFF' : props.colorPrimary};
   box-shadow: ${props => props.sidebar ? '1px 1px 5px #d1d1d1' : 'none'};
 
   @media screen and (max-width: 768px) {
@@ -210,7 +210,7 @@ const HeaderComponent = styled.section`
     }
 
     .box-user {
-      background-color: ${colors.primary.default};
+      background-color: ${props => props.colorPrimary};
       padding: 5px;
       border-radius: 5px;
       padding-left: 15px;
@@ -235,7 +235,7 @@ const HeaderComponent = styled.section`
 const MenuHeader = styled.div`
   display: flex;
   text-align: center;
-
+  
   ul {
     list-style: none;
     display: inline-flex;
@@ -268,7 +268,7 @@ const MenuHeader = styled.div`
             
             li {
               &:hover {
-                background-color: ${colors.primary.hover};
+                background-color: ${props => props.colorSecondary};
 
                 .drop-menu {
                   display: block;
@@ -284,7 +284,7 @@ const MenuHeader = styled.div`
       }
 
       &.active, &:hover {
-        background-color: ${colors.primary.hover};
+        background-color: ${props => props.colorSecondary};
         border-radius: 3px;
       }
 
@@ -300,7 +300,7 @@ const MenuHeader = styled.div`
         top: 60px;
 
         ul {
-          background-color: ${colors.primary.default};
+          background-color: ${props => props.colorPrimary};
           padding: 10px 0 10px 0;
 
           li {
@@ -324,7 +324,7 @@ const MenuHeader = styled.div`
               padding-left: 10px;
 
               ul {
-                background-color: ${colors.primary.default};
+                background-color: ${props => props.colorPrimary};
                 border-left: 1px solid #D1D1D1;
 
 
@@ -352,10 +352,10 @@ const DropdownMenu = styled.div`
   transition: all 1s ease;
 
   .content {
-    border: 1px solid ${colors.primary.hover};
+    border: 1px solid ${props => props.colorSecondary};
     padding: 1rem;
     margin-top: 20px;
-    background-color: ${colors.primary.default};
+    background-color: ${props => props.colorPrimary};
 
     .menu-primary {
       width: 100%;
@@ -434,6 +434,7 @@ const DropdownItem = styled.div`
   border-radius: 5px;
   padding: .5rem;
   display: flex;
+  cursor: pointer;
   justify-content: space-between;
 
   &:hover {
@@ -455,7 +456,7 @@ const DropdownItem = styled.div`
       &.icon-button {
         width: 35px;
         height: 35px;
-        background-color: ${colors.primary.hover};
+        background-color: ${props => props.colorSecondary};
         border-radius: 100%;
         padding: 5px;
         margin: 2px;
@@ -479,6 +480,6 @@ const DropdownItem = styled.div`
   }
 
   &:hover {
-    background-color: ${colors.primary.hover};
+    background-color: ${props => props.colorSecondary};
   }
 `;

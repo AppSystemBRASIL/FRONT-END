@@ -7,6 +7,8 @@ import TableSeguro from '../../components/Table/Seguro';
 import { maskCPF } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
+import { FaPlus } from 'react-icons/fa';
+import { vincularSeguro } from 'functions';
 
 const Seguro = () => {
   const { setCollapsedSideBar } = useAuth();
@@ -38,7 +40,9 @@ const Seguro = () => {
               alignItems: 'center',
             }}
           >
-            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444'}}>SEGUROS CONCLUÍDOS</h1>
+            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444'}}>SEGUROS <sup><FaPlus onClick={() => {
+              vincularSeguro()
+            }} /></sup></h1>
           </Col>
           <Col xs={24} md={12}
             style={{

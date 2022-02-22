@@ -20,13 +20,13 @@ export default async function vincularSeguro(dados) {
     },
     title: [
       <center>
-        <h2>{dados.seguroVinculado ? 'SEGURO VINCULADO' : 'VINCULAR SEGURO A COTAÇÃO'}</h2>
+        <h2>{dados && dados.seguroVinculado ? 'SEGURO VINCULADO' : 'VINCULAR SEGURO A COTAÇÃO'}</h2>
         <Divider />
       </center>
     ],
     width: window.screen.width > 768 ? '40%' : '100%',
     icon: null,
-    content: <Seguro dados={dados} />,
+    content: (dados.seguro.tipo === 'veicular' || dados.tipo === 'veicular') ? <Seguro dados={dados} /> : <></>,
     okText: 'VINCULAR',
     okButtonProps: {
       style: {
@@ -35,10 +35,10 @@ export default async function vincularSeguro(dados) {
         color: 'white',
         border: 'none',
         ouline: 'none',
-        display: dados.seguroVinculado && 'none'
+        display: dados && dados.seguroVinculado && 'none'
       }
     },
-    cancelText: dados.seguroVinculado ? 'FECHAR' : 'CANCELAR',
+    cancelText: dados && dados.seguroVinculado ? 'FECHAR' : 'CANCELAR',
     onOk: async () => {
       const finalVigencia = document.getElementById('seguroVinculado-finalVigencia').value;
       const seguradora = document.getElementById('seguroVinculado-seguradora').value;
