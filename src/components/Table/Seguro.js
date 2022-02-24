@@ -5,10 +5,17 @@ import firebase from '../../auth/AuthConfig';
 import {
   Table,
   Button,
-  Empty
+  Empty,
+  Dropdown,
+  Menu,
+  Tag,
+  Modal
 } from 'antd';
 
-import { FaEye, FaPlus } from 'react-icons/fa';
+import { FaEye, FaPlus, FaTimes } from 'react-icons/fa';
+import {
+  DownOutlined
+} from '@ant-design/icons'
 
 import _ from 'lodash';
 import { format } from 'date-fns';
@@ -85,6 +92,20 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
     
     setLoadingData(true);
   }
+
+  const cancelarSeguro = (uid) => {
+    Modal.confirm({
+      title: 'DESEJA REALMENTE CANCELAR O SEGURO?',
+      content: 'Ao confirmar a ação não será possível desfazer a mesma',
+      onOk: () => {
+        firebase.firestore().collection('seguros').doc(uid).set({
+          status: 'cancelado'
+        }, { merge: true });
+      },
+      okText: 'CONFIRMAR',
+      cancelText: 'FECHAR'
+    })
+  }
   
   return (
     <>
@@ -117,6 +138,11 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
           }
           render={(segurado, dados) => (
             <>
+              {(dados.status === 'cancelado' || dados.seguro.vigenciaToDate >= new Date()) && (
+                <Tag color='red' style={{ position: 'absolute', top: -7, left: 0, fontSize: '.5rem', padding: 1, margin: 0 }}>
+                  CANCELADO
+                </Tag>
+              )}
               {loadingData && (
                 <span style={{ fontSize: '.6rem' }}>
                   SEGURO {dados.tipo.toUpperCase()} {(dados.tipo === 'veicular') && `- ${dados.veiculo.placa}`}
@@ -126,6 +152,24 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
                 {segurado ? String(segurado.nome) : '000000000'}
               </div>
             </>
+          )}
+        />
+        <Table.Column
+          key="veiculo"
+          dataIndex="veiculo"
+          title={
+            [
+              <div className={!loadingData && 'skeleton'}>
+                <center>PLACA</center>
+              </div>
+            ]
+          }
+          render={(veiculo) => (
+            <div className={!loadingData && 'skeleton'}>
+              <center>
+                {veiculo ? veiculo.placa : 'A AVISAR'}
+              </center>
+            </div>
           )}
         />
         <Table.Column
@@ -165,6 +209,7 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
           )}
         />
         <Table.Column
+          width={200}
           key="uid"
           dataIndex="uid"
           title={
@@ -193,18 +238,20 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
                         justifyContent: 'space-around'
                       }}
                     >
-                      <Button
-                        type='primary'
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          border: 'none',
-                          outline: 'none'
-                        }}
-                        onClick={() => verSeguro(dados)}
-                      >
-                        <FaEye />
-                      </Button>
+                      <Dropdown overlay={() => (
+                        <Menu>
+                          <Menu.Item icon={<FaEye />} onClick={() => verSeguro(dados)}>
+                            VER SEGURO
+                          </Menu.Item>
+                          <Menu.Item icon={<FaTimes />} onClick={() => cancelarSeguro(dados.uid)}>
+                            CANCELAR SEGURO
+                          </Menu.Item>
+                        </Menu>
+                      )}>
+                        <Button block>
+                          OPÇÕES <DownOutlined />
+                        </Button>
+                      </Dropdown>
                     </div>
                   ) : (
                     <div className='skeleton' style={{ width: 70, height: 23 }} />

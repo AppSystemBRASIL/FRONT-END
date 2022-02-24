@@ -35,8 +35,7 @@ const SideBar = ({ collapsed, responsive }) => {
 
   return (
     <Side
-      backgroundPrimary={businessInfo.theme.primary}
-      backgroundHover={businessInfo.theme.secondary}
+      bg={businessInfo.layout.theme}
       className={(collapsed && 'close')+' '+(responsive && 'updateTheme')}
     >
       <div className="logo-details" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10 }}>
@@ -148,7 +147,7 @@ export const Side = styled.div`
   left: -280px;
   height: 100%;
   width: 280px;
-  background: ${props => props.backgroundPrimary ? props.backgroundPrimary : colors.primary.default};
+  background: ${props => props.bg ? props.theme.colors[props.bg].primary : colors.primary.default};
   z-index: 100;
   transition: all 0.5s ease;
 
@@ -247,7 +246,7 @@ export const Side = styled.div`
 
       &:hover {
         .content-user {
-          background-color: ${props => props.backgroundPrimary ? props.backgroundPrimary : colors.primary.default};
+          background-color: ${props => props.bg ? props.theme.colors[props.bg].primary : colors.primary.default};
 
           i, .profile_name, .job {
             opacity: 1;
@@ -304,7 +303,7 @@ export const Side = styled.div`
       cursor: pointer;
 
       &:hover {
-        background-color: ${props => props.backgroundHover ? props.backgroundHover : colors.primary.hover};
+        background-color: ${props => props.bg ? props.theme.colors[props.bg].secondary : colors.primary.hover};
       }
     }
 
@@ -367,7 +366,7 @@ export const Side = styled.div`
 
       .sub-menu {
         padding: 6px 6px 14px 80px;
-        background: ${props => props.backgroundPrimary ? props.backgroundPrimary : colors.primary.default};
+        background: ${props => props.bg ? props.theme.colors[props.bg].primary : colors.primary.default};
         display: none;
 
         .link_name {
@@ -405,7 +404,7 @@ export const Side = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: ${props => props.backgroundHover ? props.backgroundHover : colors.primary.hover};
+    background: ${props => props.bg ? props.theme.colors[props.bg].secondary : colors.primary.hover};
     padding: 6px 0;
     transition: all 0.5s ease;
 
@@ -420,7 +419,7 @@ export const Side = styled.div`
       object-fit: cover;
       border-radius: 16px;
       margin: 0 14px 0 12px;
-      background: ${props => props.backgroundHover ? props.backgroundHover : colors.primary.hover};
+      background: ${props => props.bg ? props.theme.colors[props.bg].secondary : colors.primary.hover};
       transition: all 0.5s ease;
     }
 

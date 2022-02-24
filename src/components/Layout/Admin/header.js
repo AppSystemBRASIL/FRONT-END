@@ -17,7 +17,7 @@ const Header = ({ collapsed }) => {
   const [activeMenu, setActiveMenu] = useState('main');
 
   return (
-    <HeaderComponent colorPrimary={businessInfo.theme.primary} colorSecondary={businessInfo.theme.secondary} sidebar={true} mobile={window.screen.width < 768} className={'home-section '+ (collapsed && 'close')}>
+    <HeaderComponent bg={businessInfo.layout.theme} sidebar={true} mobile={window.screen.width < 768} className={'home-section '+ (collapsed && 'close')}>
       <div style={{ paddingTop: 6 }} className='home-content'>
         <div style={{display: 'flex', alignItems: 'center'}}>
           {true ? (
@@ -47,7 +47,7 @@ const Header = ({ collapsed }) => {
                   <span style={{fontSize: 10}}>{businessInfo.slogan}</span>
                 </span>
               </div>
-              <MenuHeader colorPrimary={businessInfo.theme.primary} colorSecondary={businessInfo.theme.secondary} style={{marginLeft: 25}}>
+              <MenuHeader theme={businessInfo.layout.theme} style={{marginLeft: 25}}>
                 <ul>
                   {router.slice(0, 5).map((item, index) => {
                     if(!item.pages)
@@ -118,7 +118,7 @@ const Header = ({ collapsed }) => {
             <div>{String(user.tipo).toUpperCase()}</div>
           </div>
           <Image style={{width: 45, height: 45, borderRadius: 8, marginLeft: 10}} preview={false} src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
-          <DropdownMenu colorPrimary={businessInfo.theme.primary} colorSecondary={businessInfo.theme.secondary} className={'dropdown-menu '}>
+          <DropdownMenu bg={businessInfo.layout.theme} className={'dropdown-menu '}>
             <div className={'content '+(collapsed ? 'collapsed' : null)}>
               <CSSTransition
                 in={activeMenu === 'main'}
@@ -159,7 +159,7 @@ const HeaderComponent = styled.section`
   padding-right: 20px;
   height: 70px;
   align-items: center;
-  background-color:  ${props => props.sidebar ? '#FFFFFF' : props.colorPrimary};
+  background-color:  ${props => props.sidebar ? '#FFFFFF' : props.theme.colors[props.bg].primary};
   box-shadow: ${props => props.sidebar ? '1px 1px 5px #d1d1d1' : 'none'};
 
   @media screen and (max-width: 768px) {
@@ -210,7 +210,7 @@ const HeaderComponent = styled.section`
     }
 
     .box-user {
-      background-color: ${props => props.colorPrimary};
+      background-color: ${props => props.theme.colors[props.bg].primary};
       padding: 5px;
       border-radius: 5px;
       padding-left: 15px;
@@ -268,7 +268,7 @@ const MenuHeader = styled.div`
             
             li {
               &:hover {
-                background-color: ${props => props.colorSecondary};
+                background-color: ${props => props.theme.colors[props.bg].secondary};
 
                 .drop-menu {
                   display: block;
@@ -284,7 +284,7 @@ const MenuHeader = styled.div`
       }
 
       &.active, &:hover {
-        background-color: ${props => props.colorSecondary};
+        background-color: ${props => props.theme.colors[props.bg].secondary};
         border-radius: 3px;
       }
 
@@ -300,7 +300,7 @@ const MenuHeader = styled.div`
         top: 60px;
 
         ul {
-          background-color: ${props => props.colorPrimary};
+          background-color: ${props => props.theme.colors[props.bg].secondary};
           padding: 10px 0 10px 0;
 
           li {
@@ -324,7 +324,7 @@ const MenuHeader = styled.div`
               padding-left: 10px;
 
               ul {
-                background-color: ${props => props.colorPrimary};
+                background-color: ${props => props.theme.colors[props.bg].secondary};
                 border-left: 1px solid #D1D1D1;
 
 
@@ -352,10 +352,10 @@ const DropdownMenu = styled.div`
   transition: all 1s ease;
 
   .content {
-    border: 1px solid ${props => props.colorSecondary};
+    border: 1px solid ${props => props.theme.colors[props.bg].secondary};
     padding: 1rem;
     margin-top: 20px;
-    background-color: ${props => props.colorPrimary};
+    background-color: ${props => props.theme.colors[props.bg].primary};
 
     .menu-primary {
       width: 100%;

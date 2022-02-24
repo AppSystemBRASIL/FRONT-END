@@ -39,6 +39,12 @@ const router = [
     ],
     roles: ['administrador']
   },
+  {
+    title: 'CORRETORES',
+    patchname: '/painel/corretores',
+    icon: 'bx bx-user',
+    roles: ['administrador']
+  },
 ]
 
 export default router;
