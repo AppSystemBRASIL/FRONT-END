@@ -28,6 +28,7 @@ const Seguro = () => {
   }, []);
 
   const [cpf, setCPF] = useState('');
+  const [placa, setPlaca] = useState('');
 
   const [viewNewSeguro, setViewNewSeguro] = useState(false);
 
@@ -277,13 +278,21 @@ const Seguro = () => {
               justifyContent: width > 768 && 'end'
             }}
           >
-            <div style={{ marginRight: 10 }}>
-              <div style={{ width: '100%' }}>FILTRO POR CPF:</div>
-              <Input style={{ width: '100%' }} type='tel' value={cpf} placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
-            </div>
+            {cpf.length === 0 && (
+              <div style={{ marginRight: 10 }}>
+                <div style={{ width: '100%' }}>FILTRO POR PLACA:</div>
+                <Input style={{ width: '100%' }} type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
+              </div>
+            )}
+            {placa.length === 0 && (
+              <div style={{ marginRight: 10 }}>
+                <div style={{ width: '100%' }}>FILTRO POR CPF:</div>
+                <Input style={{ width: '100%' }} type='tel' value={cpf} placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
+              </div>
+            )}
           </Col>
         </Row>
-        <TableSeguro cpf={cpf} infiniteData={true} />
+        <TableSeguro cpf={cpf} placa={placa} infiniteData={true} />
       </CardComponent>
     </LayoutAdmin>
   );

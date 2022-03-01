@@ -21,7 +21,7 @@ import _ from 'lodash';
 
 import { verSeguro } from '../../functions';
 
-const TableSeguro = ({ infiniteData, limit, cpf }) => {
+const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [seguros, setSeguros] = useState([]);
 
@@ -33,13 +33,21 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
 
   useEffect(() => {
     (async () => {
-      if(cpf === undefined || (cpf.length === 14 || cpf.length === 0)) {
+      if((cpf.length === 14) || (placa.length === 7)) {
         await setLastData(0);
         await setSeguros([]);
         getCotacao('init');
       }
     })();
-  }, [cpf]);
+  }, [cpf, placa]);
+
+  useEffect(() => {
+    (async () => {
+      await setLastData(0);
+      await setSeguros([]);
+      getCotacao('init');
+    })();
+  }, []);
 
   const getCotacao = async (init) => {
     let ref = firebase.firestore()
@@ -47,6 +55,10 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
 
     if(cpf !== undefined && cpf.length === 14) {
       ref = ref.where('segurado.cpf', '==', cpf);
+      ref = ref.orderBy('created', 'desc');
+
+    }if(placa !== undefined && placa.length === 7) {
+      ref = ref.where('veiculo.placa', '==', placa);
       ref = ref.orderBy('created', 'desc');
 
     }else if((!init && lastData !== 0)) {
