@@ -10,14 +10,7 @@ import colors from 'utils/colors';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [businessInfo, setBusinessInfo] = useState({
-    displayName: 'XCAR SEGUROS',
-    slogan: 'sistema de gestão',
-    theme: {
-      primary: colors.primary.default,
-      secondary: colors.primary.hover
-    }
-  })
+  const [businessInfo, setBusinessInfo] = useState(null)
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [logged, setLogged] = useState(false);
@@ -67,10 +60,7 @@ export const AuthProvider = ({ children }) => {
                       const dataCorretora = doc1.data();
                       setCorretora(data => ({...data, ...dataCorretora}));
 
-                      setBusinessInfo(response => ({
-                        ...response,
-                        ...dataCorretora,
-                      }));
+                      setBusinessInfo(dataCorretora);
 
                       setUser(data => ({...data, emailVerified: user.emailVerified, ...doc.data()}));
                       setLogged(true);

@@ -26,9 +26,9 @@ const Header = ({ collapsed }) => {
                 setCollapsedSideBar(collapsedSideBarData => !collapsedSideBarData)
               }} />
               <span className={'text '+(collapsed && 'show')} style={{lineHeight: .6}}>
-                {businessInfo.displayName}
+                {businessInfo.razao_social}
                 <br/>
-                <span style={{fontSize: 15}}>{businessInfo.slogan}</span>
+                <span style={{fontSize: 15}}>{businessInfo.slogan || 'sistema de gestão'}</span>
               </span>
             </Fragment>
           ) : (
@@ -42,7 +42,7 @@ const Header = ({ collapsed }) => {
               >
                 <i style={{fontSize: 35, color: 'white'}} className='bx bxs-car' />
                 <span className={'text show'} style={{lineHeight: .6, color: 'white', fontSize: 17, marginTop: 5, marginLeft: 5}}>
-                  {businessInfo.displayName}
+                  {businessInfo.razao_social}
                   <br/>
                   <span style={{fontSize: 10}}>{businessInfo.slogan}</span>
                 </span>

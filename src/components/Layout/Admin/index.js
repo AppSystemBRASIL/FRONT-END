@@ -289,7 +289,7 @@ const LayoutAdmin = ({ children, title }) => {
       <Fragment>
         <Head>
           <title>
-            {title} - {businessInfo.displayName}
+            {title} - {businessInfo.razao_social}
           </title>
         </Head>
         <Header collapsed={collapsedSideBar} />
