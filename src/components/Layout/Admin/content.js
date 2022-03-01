@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 const Content = ({ collapsed, children }) => {
   return (
-    <ContentPage width={window.screen.width} className={'sidebar '+(collapsed ? ' close ' : '')}>
+    <ContentPage width={window.screen.width} className={'sidebar ' + (collapsed ? ' close ' : '')}>
       {children}
     </ContentPage>
   );
