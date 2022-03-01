@@ -103,6 +103,14 @@ const Seguro = () => {
       return;
     }
 
+    if(dataNewSeguro.placa && dataNewSeguro.placa.length < 7) {
+      notification.warn({
+        message: 'PLACA INVÁLIDA!'
+      });
+
+      return;
+    }
+
     const vigencia = dataNewSeguro.vigencia.split('/');
 
     const data = {

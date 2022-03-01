@@ -18,7 +18,6 @@ import {
 } from '@ant-design/icons'
 
 import _ from 'lodash';
-import { format } from 'date-fns';
 
 import { verSeguro } from '../../functions';
 
@@ -46,15 +45,16 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
     let ref = firebase.firestore()
     .collection('seguros');
 
-    ref = ref.orderBy('created', 'desc');
-
     if(cpf !== undefined && cpf.length === 14) {
-      ref = ref.where('usuario.cpf', '==', cpf);
+      ref = ref.where('segurado.cpf', '==', cpf);
+      ref = ref.orderBy('created', 'desc');
+
     }else if((!init && lastData !== 0)) {
+      ref = ref.orderBy('created', 'desc');
       ref = ref.startAfter(lastData);
     }
 
-    ref.limit(cpf !== undefined && cpf.length === 14 ? 10000 : limit || listLimitDefault)
+    ref.limit((cpf !== undefined && cpf.length === 14) ? 10000 : limit || listLimitDefault)
     .onSnapshot((snap) => {
       setViewButtonMore(false);
 
@@ -167,25 +167,25 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
           render={(veiculo) => (
             <div className={!loadingData && 'skeleton'}>
               <center>
-                {veiculo ? veiculo.placa : 'A AVISAR'}
+                {veiculo ? String(veiculo.placa).slice(0, 3)+'-'+String(veiculo.placa).slice(3, 10) : 'A AVISAR'}
               </center>
             </div>
           )}
         />
         <Table.Column
-          key="segurado"
-          dataIndex="segurado"
+          key="seguradora"
+          dataIndex="seguradora"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                <center>CPF</center>
+                <center>SEGURADORA</center>
               </div>
             ]
           }
-          render={(segurado) => (
+          render={(seguradora) => (
             <div className={!loadingData && 'skeleton'}>
               <center>
-                {segurado ? segurado.cpf : '00000000000'}
+                {seguradora ? seguradora.razao_social : '00000000000'}
               </center>
             </div>
           )}
