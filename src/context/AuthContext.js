@@ -196,6 +196,8 @@ export const AuthProvider = ({ children }) => {
           }
         }
 
+        response.user.sendEmailVerification();
+
         await firebase.firestore().collection('usuarios').doc(response.user.uid).set({
           corretora: {
             uid: props.corretora,
