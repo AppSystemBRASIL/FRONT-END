@@ -158,7 +158,7 @@ const Seguro = () => {
         <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }}>
           <div>
             <label>PLACA: </label>
-            <Input value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: String(response.target.value).toUpperCase()}))} onKeyPress={(e) => {
+            <Input autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: String(response.target.value).toUpperCase()}))} onKeyPress={(e) => {
               if(e.code === 'Enter') {
                 document.getElementById('seguradora').focus()
               }
@@ -192,6 +192,7 @@ const Seguro = () => {
           <div>
             <label>INICIO VIGÊNCIA: <sup><span style={{ color: 'red' }}>*</span></sup></label>
             <Input
+              autoComplete='off'
               id='inicioVigencia' format='DD/MM/yyyy' style={{ width: '100%' }}
               onChange={(e) => setDataNewSeguro(response => ({...response, vigencia: maskDate(e.target.value)}))}
               value={dataNewSeguro.vigencia}
@@ -206,7 +207,7 @@ const Seguro = () => {
           <br/>
           <div>
             <label>NOME: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input id='nomeSegurado' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
+            <Input autoComplete='off' id='nomeSegurado' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
               onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('cpfSeguro').focus()
@@ -219,7 +220,7 @@ const Seguro = () => {
           <br/>
           <div>
             <label>CPF: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input id='cpfSeguro' placeholder='NOME DO SEGURADO'
+            <Input autoComplete='off' id='cpfSeguro' placeholder='NOME DO SEGURADO'
               onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('veiculoSeguro').focus()
@@ -232,7 +233,7 @@ const Seguro = () => {
           <br/>
           <div>
             <label>VEÍCULO: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input id='veiculoSeguro' placeholder='NOME DO SEGURADO'
+            <Input autoComplete='off' id='veiculoSeguro' placeholder='NOME DO SEGURADO'
               onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   //
