@@ -138,7 +138,7 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
           }
           render={(segurado, dados) => (
             <>
-              {(dados.status === 'cancelado' || dados.seguro.vigenciaToDate >= new Date()) && (
+              {segurado && (dados.status === 'cancelado' || dados.seguro.vigenciaToDate >= new Date()) && (
                 <Tag color='red' style={{ position: 'absolute', top: -7, left: 0, fontSize: '.5rem', padding: 1, margin: 0 }}>
                   CANCELADO
                 </Tag>
