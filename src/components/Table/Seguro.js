@@ -40,7 +40,7 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
       }
 
       if(cpf.length === 0) {
-        if(placa.length === 7) {
+        if(placa.length === 7 || placa.length === 0) {
           await setLastData(0);
           await setSeguros([]);
           getCotacao('init');
@@ -48,7 +48,7 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
       }
 
       if(placa.length === 0) {
-        if(cpf.length === 14) {
+        if(cpf.length === 14 || cpf.length === 0) {
           await setLastData(0);
           await setSeguros([]);
           getCotacao('init');
