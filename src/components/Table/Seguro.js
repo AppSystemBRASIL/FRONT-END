@@ -38,6 +38,22 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
         await setSeguros([]);
         getCotacao('init');
       }
+
+      if(cpf.length === 0) {
+        if(placa.length === 7) {
+          await setLastData(0);
+          await setSeguros([]);
+          getCotacao('init');
+        }
+      }
+
+      if(placa.length === 0) {
+        if(cpf.length === 14) {
+          await setLastData(0);
+          await setSeguros([]);
+          getCotacao('init');
+        }
+      }
     })();
   }, [cpf, placa]);
 
@@ -208,7 +224,7 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                <center>VIGÊNCIA</center>
+                <center>FINAL DA VIGÊNCIA</center>
               </div>
             ]
           }

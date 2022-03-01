@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Input, Modal, DatePicker, Select, notification } from 'antd';
+import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
@@ -29,6 +29,7 @@ const Seguro = () => {
 
   const [cpf, setCPF] = useState('');
   const [placa, setPlaca] = useState('');
+  const [seguradora, setSeguradora] = useState('');
 
   const [viewNewSeguro, setViewNewSeguro] = useState(false);
 
@@ -262,7 +263,7 @@ const Seguro = () => {
             padding: 10,
           }}
         >
-          <Col sm={24} md={12}
+          <Col sm={24} md={8}
             style={{
               display: 'flex', 
               alignItems: 'center',
@@ -270,7 +271,7 @@ const Seguro = () => {
           >
             <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444'}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
-          <Col xs={24} md={12}
+          <Col xs={24} md={16}
             style={{
               display: width > 768 && 'flex',
               alignItems: width > 768 && 'center',
@@ -278,6 +279,38 @@ const Seguro = () => {
               justifyContent: width > 768 && 'end'
             }}
           >
+            <div>
+              <div style={{ width: '100%' }}>FILTRO POR SEGURADORA:</div>
+              <Select defaultValue={null} placeholder='Selecionar Seguradora' id='seguradora' style={{ width: '100%' }} onChange={e => setSeguradora(e)}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              allowClear
+              filterSort={(optionA, optionB) =>
+                optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+              }
+              value={seguradora}
+              >
+                <Select.Option value={null}>Selecinar Seguradora</Select.Option>
+                {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
+                  <Select.Option key={index} value={item.uid}>
+                    {item.razao_social}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
+            <div>
+              <div style={{ width: '100%' }}>FILTRO POR VIGÊNCIA:</div>
+              <DatePicker.RangePicker picker='date' />
+            </div>
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
             {cpf.length === 0 && (
               <div style={{ marginRight: 10 }}>
                 <div style={{ width: '100%' }}>FILTRO POR PLACA:</div>
