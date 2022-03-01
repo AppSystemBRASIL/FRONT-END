@@ -178,14 +178,14 @@ const TableSeguro = ({ infiniteData, limit, cpf }) => {
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                <center>CELULAR</center>
+                <center>CPF</center>
               </div>
             ]
           }
           render={(segurado) => (
             <div className={!loadingData && 'skeleton'}>
               <center>
-                {segurado ? segurado.celular : '00000000000'}
+                {segurado ? segurado.cpf : '00000000000'}
               </center>
             </div>
           )}

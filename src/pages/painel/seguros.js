@@ -4,7 +4,7 @@ import { Row, Col, Input, Modal, DatePicker, Select, notification } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCPF, maskOnlyLetters } from '../../hooks/mask';
+import { maskCPF, maskDate, maskOnlyLetters } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
 import { FaPlus } from 'react-icons/fa';
@@ -102,7 +102,9 @@ const Seguro = () => {
 
       return;
     }
-    
+
+    const vigencia = dataNewSeguro.vigencia.split('/');
+
     const data = {
       seguradora: {
         uid: seguradoras.filter(x => x.uid === dataNewSeguro.seguradora)[0].uid,
@@ -113,8 +115,8 @@ const Seguro = () => {
         placa: dataNewSeguro.placa,
       },
       seguro: {
-        vigencia: format(addYears(dataNewSeguro.vigencia.toDate(), 1), 'dd/MM/yyyy'),
-        vigenciaToDate: addDays(setMinutes(setHours(addYears(dataNewSeguro.vigencia.toDate(), 1), 0), 0), 1),
+        vigencia: dataNewSeguro.vigencia,
+        vigenciaToDate: addDays(setMinutes(setHours(addYears(new Date(vigencia[2], vigencia[1], vigencia[0]), 1), 0), 0), 1),
       },
       segurado: {
         nome: dataNewSeguro.nome,
@@ -153,7 +155,7 @@ const Seguro = () => {
   return (
     <LayoutAdmin title='SEGUROS'>
       <CardComponent>
-        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)}>
+        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }}>
           <div>
             <label>PLACA: </label>
             <Input value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: String(response.target.value).toUpperCase()}))} onKeyPress={(e) => {
@@ -179,7 +181,7 @@ const Seguro = () => {
             }
             value={dataNewSeguro.seguradora}
             >
-              {seguradoras?.map((item, index) => (
+              {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
                 <Select.Option key={index} value={item.uid}>
                   {item.razao_social}
                 </Select.Option>
@@ -189,18 +191,17 @@ const Seguro = () => {
           <br/>
           <div>
             <label>INICIO VIGÊNCIA: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <DatePicker 
+            <Input
               id='inicioVigencia' format='DD/MM/yyyy' style={{ width: '100%' }}
-              onChange={(e) => setDataNewSeguro(response => ({...response, vigencia: e}))}
+              onChange={(e) => setDataNewSeguro(response => ({...response, vigencia: maskDate(e.target.value)}))}
               value={dataNewSeguro.vigencia}
+              placeholder='00/00/0000'
               onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('nomeSegurado').focus()
                 }
               }
-            } onSelect={() => {
-              document.getElementById('nomeSegurado').focus()
-            }} />
+            } />
           </div>
           <br/>
           <div>
