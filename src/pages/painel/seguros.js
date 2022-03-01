@@ -305,7 +305,7 @@ const Seguro = () => {
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
             <div>
-              <div style={{ width: '100%' }}>FILTRO POR VIGÊNCIA:</div>
+              <div style={{ width: '100%' }}>FILTRO POR DATA:</div>
               <DatePicker.RangePicker picker='date' />
             </div>
             <div
