@@ -19,6 +19,7 @@ import { ThemeProvider } from 'styled-components';
 import {
   ConfigProvider
 } from 'antd';
+
 import pt_BR from 'antd/lib/locale/pt_BR';
 
 const theme = {
