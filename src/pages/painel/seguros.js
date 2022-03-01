@@ -301,10 +301,7 @@ const Seguro = () => {
                 ))}
               </Select>
             </div>
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div>
+            <div style={{ marginLeft: 10 }}>
               <div style={{ width: '100%' }}>FILTRO POR DATA:</div>
               <DatePicker.RangePicker picker='date' />
             </div>
@@ -312,13 +309,16 @@ const Seguro = () => {
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
             {cpf.length === 0 && (
-              <div style={{ marginRight: 10 }}>
+              <div>
                 <div style={{ width: '100%' }}>FILTRO POR PLACA:</div>
                 <Input style={{ width: '100%' }} type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
               </div>
             )}
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
             {placa.length === 0 && (
-              <div style={{ marginRight: 10 }}>
+              <div>
                 <div style={{ width: '100%' }}>FILTRO POR CPF:</div>
                 <Input style={{ width: '100%' }} type='tel' value={cpf} placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
               </div>
