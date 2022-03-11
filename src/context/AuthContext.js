@@ -45,6 +45,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
 
+      firebase.firestore().collection('corretoras').doc(process.env.UID_CORRETORA).get()
+      .then((response) => {
+        if(response) {
+          setBusinessInfo(response.data());
+        }
+      })
+
       firebase.auth().onAuthStateChanged((user) => {
         if(user) {
           if(user.emailVerified){

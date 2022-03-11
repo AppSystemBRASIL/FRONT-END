@@ -23,6 +23,8 @@ import Router from 'next/router';
 import firebase from '../../auth/AuthConfig';
 
 const Login = () => {
+  const { businessInfo, loading: loadingPage } = useAuth();
+
   const [modeView, setModeView] = useState('sign-in-mode');
   const [typeFormSecondary, setTypeFormSecondary] = useState('cadastrar');
   const [formSecondary, setFormSecondary] = useState(false);
@@ -79,7 +81,6 @@ const Login = () => {
         setViewPassword(false);
       }
 
-      setCorretora('');
       setNomeCompleto('');
       setCPF('');
       setTelefone('');
@@ -90,8 +91,20 @@ const Login = () => {
       document.querySelectorAll('.input-field').forEach((doc) => {
         doc.classList.remove('invalid');
       });
+
+      if(businessInfo) {
+        setCorretora(businessInfo.uid);
+      }else {
+        setCorretora(null);
+      }
     }, 1000);
   }, [modeView]);
+
+  useEffect(() => {
+    if(businessInfo) {
+      setCorretora(businessInfo.uid);
+    }
+  }, [businessInfo]);
 
   const acessar = async () => {
     setLoading(true);
@@ -398,13 +411,18 @@ const Login = () => {
     }, 3000);
   }
 
+  if(loadingPage) {
+    return <></>;
+  }
+
+
   if((!user || logged === false) && !initial){
     return (
       <Fragment>
         <Head>
           <title>{modeView === 'sign-in-mode' ? 'LOGIN' : 'CADASTRAR'} - SEGURO APPSYSTEM-BRAISL</title>
         </Head>
-        <Container className={modeView}>
+        <Container bg={businessInfo ? businessInfo.layout.theme : 'blue'} className={modeView}>
           <div className='forms-container'>
             <div className='signin-signup'>
               <div className='sign-form signin'>
@@ -473,44 +491,46 @@ const Login = () => {
   
               <div style={{ display: typeFormSecondary === 'cadastrar' && formSecondary ? 'flex' : 'none' }} className='sign-form signup'>
                 <h2 className='title'>SOLICITAR ACESSO</h2>
-                <div id='corretoraInput' className='input-field'>
-                  <span className='info-danger'>
-                    {corretora !== '' ? 'Campo inválido' : 'Campo não preenchido'}
-                  </span>
-                  <div className='i'>
-                    <FaBusinessTime />
-                  </div>
-                  <Select
-                  style={{ color: corretora !== '' ? '#010101' : '#AAAAAA', fontWeight: corretora !== '' ? '600' : '500', outline: 'none'}}
-                  showSearch
-                  id='selectCorretoraLogin'
-                  onChange={(e) => setCorretora(e)}
-                  optionFilterProp="children"
-                  onBlur={(e) => {
-                    if(corretora) {
-                      if(corretora !== '') {
-                        document.getElementById('nomeCompleto').focus();
-                        e.target.parentElement.parentElement.parentElement.parentElement.classList.remove('invalid');
-                      }else {
-                        if(!e.target.parentElement.parentElement.parentElement.parentElement.classList.contains('invalid')) {
-                          e.target.parentElement.parentElement.parentElement.parentElement.classList.toggle('invalid');
+                {!businessInfo && (
+                  <div id='corretoraInput' className='input-field'>
+                    <span className='info-danger'>
+                      {corretora !== '' ? 'Campo inválido' : 'Campo não preenchido'}
+                    </span>
+                    <div className='i'>
+                      <FaBusinessTime />
+                    </div>
+                    <Select
+                    style={{ color: corretora !== '' ? '#010101' : '#AAAAAA', fontWeight: corretora !== '' ? '600' : '500', outline: 'none'}}
+                    showSearch
+                    id='selectCorretoraLogin'
+                    onChange={(e) => setCorretora(e)}
+                    optionFilterProp="children"
+                    onBlur={(e) => {
+                      if(corretora) {
+                        if(corretora !== '') {
+                          document.getElementById('nomeCompleto').focus();
+                          e.target.parentElement.parentElement.parentElement.parentElement.classList.remove('invalid');
+                        }else {
+                          if(!e.target.parentElement.parentElement.parentElement.parentElement.classList.contains('invalid')) {
+                            e.target.parentElement.parentElement.parentElement.parentElement.classList.toggle('invalid');
+                          }
                         }
+                      }else {
+                        e.target.parentElement.parentElement.parentElement.parentElement.classList.remove('invalid');
                       }
-                    }else {
-                      e.target.parentElement.parentElement.parentElement.parentElement.classList.remove('invalid');
-                    }
-                  }}
-                  filterOption={(input, option) => {
-                    return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 && option.key !== null
-                  }}
-                  placeholder='SELECIONAR CORRETORA'
-                  value={corretora}>
-                    <Select.Option value={null}>SELECIONAR CORRETORA</Select.Option>
-                    {corretoras && corretoras.map((item, key) => (
-                      <Select.Option key={key} value={item.uid}>{item.razao_social}</Select.Option>
-                    ))}
-                  </Select>
-                </div>
+                    }}
+                    filterOption={(input, option) => {
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 && option.key !== null
+                    }}
+                    placeholder='SELECIONAR CORRETORA'
+                    value={corretora}>
+                      <Select.Option value={null}>SELECIONAR CORRETORA</Select.Option>
+                      {corretoras && corretoras.map((item, key) => (
+                        <Select.Option key={key} value={item.uid}>{item.razao_social}</Select.Option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
                 <div id='nomeCompletoInput' className='input-field'>
                   <span className='info-danger'>
                     {nomeCompleto ? 'Campo inválido' : 'Campo não preenchido'}
@@ -939,7 +959,7 @@ const Container = styled.div`
     width: 2000px;
     height: 2000px;
     border-radius: 0;
-    background: linear-gradient(-45deg, ${Colors.primary.default}, ${Colors.primary.default});
+    background: linear-gradient(-45deg, ${props => props.theme.colors[props.bg].primary}, ${props => props.theme.colors[props.bg].secondary});
     top: 0;
     right: 48%;
     transform: translateY(-50%);
@@ -1108,7 +1128,7 @@ const Container = styled.div`
     outline: none;
     border-radius: 50px;
     cursor: pointer;
-    background-color: ${Colors.primary.default};
+    background-color: ${props => props.theme.colors[props.bg].secondary};
     color: #FFFFFF;
     text-transform: uppercase;
     font-weight: 600;
@@ -1117,7 +1137,7 @@ const Container = styled.div`
     color: white;
 
     &:hover {
-      background-color: ${Colors.primary.hover};
+      background-color: ${props => props.theme.colors[props.bg].primary};
     }
 
     &.loading {
@@ -1172,9 +1192,9 @@ const Container = styled.div`
       transition: .3s;
 
       &:hover {
-        background-color: ${Colors.primary.default};
+        background-color: ${props => props.theme.colors[props.bg].primary};
         color: #FFFFFF;
-        border-color: ${Colors.primary.default};
+        border-color: ${props => props.theme.colors[props.bg].secondary};
       }
     }
   }
@@ -1238,7 +1258,7 @@ const Container = styled.div`
           &.transparent {
             &:hover {
               background-color: #FFFFFF;
-              color: ${Colors.primary.default};
+              color: ${props => props.theme.colors[props.bg].secondary};
             }
           }
         }
