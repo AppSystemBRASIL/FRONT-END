@@ -45,12 +45,23 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
 
-      firebase.firestore().collection('corretoras').doc(process.env.UID_CORRETORA).get()
-      .then((response) => {
-        if(response) {
-          setBusinessInfo(response.data());
-        }
-      })
+      if(process.env.NEXT_PUBLIC_UID_CORRETORA) {
+        firebase.firestore().collection('corretoras').doc(process.env.NEXT_PUBLIC_UID_CORRETORA).get()
+        .then((response) => {
+          if(response.exists) {
+            setBusinessInfo(response.data());
+          }
+        })
+      }else {
+        firebase.firestore().collection('corretoras').where('site', '==', window.location.hostname).get()
+        .then((res) => {
+          if(!res.empty) {
+            res.forEach((item) => {
+              setBusinessInfo(item.data());
+            })
+          }
+        })
+      }
 
       firebase.auth().onAuthStateChanged((user) => {
         if(user) {

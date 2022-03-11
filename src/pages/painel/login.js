@@ -1128,7 +1128,7 @@ const Container = styled.div`
     outline: none;
     border-radius: 50px;
     cursor: pointer;
-    background-color: ${props => props.theme.colors[props.bg].secondary};
+    background-color: ${props => props.theme.colors[props.bg].primary};
     color: #FFFFFF;
     text-transform: uppercase;
     font-weight: 600;
@@ -1137,7 +1137,7 @@ const Container = styled.div`
     color: white;
 
     &:hover {
-      background-color: ${props => props.theme.colors[props.bg].primary};
+      background-color: ${props => props.theme.colors[props.bg].secondary};
     }
 
     &.loading {
