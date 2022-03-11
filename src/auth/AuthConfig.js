@@ -9,7 +9,7 @@ import {
   STORAGEBUCKET,
   MESSAGINGSENDERID,
   APPID
-} from '../../config';
+} from '../config';
 
 const firebaseConfig = {
   apiKey: APIKEY,

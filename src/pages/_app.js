@@ -33,17 +33,17 @@ const theme = {
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ConfigProvider locale={pt_BR}>
+    <AuthProvider>
       <ThemeProvider theme={theme}>
-        <AuthProvider>
+        <ConfigProvider locale={pt_BR}>
           <Head>
             <link rel="shortcut icon" href="/logo.jpeg" />
             <link rel='stylesheet' href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' />
           </Head>
           <Component {...pageProps} />
-        </AuthProvider>
+        </ConfigProvider>
       </ThemeProvider>
-    </ConfigProvider>
+    </AuthProvider>
   )
 }
 

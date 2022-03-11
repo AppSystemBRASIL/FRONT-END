@@ -40,9 +40,27 @@ export const maskPhone = (value) => {
   return String(value);
 }
 
+export const maskMoney = (value) => {
+  value = value.replace('.', '').replace(',', '').replace(/\D/g, '')
+
+  const options = { minimumFractionDigits: 2 }
+  const result = new Intl.NumberFormat('pt-BR', options).format(
+    parseFloat(value) / 100
+  )
+
+  return result
+}
+
+
 // 00000-000
 export const maskCEP = value => {
   return value.replace(/\D/g, "").replace(/^(\d{5})(\d{3})+?$/, "$1-$2");
+};
+
+export const maskYear = value => {
+  value=value.replace(/\D/g,"");
+
+  return value.slice(0, 4);
 };
 
 // 00/00/0000

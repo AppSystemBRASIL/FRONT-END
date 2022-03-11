@@ -4,10 +4,10 @@ import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider } fro
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCPF, maskDate, maskOnlyLetters } from '../../hooks/mask';
+import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers, maskPhone, maskYear } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaPrint } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 
@@ -16,6 +16,8 @@ import {
 } from '../../hooks/mask'
 import generateToken from 'hooks/generateToken';
 import { addDays, addYears, format, setHours, setMinutes } from 'date-fns';
+import axios from 'axios';
+import printListSeguros from 'components/PDF/ListSeguros';
 
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar } = useAuth();
@@ -29,75 +31,157 @@ const Seguro = () => {
 
   const [cpf, setCPF] = useState('');
   const [placa, setPlaca] = useState('');
-  const [seguradora, setSeguradora] = useState('');
+
+  const [seguradora, setSeguradora] = useState(null);
+  const [corretor, setCorretor] = useState(null);
+
+  const [date, setDate] = useState(null);
+
+  const [totalSeguro, setTotalSeguro] = useState(0);
+  const [totalPremio, setTotalPremio] = useState(0);
+  const [totalComissao, setTotalComissao] = useState(0);
 
   const [viewNewSeguro, setViewNewSeguro] = useState(false);
 
+  const [seguros, setSeguros] = useState([]);
+
   const [dataNewSeguro, setDataNewSeguro] = useState({
+    corretorUid: null,
+    corretorDisplayName: null,
+    anoAdesao: null,
+    nome: null,
+    cep: null,
+    bairro: null,
+    cidade: null,
+    estado: null,
+    telefone: null,
+    veiculo: null,
+    premio: null,
+    franquia: null,
+    percentual: null,
+    comissao: null,
     placa: null,
     vigencia: null,
     seguradora: null,
     cpf: null,
-    nome: null,
-    veiculo: null
+    veiculo: null,
+    condutor: null
   });
 
   useEffect(() => {
+    if(String(dataNewSeguro.cep).length === 9) {
+      axios.get(`https://viacep.com.br/ws/${String(dataNewSeguro.cep).split('-').join('')}/json`, {
+        headers: {
+          'content-type': 'application/json;charset=utf-8',
+        },
+      })
+      .then((response) => {
+        const data = response.data;
+
+        setDataNewSeguro(e => ({...e, bairro: data.bairro, cidade: data.localidade, estado: data.uf}))
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    }
+  }, [dataNewSeguro.cep])
+
+  useEffect(() => {
     setDataNewSeguro({
+      corretorUid: null,
+      corretorDisplayName: null,
+      anoAdesao: null,
+      nome: null,
+      cep: null,
+      bairro: null,
+      cidade: null,
+      estado: null,
+      telefone: null,
+      veiculo: null,
+      premio: null,
+      franquia: null,
+      percentual: null,
+      comissao: null,
       placa: null,
       vigencia: null,
       seguradora: null,
       cpf: null,
-      nome: null,
-      veiculo: null
+      veiculo: null,
+      condutor: null
     })
   }, [viewNewSeguro]);
 
-  useEffect(() => {
-    if(dataNewSeguro.placa && dataNewSeguro.placa.length >= 7) {
-      firebase.firestore().collection('seguros').where('veiculo.placa', '==', dataNewSeguro.placa).orderBy('created', 'desc').limit(1).get()
-      .then((response) => {
-        const array = [];
-        
-        if(!response.empty) {
-          response.forEach((item) => {
-            array.push(item.data());
-          });
-        }
-
-        if(array.length > 0) {
-          setDataNewSeguro(e => ({
-            placa: array[array.length - 1].veiculo.placa,
-            //vigencia: array[array.length - 1].seguro.vigencia,
-            //seguradora: array[array.length - 1].seguradora.uid,
-            cpf: array[array.length - 1].segurado.cpf,
-            nome: array[array.length - 1].segurado.nome,
-            veiculo: array[array.length - 1].veiculo.veiculo
-          }));
-        }
-      });
-    }
-  }, [dataNewSeguro.placa])
-
   const [seguradoras, setSeguradoras] = useState([]);
+  const [corretores, setCorretores] = useState([]);
 
   useEffect(() => {
-    firebase.firestore().collection('seguradoras').get()
-    .then((response) => {
-      const array = [];
+    if(user) {
+      if(user.tipo === 'corretor') {
+        setCorretor(user.uid);
 
-      if(!response.empty) {
-        response.forEach(item => {
-          array.push(item.data());
-        })
+        setDataNewSeguro(e => ({
+          ...e,
+          corretorUid: user.uid,
+          corretorDisplayName: user.displayName
+        }))
       }
 
-      setSeguradoras(array);
-    })
-  }, []);
+      firebase.firestore().collection('seguradoras').get()
+      .then((response) => {
+        const array = [];
+
+        if(!response.empty) {
+          response.forEach(item => {
+            array.push(item.data());
+          })
+        }
+
+        setSeguradoras(array);
+      })
+
+      firebase.firestore().collection('usuarios').where('corretora.uid', '==', user.corretora.uid).get()
+      .then((response) => {
+        const array = [];
+
+        if(!response.empty) {
+          response.forEach(item => {
+            array.push(item.data());
+          })
+        }
+
+        setCorretores(array);
+      })
+    }
+  }, [user]);
+
+  useEffect(() => {
+    setDataNewSeguro(e => ({
+      ...e,
+      comissao: Number((Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')) / 100) * dataNewSeguro.percentual)
+    }))
+  }, [dataNewSeguro.premio, dataNewSeguro.percentual]);
+
+  const printSeguros = async () => await printListSeguros(seguros, corretora, {
+    date,
+    corretor: !corretor ? null : corretor === 'null' ? corretora.razao_social : corretores.filter(e => e.uid === corretor)[0].displayName,
+    seguradora: !seguradora ? null : seguradoras.filter(e => e.uid === seguradora)[0].razao_social.split(' ')[0],
+    placa,
+    cpf
+  });
 
   const salvarSeguro = async () => {
-    if(!dataNewSeguro.seguradora || !dataNewSeguro.vigencia || !dataNewSeguro.nome || !dataNewSeguro.cpf || !dataNewSeguro.veiculo) {
+    function objetoVazio(obj) {
+      for (const prop in obj) {
+        if((prop !== 'corretorUid' && prop !== 'corretorDisplayName') && obj[prop] === null) {
+          return false;
+        };
+      }
+
+      return true;
+    }
+
+    if(!objetoVazio(dataNewSeguro)) {
+      notification.destroy();
       notification.warn({
         message: 'PREENCHA TODOS OS CAMPOS OBRIGATÓRIOS!'
       });
@@ -106,6 +190,7 @@ const Seguro = () => {
     }
 
     if(dataNewSeguro.placa && dataNewSeguro.placa.length < 7) {
+      notification.destroy();
       notification.warn({
         message: 'PLACA INVÁLIDA!'
       });
@@ -121,25 +206,41 @@ const Seguro = () => {
         razao_social: seguradoras.filter(x => x.uid === dataNewSeguro.seguradora)[0].razao_social,
       },
       veiculo: {
+        condutor: dataNewSeguro.condutor,
         veiculo: dataNewSeguro.veiculo,
         placa: dataNewSeguro.placa,
+      },
+      endereco: {
+        cep: dataNewSeguro.cep,
+        bairro: dataNewSeguro.bairro,
+        cidade: dataNewSeguro.cidade,
+        estado: dataNewSeguro.estado,
       },
       seguro: {
         vigencia: dataNewSeguro.vigencia,
         vigenciaToDate: addDays(setMinutes(setHours(addYears(new Date(vigencia[2], vigencia[1], vigencia[0]), 1), 0), 0), 1),
       },
       segurado: {
+        anoAdesao: dataNewSeguro.anoAdesao,
         nome: dataNewSeguro.nome,
         cpf: dataNewSeguro.cpf,
+        telefone: dataNewSeguro.telefone,
       },
       corretora: {
         uid: corretora.uid,
         razao_social: corretora.razao_social
       },
-      corretor: {
-        nome: user.nomeCompleto,
-        uid: user.uid
+      corretor: (!dataNewSeguro.corretorUid && !dataNewSeguro.corretorDisplayName) ? null : {
+        nome: dataNewSeguro.corretorDisplayName,
+        uid: dataNewSeguro.corretorUid
       },
+      comissao: {
+        premio: dataNewSeguro.premio,
+        franquia: dataNewSeguro.franquia,
+        percentual: dataNewSeguro.percentual,
+        comissao: dataNewSeguro.comissao
+      },
+      status: 'ativo',
       uid: generateToken(),
       created: new Date(),
       tipo: 'veicular'
@@ -162,97 +263,230 @@ const Seguro = () => {
     });
   }
 
+  if(!user && !corretora) {
+    return <></>;
+  }
+
+  if(!user) {
+    return <></>;
+  }
+
   return (
     <LayoutAdmin title='SEGUROS'>
       <CardComponent>
-        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }}>
-          <div>
-            <label>PLACA: </label>
-            <Input autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: String(response.target.value).toUpperCase()}))} onKeyPress={(e) => {
-              if(e.code === 'Enter') {
-                document.getElementById('seguradora').focus()
+        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%'>
+          <Row gutter={[10, 20]}>
+            {user.tipo !== 'corretor' && (
+              <Col span={24}>
+                <label>CORRETOR:</label>
+                <Select placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={response => {
+                  setDataNewSeguro(e => !response ? ({ ...e, corretorUid: null, corretorDisplayName: null }) : ({...e, corretorUid: response, corretorDisplayName: corretores.filter(resp => resp.uid === response)[0].displayName }));
+                  
+                    document.getElementById('placaModal').focus();
+                }}
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                filterSort={(optionA, optionB) =>
+                  optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                }
+                value={dataNewSeguro.corretorUid}
+                >
+                  {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
+                    <Select.Option key={index} value={item.uid}>
+                      {item.nomeCompleto}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Col>
+            )}
+            <Col span={5}>
+              <label>PLACA: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='placaModal' autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: String(response.target.value).toUpperCase()}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('seguradora').focus()
+                }
+              }} placeholder='PLACA' />
+            </Col>
+            <Col span={19}>
+              <label>SEGURADORA: <span style={{ color: 'red' }}>*</span></label>
+              <Select id='seguradora' placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={response => {
+                setDataNewSeguro(e => ({...e, seguradora: response }));
+                document.getElementById('inicioVigencia').focus()
+              }}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
-            }} placeholder='PLACA' />
-          </div>
-          <br/>
-          <div>
-            <label>SEGURADORA: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Select placeholder='Selecionar Seguradora' id='seguradora' style={{ width: '100%' }} onChange={response => {
-              setDataNewSeguro(e => ({...e, seguradora: response }));
-              document.getElementById('inicioVigencia').focus()
-            }}
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            filterSort={(optionA, optionB) =>
-              optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-            }
-            value={dataNewSeguro.seguradora}
-            >
-              {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
-                <Select.Option key={index} value={item.uid}>
-                  {item.razao_social}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <br/>
-          <div>
-            <label>INICIO VIGÊNCIA: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input
-              autoComplete='off'
-              id='inicioVigencia' format='DD/MM/yyyy' style={{ width: '100%' }}
-              onChange={(e) => setDataNewSeguro(response => ({...response, vigencia: maskDate(e.target.value)}))}
-              value={dataNewSeguro.vigencia}
-              placeholder='00/00/0000'
-              onKeyPress={(e) => {
-                if(e.code === 'Enter') {
-                  document.getElementById('nomeSegurado').focus()
-                }
+              filterSort={(optionA, optionB) =>
+                optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
               }
-            } />
-          </div>
-          <br/>
-          <div>
-            <label>NOME: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input autoComplete='off' id='nomeSegurado' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
-              onKeyPress={(e) => {
-                if(e.code === 'Enter') {
-                  document.getElementById('cpfSeguro').focus()
+              value={dataNewSeguro.seguradora}
+              >
+                {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
+                  <Select.Option key={index} value={item.uid}>
+                    {item.razao_social}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Col>
+            <Col span={12}>
+              <label>INICIO VIGÊNCIA: <span style={{ color: 'red' }}>*</span></label>
+              <Input
+                autoComplete='off'
+                id='inicioVigencia' format='DD/MM/yyyy' style={{ width: '100%' }}
+                onChange={(e) => setDataNewSeguro(response => ({...response, vigencia: maskDate(e.target.value)}))}
+                value={dataNewSeguro.vigencia}
+                placeholder='00/00/0000'
+                onKeyPress={(e) => {
+                  if(e.code === 'Enter') {
+                    document.getElementById('premioModal').focus()
+                  }
                 }
-              }}
-              value={dataNewSeguro.nome}
-              onChange={(e) => setDataNewSeguro(response => ({...response, nome: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
-            />  
-          </div>
-          <br/>
-          <div>
-            <label>CPF: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input autoComplete='off' id='cpfSeguro' placeholder='NOME DO SEGURADO'
-              onKeyPress={(e) => {
+              } />
+            </Col>
+            <Col span={12}>
+              <label>FINAL DA VIGÊNCIA: <span style={{ color: 'red' }}>*</span></label>
+              <Input
+                readOnly
+                autoComplete='off'
+                id='finalVigencia' format='DD/MM/yyyy' style={{ width: '100%' }}
+                value={!((!dataNewSeguro.vigencia ? '' : (dataNewSeguro.vigencia.split('/')[0] && dataNewSeguro.vigencia.split('/')[0].length === 2) && (dataNewSeguro.vigencia.split('/')[1] && dataNewSeguro.vigencia.split('/')[1].length === 2) && (dataNewSeguro.vigencia.split('/')[2] && dataNewSeguro.vigencia.split('/')[2].length === 4))) ? '' : (`${dataNewSeguro.vigencia.split('/')[0] && dataNewSeguro.vigencia.split('/')[0]}/${dataNewSeguro.vigencia.split('/')[1]}/${Number(dataNewSeguro.vigencia.split('/')[2]) + 1}`)}
+                placeholder='00/00/0000'
+              />
+            </Col>
+            <Col span={12}>
+              <label>PRÊMIO LÍQUIDO: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='premioModal' prefix='R$' autoComplete='off' value={dataNewSeguro.premio} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, premio: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
-                  document.getElementById('veiculoSeguro').focus()
+                  document.getElementById('franquiaModal').focus();
                 }
-              }}
-              value={dataNewSeguro.cpf}
-              onChange={(e) => setDataNewSeguro(response => ({...response, cpf: maskCPF(e.target.value)}))}
-            />
-          </div>
-          <br/>
-          <div>
-            <label>VEÍCULO: <sup><span style={{ color: 'red' }}>*</span></sup></label>
-            <Input autoComplete='off' id='veiculoSeguro' placeholder='NOME DO SEGURADO'
-              onKeyPress={(e) => {
+              }} placeholder='0' />
+            </Col>
+            <Col span={12}>
+              <label>VALOR DA FRÂNQUIA: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='franquiaModal' prefix='R$' autoComplete='off' value={dataNewSeguro.franquia} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, franquia: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
-                  //
+                  document.getElementById('percentualModal').focus();
                 }
-              }}
-              value={dataNewSeguro.veiculo}
-              onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
-            />
-          </div>
+              }} placeholder='0' />
+            </Col>
+            <Col span={12}>
+              <label>COMISSÃO: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='percentualModal' maxLength={2} max={99} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: !response.target.value ? '' : maskOnlyNumbers(response.target.value)}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('anoAdesao').focus();
+                }
+              }} placeholder='0' />
+            </Col>
+            <Col span={12}>
+              <label>COMISSÃO: </label>
+              <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : String(Number(dataNewSeguro.comissao).toFixed(2)).split('.').join(',')} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  //document.getElementById('placa').focus();
+                }
+              }} placeholder='0' />
+            </Col>
+            <Col span={5}>
+              <label>ANO DE ADESÃO: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='anoAdesao' autoComplete='off' value={dataNewSeguro.anoAdesao} maxLength={4} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, anoAdesao: !response.target.value ? '' : maskYear(response.target.value)}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('veiculoSeguro').focus();
+                }
+              }} placeholder='ANO DE ADESÃO' />
+            </Col>
+            <Col span={19}>
+              <label>VEÍCULO: <span style={{ color: 'red' }}>*</span></label>
+              <Input autoComplete='off' id='veiculoSeguro' placeholder='VEÍCULO'
+                onKeyPress={(e) => {
+                  if(e.code === 'Enter') {
+                    document.getElementById('nomeSeguradoText').focus();
+                  }
+                }}
+                value={dataNewSeguro.veiculo}
+                onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
+              />
+            </Col>
+            <Col span={8}>
+              <label>SEGURADO: <span style={{ color: 'red' }}>*</span></label>
+              <Input autoComplete='off' id='nomeSeguradoText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
+                onKeyPress={(e) => {
+                  if(e.code === 'Enter') {
+                    document.getElementById('cpfSeguro').focus()
+                  }
+                }}
+                value={dataNewSeguro.nome}
+                onChange={(e) => setDataNewSeguro(response => ({...response, nome: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
+              />  
+            </Col>
+            <Col span={8}>
+              <label>CPF: <span style={{ color: 'red' }}>*</span></label>
+              <Input autoComplete='off' id='cpfSeguro' placeholder='CPF DO SEGURADO'
+                onKeyPress={(e) => {
+                  if(e.code === 'Enter') {
+                    document.getElementById('telefoneModal').focus()
+                  }
+                }}
+                value={dataNewSeguro.cpf}
+                onChange={(e) => setDataNewSeguro(response => ({...response, cpf: maskCPF(e.target.value)}))}
+              />
+            </Col>
+            <Col span={8}>
+              <label>TELEFONE: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='telefoneModal' autoComplete='off' maxLength={15} value={dataNewSeguro.telefone} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, telefone: !response.target.value ? '' : maskPhone(response.target.value)}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('condutorText').focus();
+                }
+              }} placeholder='TELEFONE' />
+            </Col>
+            <Col span={24}>
+              <label>CONDUTOR: <span style={{ color: 'red' }}>*</span></label>
+              <Input autoComplete='off' id='condutorText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO CONDUTOR'
+                onKeyPress={(e) => {
+                  if(e.code === 'Enter') {
+                    document.getElementById('cepModal').focus()
+                  }
+                }}
+                value={dataNewSeguro.condutor}
+                onChange={(e) => setDataNewSeguro(response => ({...response, condutor: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
+              />  
+            </Col>
+            <Col span={6}>
+              <label>CEP: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='cepModal' autoComplete='off' value={dataNewSeguro.cep} maxLength={9} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, cep: !response.target.value ? '' : maskCEP(response.target.value)}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('bairroModal').focus();
+                }
+              }} placeholder='CEP' />
+            </Col>
+            <Col span={6}>
+              <label>BAIRRO: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='bairroModal' autoComplete='off' value={dataNewSeguro.bairro} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, bairro: !response.target.value ? '' : response.target.value}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('cidadeModal').focus();
+                }
+              }} placeholder='BAIRRO' />
+            </Col>
+            <Col span={6}>
+              <label>CIDADE: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='cidadeModal' autoComplete='off' value={dataNewSeguro.cidade} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, cidade: !response.target.value ? '' : response.target.value}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  document.getElementById('estadoModal').focus();
+                }
+              }} placeholder='CIDADE' />
+            </Col>
+            <Col span={6}>
+              <label>ESTADO: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='estadoModal' autoComplete='off' value={dataNewSeguro.estado} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, estado: !response.target.value ? '' : response.target.value}))} onKeyPress={(e) => {
+                if(e.code === 'Enter') {
+                  //document.getElementById('telefoneModal').focus();
+                }
+              }} placeholder='ESTADO' />
+            </Col>
+          </Row>
         </Modal>
         <Row
           style={{
@@ -261,39 +495,120 @@ const Seguro = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: 10,
+            position: 'relative'
           }}
         >
-          <Col sm={24} md={8}
-            style={{
-              display: 'flex', 
-              alignItems: 'center',
-            }}
-          >
-            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444'}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
+          {((date || corretor || seguradora || (placa.length === 7 || cpf.length === 14)) && seguros.length > 0) && (
+            <span
+              style={{
+                position: 'absolute',
+                top: 15,
+                right: 15,
+                fontSize: '1.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                zIndex: 1
+              }}
+              onClick={printSeguros}
+            >
+              <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
+            </span>
+          )}
+          <Col span={24}>
+            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
-          <Col xs={24} md={16}
+          <Col span={24} style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{String(seguros.length).padStart(2, '0')}</span></div>
+            <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+              <div>
+                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              </div>
+              <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
+              <div>
+                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{!seguros.length > 0 ? 'R$ 0,00' : Number(totalPremio / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              </div>
+            </div>
+            <div style={{ width: '100%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+              <div>
+                TOTAL DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(totalComissao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              </div>
+              <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
+              <div>
+                VALOR MÉDIO DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{!seguros.length > 0 ? 'R$ 0,00' : Number(totalComissao / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              </div>
+              <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
+              <div>
+                MÉDIA DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{!seguros.length > 0 ? 0 : Number((totalComissao / totalPremio) * 100).toFixed(2).split('.').join(',')}%</span>
+              </div>
+            </div>
+          </Col>
+          <Divider style={{ borderColor: '#d1d1d1', marginBottom: 15 }} />
+          <Col span={24}
             style={{
               display: width > 768 && 'flex',
               alignItems: width > 768 && 'center',
               flexDirection: width > 768 && 'row',
-              justifyContent: width > 768 && 'end'
+              justifyContent: width > 768 && 'space-between',
+              textAlign: 'center'
             }}
           >
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
             <div>
-              <div style={{ width: '100%' }}>FILTRO POR SEGURADORA:</div>
-              <Select defaultValue={null} placeholder='Selecionar Seguradora' id='seguradora' style={{ width: '100%' }} onChange={e => setSeguradora(e)}
+              <div style={{ width: '100%' }}>PERIODO:</div>
+              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => setDate(e)} />
+            </div>
+            {(user && user.tipo !== 'corretor') && (
+              <>
+                <div
+                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                />
+                <div>
+                  <div style={{ width: '100%' }}>CORRETOR:</div>
+                  <Select allowClear placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={e => {
+                    setCorretor(e ? e : null);
+                  }}
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  filterSort={(optionA, optionB) =>
+                    optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                  }
+                  value={corretor}
+                  >
+                    <Select.Option value={'null'}>{corretora.razao_social}</Select.Option>
+                    {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
+                      <Select.Option key={index} value={item.uid}>
+                        {item.nomeCompleto}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </>
+            )}
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
+            <div>
+              <div style={{ width: '100%' }}>SEGURADORA:</div>
+              <Select allowClear placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={e => {
+                setSeguradora(e ? e : null);
+              }}
               showSearch
               optionFilterProp="children"
               filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
-              allowClear
               filterSort={(optionA, optionB) =>
                 optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
               }
               value={seguradora}
               >
-                <Select.Option value={null}>Selecinar Seguradora</Select.Option>
                 {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
                   <Select.Option key={index} value={item.uid}>
                     {item.razao_social}
@@ -301,31 +616,47 @@ const Seguro = () => {
                 ))}
               </Select>
             </div>
-            <div style={{ marginLeft: 10 }}>
-              <div style={{ width: '100%' }}>FILTRO POR DATA:</div>
-              <DatePicker.RangePicker picker='date' />
-            </div>
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
             {cpf.length === 0 && (
-              <div>
-                <div style={{ width: '100%' }}>FILTRO POR PLACA:</div>
-                <Input style={{ width: '100%' }} type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
-              </div>
+              <>
+                <div>
+                  <div style={{ width: '100%' }}>PLACA:</div>
+                  <Input maxLength={7} style={{ width: '100%' }} type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
+                </div>
+                <div
+                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                />
+              </>
             )}
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
             {placa.length === 0 && (
-              <div>
-                <div style={{ width: '100%' }}>FILTRO POR CPF:</div>
-                <Input style={{ width: '100%' }} type='tel' value={cpf} placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
-              </div>
+              <>
+                <div>
+                  <div style={{ width: '100%' }}>CPF:</div>
+                  <Input style={{ width: '100%' }} type='tel' value={cpf} placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
+                </div>
+                <div
+                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                />
+              </>
             )}
           </Col>
         </Row>
-        <TableSeguro cpf={cpf} placa={placa} infiniteData={true} />
+        <TableSeguro
+          seguradora={seguradora}
+          corretor={corretor}
+          date={date}
+          cpf={cpf}
+          placa={placa}
+          user={user}
+          infiniteData={true}
+          setTotalSeguro={setTotalSeguro}
+          setTotalPremio={setTotalPremio} 
+          setTotalComissao={setTotalComissao} 
+          corretora={corretora.uid}
+          setSeguros={setSeguros}
+        />
       </CardComponent>
     </LayoutAdmin>
   );

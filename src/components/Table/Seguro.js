@@ -8,20 +8,208 @@ import {
   Empty,
   Dropdown,
   Menu,
-  Tag,
-  Modal
+  Modal,
+  Divider,
+  Select,
+  Row,
+  Col,
+  Input,
+  notification
 } from 'antd';
 
-import { FaEye, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaFileAlt, FaPlus, FaTimes } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons'
 
 import _ from 'lodash';
 
-import { verSeguro } from '../../functions';
+import { format, startOfDay } from 'date-fns';
+import generateToken from 'hooks/generateToken';
+import { maskCEP, maskMoney, maskOnlyNumbers } from 'hooks/mask';
+import axios from 'axios';
 
-const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
+const ContentEndosso = ({ data, type }) => {
+  const [state, setState] = useState({
+    placa: data.veiculo.placa,
+    veiculo: data.veiculo.veiculo,
+    condutor: data.veiculo.condutor,
+    valor: null,
+    percentual: data.comissao.percentual,
+    comissao: null,
+    cep: data.endereco.cep,
+    bairro: data.endereco.bairro,
+    cidade: data.endereco.cidade,
+    estado: data.endereco.estado,
+  });
+
+  useEffect(() => {
+    if(String(state.cep).length === 9) {
+      axios.get(`https://viacep.com.br/ws/${String(state.cep).split('-').join('')}/json`, {
+        headers: {
+          'content-type': 'application/json;charset=utf-8',
+        },
+      })
+      .then((response) => {
+        const data = response.data;
+
+        setState(e => ({...e, bairro: data.bairro, cidade: data.localidade, estado: data.uf}))
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    }
+  }, [state.cep])
+
+  useEffect(() => {
+    setState(e => ({...e, comissao: Number((Number(String(state.valor).split('.').join('').split(',').join('.')) / 100) * Number(state.percentual))}))
+  }, [state.valor, state.percentual]);
+
+  async function confirmarEndosso() {
+    if((type === 'VEÍCULO' || type === 'GERAL')) {
+      if(!state.veiculo || !state.placa) {
+        notification.warn({
+          message: 'PREENCHA TODOS OS CAMPOS!'
+        });
+        
+        return;
+      }
+    }
+
+    if(type === 'ENDEREÇO') {
+      if(!state.cep || !state.bairro || !state.cidade || !state.estado) {
+        notification.warn({
+          message: 'PREENCHA TODOS OS CAMPOS!'
+        });
+        
+        return;
+      }
+    }
+
+    if(!state.valor || !state.percentual || !state.comissao) {
+      notification.warn({
+        message: 'PREENCHA TODOS OS CAMPOS!'
+      });
+      
+      return;
+    }
+
+    const dados = {
+      endossos: firebase.firestore.FieldValue.arrayUnion({
+        valores: {
+          valor: Number(String(state.valor).split('.').join('').split(',').join('.')),
+          percentual: Number(state.percentual),
+          comissao: state.comissao,
+        },
+        created: new Date(),
+        tipo: type,
+        veiculo: {
+          placa: state.placa,
+          condutor: state.condutor,
+          modelo: state.veiculo
+        },
+        endereco: {
+          cep: state.cep,
+          bairro: state.bairro,
+          cidade: state.cidade,
+          estado: state.estado,
+        }
+      })
+    }
+
+    if((type === 'VEÍCULO' || type === 'GERAL')) {
+      dados.veiculo = {
+        placa: state.placa,
+        condutor: state.condutor,
+        veiculo: state.veiculo
+      };
+    }
+
+    if(type === 'ENDEREÇO') {
+      dados.endereco = {
+        cep: state.cep,
+        bairro: state.bairro,
+        cidade: state.cidade,
+        estado: state.estado,
+      }
+    }
+
+    await firebase.firestore().collection('seguros').doc(data.uid).set(dados, { merge: true })
+    .then(() => {
+      Modal.destroyAll();
+      notification.success({
+        message: 'ENDOSSO GERADO COM SUCESSO!'
+      });
+    })
+    .catch(() => {
+      notification.error({
+        message: 'ERRO AO GERAR ENDOSSO!'
+      });
+    })
+  }
+
+  return (
+    <>
+      <Row gutter={[20, 20]}>
+        {(type === 'VEÍCULO' || type === 'GERAL') && (
+          <>
+            <Col span={8}>
+              <label>PLACA:</label>
+              <Input value={state.placa} maxLength={7} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='AAA0000' onChange={(e) => setState(resp => ({ ...resp, placa: String(e.target.value).toUpperCase() }))} />
+            </Col>
+            <Col span={16}>
+              <label>VEÍCULO:</label>
+              <Input value={state.veiculo} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO VEÍCULO' onChange={(e) => setState(resp => ({ ...resp, veiculo: String(e.target.value).toUpperCase() }))} />
+            </Col>
+            <Col span={24}>
+              <label>CONDUTOR:</label>
+              <Input value={state.condutor} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO CONDUTOR' onChange={(e) => setState(resp => ({ ...resp, condutor: maskOnlyLetters(String(e.target.value).toUpperCase()) }))} />
+            </Col>  
+          </>
+        )}
+        <Col span={8}>
+          <label>VALOR DO ENDOSSO:</label>
+          <Input value={state.valor} type='tel' autoComplete='off' style={{ textTransform: 'uppercase' }} prefix='R$' placeholder='0' onChange={(e) => setState(resp => ({ ...resp, valor: !e.target.value ? null : maskMoney(maskOnlyNumbers(e.target.value)) }))} />
+        </Col>
+        <Col span={8}>
+          <label>COMISSÃO:</label>
+          <Input value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))} />
+        </Col>
+        <Col span={8}>
+          <label>COMISSÃO: </label>
+          <Input value={!state.comissao ? 0 : Number(state.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} type='tel' readOnly prefix='R$' autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='0' />
+        </Col>
+        {(type === 'ENDEREÇO' || type === 'GERAL') && (
+          <>
+            <Col span={6}>
+              <label>CEP:</label>
+              <Input value={state.cep} autoComplete='off' maxLength={9} style={{ textTransform: 'uppercase' }} onChange={(e) => setState(resp => ({ ...resp, cep: maskCEP(e.target.value) }))} placeholder='CEP' />
+            </Col>
+            <Col span={6}>
+              <label>BAIRRO:</label>
+              <Input value={state.bairro} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='BAIRRO' onChange={(e) => setState(resp => ({ ...resp, bairro: String(e.target.value).toUpperCase() }))} />
+            </Col>
+            <Col span={6}>
+              <label>CIDADE:</label>
+              <Input value={state.cidade} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='CIDADE' onChange={(e) => setState(resp => ({ ...resp, cidade: String(e.target.value).toUpperCase() }))} />
+            </Col>
+            <Col span={6}>
+              <label>ESTADO:</label>
+              <Input value={state.estado} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='ESTADO' onChange={(e) => setState(resp => ({ ...resp, estado: String(e.target.value).toUpperCase() }))} />
+            </Col>
+          </>
+        )}
+      </Row>
+      <Divider />
+      <div style={{ float: 'right' }}>
+        <Button onClick={() => Modal.destroyAll()}>FECHAR</Button>
+        <Button style={{ background: '#141414', color: 'white', border: 'none', outline: 'none', marginLeft: 10, fontWeight: 'bold' }} onClick={confirmarEndosso}>CONFIRMAR</Button>
+      </div>
+    </>
+  )
+}
+
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, setTotalSeguro, setTotalPremio, setTotalComissao, setSeguros: setSegurosList }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [seguros, setSeguros] = useState([]);
 
@@ -37,17 +225,13 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
         await setLastData(0);
         await setSeguros([]);
         getCotacao('init');
-      }
-
-      if(cpf.length === 0) {
+      }else if(cpf.length === 0) {
         if(placa.length === 7 || placa.length === 0) {
           await setLastData(0);
           await setSeguros([]);
           getCotacao('init');
         }
-      }
-
-      if(placa.length === 0) {
+      }else if(placa.length === 0) {
         if(cpf.length === 14 || cpf.length === 0) {
           await setLastData(0);
           await setSeguros([]);
@@ -55,7 +239,7 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
         }
       }
     })();
-  }, [cpf, placa]);
+  }, [cpf, placa, seguradora, corretor, date]);
 
   useEffect(() => {
     (async () => {
@@ -66,23 +250,47 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
   }, []);
 
   const getCotacao = async (init) => {
-    let ref = firebase.firestore()
-    .collection('seguros');
+    let ref = firebase.firestore().collection('seguros').where('status', '==', 'ativo');
+
+    if(date) {
+      ref = ref.where('seguro.vigenciaToDate', '>=', startOfDay(new Date(date[0].toDate())));
+      ref = ref.where('seguro.vigenciaToDate', '<=', startOfDay(new Date(date[1].toDate())));
+    }else {
+      ref = ref.where('seguro.vigenciaToDate', '>=', new Date());
+    }
+
+    ref = ref.orderBy('seguro.vigenciaToDate', 'asc');
+
+    if(user.tipo !== 'corretor') {
+      ref = ref.where('corretora.uid', '==', corretora);
+    }else {
+      ref = ref.where('corretor.uid', '==', user.uid);
+    }
 
     if(cpf !== undefined && cpf.length === 14) {
       ref = ref.where('segurado.cpf', '==', cpf);
       ref = ref.orderBy('created', 'desc');
-
     }if(placa !== undefined && placa.length === 7) {
       ref = ref.where('veiculo.placa', '==', placa);
       ref = ref.orderBy('created', 'desc');
-
     }else if((!init && lastData !== 0)) {
-      ref = ref.orderBy('created', 'desc');
+      ref = ref.orderBy('created', 'asc');
       ref = ref.startAfter(lastData);
     }
 
-    ref.limit((cpf !== undefined && cpf.length === 14) ? 10000 : limit || listLimitDefault)
+    if(corretor) {
+      if(corretor === 'null') {
+        ref = ref.where('corretor', '==', null);
+      }else {
+        ref = ref.where('corretor.uid', '==', corretor);
+      }
+    }
+
+    if(seguradora) {
+      ref = ref.where('seguradora.uid', '==', seguradora);
+    }
+
+    ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)) ? 10000 : limit || listLimitDefault)
     .onSnapshot((snap) => {
       setViewButtonMore(false);
 
@@ -110,23 +318,46 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
           }
         });
 
+        setTotalPremio(objetos.reduce((a, b) => a + Number(String(b.comissao.premio).split('.').join('').split(',').join('.')), 0))
+        setTotalComissao(objetos.reduce((a, b) => a + Number(String(b.comissao.comissao)), 0))
+
+        setSegurosList(objetos);
         return objetos;
       });
 
       if(array.length === (limit || listLimitDefault)) {
         setViewButtonMore(true);
       }
-    })
+
+      setTotalSeguro(snap.size);
+    });
     
     setLoadingData(true);
   }
 
-  const cancelarSeguro = (uid) => {
+  const cancelarSeguro = (dados) => {
     Modal.confirm({
+      width: '50%',
       title: 'DESEJA REALMENTE CANCELAR O SEGURO?',
-      content: 'Ao confirmar a ação não será possível desfazer a mesma',
+      content: [
+        <>
+          <h3>
+            Ao confirmar a ação não será possível desfazer a mesma
+          </h3>
+          <br/>
+          <span>
+            <b>SEGURADO:</b> {dados.segurado.nome}
+            <br/>
+            <b>SEGURADORA:</b> {dados.seguradora.razao_social}
+            <br/>
+            <b>PLACA:</b> {dados.veiculo.placa}
+            <br/>
+            <b>VEÍCULO:</b> {dados.veiculo.veiculo}
+          </span>
+        </>
+      ],
       onOk: () => {
-        firebase.firestore().collection('seguros').doc(uid).set({
+        firebase.firestore().collection('seguros').doc(dados.uid).set({
           status: 'cancelado'
         }, { merge: true });
       },
@@ -134,11 +365,132 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
       cancelText: 'FECHAR'
     })
   }
+
+  const endossoData = (data, type) => {
+    Modal.confirm({
+      icon: null,
+      width: '50%',
+      title: [
+        <>
+          <h3 style={{ margin: 0 }}>ENDOSSO ({type})</h3>
+          <Divider style={{ margin: 0, marginBottom: 10 }} />
+        </>
+      ],
+      content: <ContentEndosso data={data} type={type} />,
+      okButtonProps: {
+        style: {
+          display: 'none',
+        }
+      },
+      cancelButtonProps: {
+        style: {
+          display: 'none',
+        }
+      },
+    });
+  }
+
+  const verEndossos = (dados) => {
+    Modal.confirm({
+      icon: null,
+      width: '50%',
+      title: [
+        <>
+          <h3 style={{ margin: 0 }}>REGISTROS DE ENDOSSOS ({dados.segurado.nome})</h3>
+          <Divider style={{ margin: 0, marginBottom: 10 }} />
+        </>
+      ],
+      content: [
+        <>
+          {dados.endossos?.sort((a, b) => b.created - a.created).map((item, index) => (
+            <div
+              style={{
+                background: '#F4F4F4',
+                border: '1px solid #d1d1d1',
+                borderRadius: 5,
+                width: '100%',
+                padding: 10,
+                marginBottom: 10
+              }}
+            >
+              <h3 style={{ margin: 0 }}>ENDOSSO - {item.tipo}</h3>
+              <Divider style={{ margin: 0, marginBottom: 10 }} />
+              <Row gutter={[20, 20]}>
+                {(item.tipo === 'VEÍCULO' || item.tipo === 'GERAL') && (
+                  <>
+                    <Col span={8}>
+                      <label>PLACA:</label>
+                      <Input value={item.veiculo.placa} style={{ width: '100%', textTransform: 'uppercase' }} readOnly />
+                    </Col>
+                    <Col span={16}>
+                      <label>VEÍCULO:</label>
+                      <Input value={item.veiculo.modelo} style={{ width: '100%', textTransform: 'uppercase' }} readOnly />
+                    </Col>
+                    {item.veiculo.condutor && (
+                      <Col span={24}>
+                        <label>CONDUTOR:</label>
+                        <Input value={item.veiculo.condutor} style={{ width: '100%', textTransform: 'uppercase' }} readOnly />
+                      </Col>  
+                    )}
+                  </>
+                )}
+                <Col span={8}>
+                  <label>VALOR DO ENDOSSO:</label>
+                  <Input value={Number(item.valores.valor).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
+                </Col>
+                <Col span={8}>
+                  <label>COMISSÃO:</label>
+                  <Input value={Number(item.valores.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='%' style={{ textTransform: 'uppercase' }} readOnly />
+                </Col>
+                <Col span={8}>
+                  <label>COMISSÃO: </label>
+                  <Input value={Number(item.valores.percentual).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
+                </Col>
+                {(item.tipo === 'ENDEREÇO' || item.tipo === 'GERAL') && (
+                  <>
+                    <Col span={6}>
+                      <label>CEP:</label>
+                      <Input value={item.endereco.cep} style={{ textTransform: 'uppercase' }} readOnly />
+                    </Col>
+                    <Col span={6}>
+                      <label>BAIRRO:</label>
+                      <Input value={item.endereco.bairro} style={{ textTransform: 'uppercase' }} readOnly />
+                    </Col>
+                    <Col span={6}>
+                      <label>CIDADE:</label>
+                      <Input value={item.endereco.cidade} style={{ textTransform: 'uppercase' }} readOnly />
+                    </Col>
+                    <Col span={6}>
+                      <label>ESTADO:</label>
+                      <Input value={item.endereco.estado} style={{ textTransform: 'uppercase' }} readOnly />
+                    </Col>
+                  </>
+                )}
+              </Row>
+            </div>
+          ))}
+          <div style={{ float: 'right' }}>
+            <Button onClick={() => Modal.destroyAll()}>FECHAR</Button>
+          </div>
+        </>
+      ],
+      okButtonProps: {
+        style: {
+          display: 'none',
+        }
+      },
+      cancelButtonProps: {
+        style: {
+          display: 'none',
+        }
+      },
+    });
+  }
   
   return (
     <>
       <Table
-        dataSource={loadingData ? seguros : _.times(listLimitDefault)}
+        dataSource={loadingData ? seguros.map(item => ({...item, key: generateToken()})) : _.times(listLimitDefault)}
         pagination={false}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
@@ -164,39 +516,54 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
               </div>
             ]
           }
-          render={(segurado, dados) => (
+          render={(segurado) => (
             <>
-              {segurado && (dados.status === 'cancelado' || dados.seguro.vigenciaToDate >= new Date()) && (
-                <Tag color='red' style={{ position: 'absolute', top: -7, left: 0, fontSize: '.5rem', padding: 1, margin: 0 }}>
-                  CANCELADO
-                </Tag>
-              )}
               {loadingData && (
-                <span style={{ fontSize: '.6rem' }}>
-                  SEGURO {dados.tipo.toUpperCase()} {(dados.tipo === 'veicular') && `- ${dados.veiculo.placa}`}
+                <span style={{ fontSize: '.6rem', position: 'absolute', bottom: 5, left: 16 }}>
+                  desde 2022
                 </span>
               )}
-              <div className={!loadingData && 'skeleton'}>
+              <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
                 {segurado ? String(segurado.nome) : '000000000'}
               </div>
             </>
           )}
         />
+        {user.tipo === 'administrador' && (
+          <Table.Column
+            width={150}
+            key="corretor"
+            dataIndex="corretor"
+            title={
+              [
+                <div className={!loadingData && 'skeleton'}>
+                  CORRETOR
+                </div>
+              ]
+            }
+            render={(corretor, dados) => (
+              <>
+                <div className={!loadingData && 'skeleton'}>
+                  {corretor ? String(corretor.nome) : `-------------`}
+                </div>
+              </>
+            )}
+          />
+        )}
         <Table.Column
           key="veiculo"
+          width={120}
           dataIndex="veiculo"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                <center>PLACA</center>
+                PLACA
               </div>
             ]
           }
           render={(veiculo) => (
             <div className={!loadingData && 'skeleton'}>
-              <center>
-                {veiculo ? String(veiculo.placa).slice(0, 3)+'-'+String(veiculo.placa).slice(3, 10) : 'A AVISAR'}
-              </center>
+              {veiculo ? String(veiculo.placa).slice(0, 3)+'-'+String(veiculo.placa).slice(3, 10) : 'A AVISAR'}
             </div>
           )}
         />
@@ -206,15 +573,13 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                <center>SEGURADORA</center>
+                SEGURADORA
               </div>
             ]
           }
           render={(seguradora) => (
-            <div className={!loadingData && 'skeleton'}>
-              <center>
-                {seguradora ? seguradora.razao_social : '00000000000'}
-              </center>
+            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
+              {seguradora ? seguradora.razao_social : '00000000000'}
             </div>
           )}
         />
@@ -224,15 +589,31 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                <center>FINAL DA VIGÊNCIA</center>
+                FINAL DA VIGÊNCIA
               </div>
             ]
           }
           render={(seguro) => (
             <div className={!loadingData && 'skeleton'}>
-              <center>
-                {seguro ? seguro.vigencia : '00000000000'}
-              </center>
+              {seguro ? format(seguro.vigenciaToDate.toDate(), 'dd/MM/yyyy') : '00000000000'}
+            </div>
+          )}
+        />
+        <Table.Column
+          key="comissao"
+          dataIndex="comissao"
+          title={
+            [
+              <div className={!loadingData && 'skeleton'}>
+                PRÊMIO LÍQUIDO | COMISSÃO
+              </div>
+            ]
+          }
+          render={(comissao) => (
+            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
+              R$ {comissao && comissao.premio} | {comissao && Number(comissao.percentual).toFixed(0)}%
+              <br/>
+              <span style={{ fontSize: '.7rem' }}>comissão: {comissao && Number(comissao.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
             </div>
           )}
         />
@@ -268,11 +649,19 @@ const TableSeguro = ({ infiniteData, limit, cpf, placa }) => {
                     >
                       <Dropdown overlay={() => (
                         <Menu>
-                          <Menu.Item icon={<FaEye />} onClick={() => verSeguro(dados)}>
-                            VER SEGURO
+                          <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
+                            ENDOSSO DO VEÍCULO | CONDUTOR
                           </Menu.Item>
-                          <Menu.Item icon={<FaTimes />} onClick={() => cancelarSeguro(dados.uid)}>
-                            CANCELAR SEGURO
+                          <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
+                            ENDOSSO DO ENDEREÇO
+                          </Menu.Item>
+                          {dados.endossos?.length > 0 && (
+                            <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
+                              REGISTROS DE ENDOSSOS
+                            </Menu.Item>
+                          )}
+                          <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
+                            ENDOSSO DE CANCELAMENTO
                           </Menu.Item>
                         </Menu>
                       )}>

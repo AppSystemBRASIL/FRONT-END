@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "antd": "^4.16.6",
+    "axios": "^0.26.0",
     "card-validator": "^8.1.1",
     "date-fns": "^2.23.0",
     "firebase": "8.1.0",

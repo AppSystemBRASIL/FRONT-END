@@ -155,7 +155,7 @@ const TableCotacao = ({ infiniteData, limit, status, cnpj }) => {
               <div>
                 <span><b>{razao_social ? razao_social : 'NOME DA EMPRESA'}</b></span>
                 <br/>
-                <span style={{ color: loadingData && '#777' }}>{dados.site ? String(dados.site).toLowerCase() : 'NOME DA EMPRESA'}</span>
+                <span style={{ color: loadingData && '#777' }}>{dados.site && String(dados.site).toLowerCase()}</span>
               </div>
             </div>
           )}

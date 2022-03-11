@@ -5,7 +5,7 @@ import pagarme from 'pagarme';
 import {
   notification
 } from 'antd';
-import { PAGARME_KEY } from '../../../config';
+import { PAGARME_KEY } from '../../config';
 
 const validateInfo = (values) => {
   let errors = {};
