@@ -221,20 +221,17 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
 
   useEffect(() => {
     (async () => {
+      await setLastData(0);
+      await setSeguros([]);
+
       if((cpf.length === 14) || (placa.length === 7)) {
-        await setLastData(0);
-        await setSeguros([]);
         getCotacao('init');
       }else if(cpf.length === 0) {
         if(placa.length === 7 || placa.length === 0) {
-          await setLastData(0);
-          await setSeguros([]);
           getCotacao('init');
         }
       }else if(placa.length === 0) {
         if(cpf.length === 14 || cpf.length === 0) {
-          await setLastData(0);
-          await setSeguros([]);
           getCotacao('init');
         }
       }

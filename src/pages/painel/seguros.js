@@ -87,7 +87,7 @@ const Seguro = () => {
   }, [dataNewSeguro.cep])
 
   useEffect(() => {
-    setDataNewSeguro({
+    const dados = {
       corretorUid: null,
       corretorDisplayName: null,
       anoAdesao: null,
@@ -108,8 +108,17 @@ const Seguro = () => {
       cpf: null,
       veiculo: null,
       condutor: null
-    })
-  }, [viewNewSeguro]);
+    };
+
+    if(user) {
+      if(user.tipo === 'corretor') {
+        dados.corretorUid = user.uid;
+        dados.corretorDisplayName = user.displayName;
+      }
+    }
+
+    setDataNewSeguro(dados);
+  }, [viewNewSeguro, user]);
 
   const [seguradoras, setSeguradoras] = useState([]);
   const [corretores, setCorretores] = useState([]);
@@ -123,7 +132,7 @@ const Seguro = () => {
           ...e,
           corretorUid: user.uid,
           corretorDisplayName: user.displayName
-        }))
+        }));
       }
 
       firebase.firestore().collection('seguradoras').get()

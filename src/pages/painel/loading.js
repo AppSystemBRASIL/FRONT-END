@@ -6,14 +6,20 @@ import {
 import { LoadingOutlined } from '@ant-design/icons';
 
 import colors from '../../utils/colors';
+import useAuth from 'hooks/useAuth';
+import { useTheme } from 'styled-components';
 
 const LoadingPage = () => {
+  const { businessInfo } = useAuth();
+  
+  const theme = useTheme();
+
   return (
     <div
       style={{
         width: '100vw',
         height: '100vh',
-        backgroundColor: colors.primary.default,
+        backgroundColor: businessInfo ? theme.colors[businessInfo.layout.theme].primary : colors.primary,
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
