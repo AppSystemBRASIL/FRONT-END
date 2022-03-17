@@ -252,11 +252,12 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     if(date) {
       ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
       ref = ref.where('seguro.vigencia', '<=', startOfDay(new Date(date[1].toDate())));
+      ref = ref.orderBy('seguro.vigencia', 'asc');
     }else {
-      ref = ref.where('seguro.vigencia', '>=', new Date());
+      ref = ref.where('seguro.vigenciaFinal', '>=', new Date());
+      ref = ref.orderBy('seguro.vigenciaFinal', 'asc');
     }
 
-    ref = ref.orderBy('seguro.vigencia', 'asc');
 
     if(user.tipo !== 'corretor') {
       ref = ref.where('corretora.uid', '==', corretora);
@@ -412,6 +413,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         <>
           {dados.endossos?.sort((a, b) => b.created - a.created).map((item, index) => (
             <div
+              key={index}
               style={{
                 background: '#F4F4F4',
                 border: '1px solid #d1d1d1',

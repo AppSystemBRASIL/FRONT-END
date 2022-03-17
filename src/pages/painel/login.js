@@ -915,7 +915,7 @@ const Login = () => {
                 OU
                 <Button style={{ marginLeft: 10 }} className='btn transparent' onClick={() => {setModeView('sign-up-mode'); setTypeFormSecondary('recuperar')}}>RECUPERAR</Button>
               </div>
-              <Image preview={false} className='imagem' src='/undraw_Data_trends_re_2cdy.svg' alt='imagem' layout='fill' />
+              <Image preview='false' className='imagem' src='/undraw_Data_trends_re_2cdy.svg' alt='imagem' layout='fill' />
             </div>
             <div className='panel right'>
               <div className='content'>
@@ -927,7 +927,7 @@ const Login = () => {
                 OU
                 <Button style={{ marginLeft: 10 }} className='btn transparent' onClick={() => setModeView('sign-in-mode')}>ACESSAR</Button>
               </div>
-              <Image preview={false} className='imagem' src='/undraw_Data_trends_re_2cdy.svg' alt='imagem' layout='fill' />
+              <Image preview='false' className='imagem' src='/undraw_Data_trends_re_2cdy.svg' alt='imagem' layout='fill' />
             </div>
           </div>
         </Container>
