@@ -580,27 +580,27 @@ const Seguro = () => {
             <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
           <Col span={24} style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? String(valoresIniciais.seguros).padStart(2, '0') : String(seguros.length).padStart(2, '0')}</span></div>
+            <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{String(verifyFilter ? valoresIniciais.seguros : seguros.length).padStart(2, '0')}</span></div>
             <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
               <div>
-                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(valoresIniciais.totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : Number(totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalPremio : totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(valoresIniciais.totalPremio / valoresIniciais.seguros).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(totalPremio / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalPremio / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(totalPremio / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
             </div>
             <div style={{ width: '100%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
               <div>
-                TOTAL DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(totalComissao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                TOTAL DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalComissao : totalComissao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                VALOR MÉDIO DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{!seguros.length > 0 ? 'R$ 0,00' : Number(totalComissao / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                VALOR MÉDIO DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalComissao / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(totalComissao / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                MÉDIA DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{!seguros.length > 0 ? 0 : Number((totalComissao / totalPremio) * 100).toFixed(2).split('.').join(',')}%</span>
+                MÉDIA DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(((valoresIniciais.totalComissao / valoresIniciais.totalPremio) * 100) || 0).toFixed(2).split('.').join(',') : !seguros.length > 0 ? 0 : Number((totalComissao / totalPremio) * 100).toFixed(2).split('.').join(',')}%</span>
               </div>
             </div>
           </Col>

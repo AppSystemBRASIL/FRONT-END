@@ -357,7 +357,17 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         firebase.firestore().collection('seguros').doc(dados.uid).set({
           ativo: false
         }, { merge: true })
-        .then(() => setSeguros(resp => resp.filter(e => e.uid !== dados.uid)));
+        .then(() => {
+          firebase.firestore().collection('relatorios').doc('seguros').set({
+            total: firebase.firestore.FieldValue.increment(-1),
+            valores: {
+              premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
+              comissao: firebase.firestore.FieldValue.increment(-dados.comissao.comissao),
+            }
+          }, { merge: true });
+
+          setSeguros(resp => resp.filter(e => e.uid !== dados.uid));
+        });
       },
       okText: 'CONFIRMAR',
       cancelText: 'FECHAR'
@@ -518,7 +528,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             <>
               {loadingData && (
                 <span style={{ fontSize: '.6rem', position: 'absolute', bottom: 5, left: 16 }}>
-                  desde 2022
+                  desde {segurado.anoAdesao}
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
@@ -608,7 +618,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             [
               <div className={!loadingData && 'skeleton'}>
                 PRÊMIO LÍQUIDO | COMISSÃO
-              </div>
+              </div> 
             ]
           }
           render={(comissao) => comissao && (
