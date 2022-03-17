@@ -1,17 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Router from 'next/router';
 
 const Index = () => {
+  useEffect(() => Router.push('/painel'), []);
+
   return (
-    <div style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      alignContent: 'center',
-      alignSelf: 'center',
-      display: 'flex',
-    }}>
-      <button onClick={() => Router.push('/painel')}>PAINEL</button>
-    </div>
+    <></>
   )
 }
 

@@ -19,8 +19,12 @@ import { addDays, addYears, format, setHours, setMinutes } from 'date-fns';
 import axios from 'axios';
 import printListSeguros from 'components/PDF/ListSeguros';
 
+import { useTheme } from 'styled-components';
+
 const Seguro = () => {
-  const { user, corretora, setCollapsedSideBar } = useAuth();
+  const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
+
+  const theme = useTheme();
 
   const [width, setwidth] = useState(0);
 
@@ -45,6 +49,12 @@ const Seguro = () => {
 
   const [seguros, setSeguros] = useState([]);
 
+  const [valoresIniciais, setValoresIniciais] = useState({
+    seguros: 0,
+    totalPremio: 0,
+    totalComissao: 0,
+  });
+
   const [dataNewSeguro, setDataNewSeguro] = useState({
     corretorUid: null,
     corretorDisplayName: null,
@@ -67,6 +77,20 @@ const Seguro = () => {
     veiculo: null,
     condutor: null
   });
+
+  useEffect(() => {
+    firebase.firestore().collection('relatorios').doc('seguros').onSnapshot((response) => {
+      if(response.exists) {
+        const data = response.data();
+
+        setValoresIniciais({
+          seguros: data.total,
+          totalPremio: data.valores.premio,
+          totalComissao: data.valores.comissao,
+        });
+      }
+    })
+  }, []);
 
   useEffect(() => {
     if(String(dataNewSeguro.cep).length === 9) {
@@ -178,6 +202,23 @@ const Seguro = () => {
     cpf
   });
 
+  useEffect(() => {
+    if(String(dataNewSeguro.placa).length === 7) {
+      firebase.firestore().collection('seguros').where('veiculo.placa', '==', String(dataNewSeguro.placa)).get()
+      .then((response) => {
+        const array = [];
+
+        response.forEach((item) => {
+          const data = item.data();
+
+          array.push({...data, created: data.created.toDate()})
+        });
+
+        const arrayFirst = array.sort((a, b) => a.vigencia - b.vigencia)[0];
+      })
+    }
+  }, [dataNewSeguro.placa]);
+
   const salvarSeguro = async () => {
     function objetoVazio(obj) {
       for (const prop in obj) {
@@ -226,8 +267,8 @@ const Seguro = () => {
         estado: dataNewSeguro.estado,
       },
       seguro: {
-        vigencia: dataNewSeguro.vigencia,
-        vigenciaToDate: addDays(setMinutes(setHours(addYears(new Date(vigencia[2], vigencia[1], vigencia[0]), 1), 0), 0), 1),
+        vigencia: setMinutes(setHours(new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]), 0), 0),
+        vigenciaFinal: addDays(setMinutes(setHours(addYears(new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]), 1), 0), 0), 1),
       },
       segurado: {
         anoAdesao: dataNewSeguro.anoAdesao,
@@ -244,12 +285,12 @@ const Seguro = () => {
         uid: dataNewSeguro.corretorUid
       },
       comissao: {
-        premio: dataNewSeguro.premio,
-        franquia: dataNewSeguro.franquia,
-        percentual: dataNewSeguro.percentual,
+        premio: Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')),
+        franquia: Number(String(dataNewSeguro.franquia).split('.').join('').split(',').join('.')),
+        percentual: Number(dataNewSeguro.percentual),
         comissao: dataNewSeguro.comissao
       },
-      status: 'ativo',
+      ativo: true,
       uid: generateToken(),
       created: new Date(),
       tipo: 'veicular'
@@ -263,6 +304,14 @@ const Seguro = () => {
         message: 'SEGURO CADASTRADO COM SUCESSO!',
       });
 
+      firebase.firestore().collection('relatorios').doc('seguros').set({
+        total: firebase.firestore.FieldValue.increment(1),
+        valores: {
+          premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
+          comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
+        }
+      }, { merge: true })
+
       setViewNewSeguro(false);
     })
     .catch(() => {
@@ -271,6 +320,8 @@ const Seguro = () => {
       })
     });
   }
+
+  const verifyFilter = !date && !corretor && !seguradora && (!placa && !cpf);
 
   if(!user && !corretora) {
     return <></>;
@@ -283,15 +334,15 @@ const Seguro = () => {
   return (
     <LayoutAdmin title='SEGUROS'>
       <CardComponent>
-        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%'>
+        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%' okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
           <Row gutter={[10, 20]}>
             {user.tipo !== 'corretor' && (
               <Col span={24}>
                 <label>CORRETOR:</label>
                 <Select placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={response => {
                   setDataNewSeguro(e => !response ? ({ ...e, corretorUid: null, corretorDisplayName: null }) : ({...e, corretorUid: response, corretorDisplayName: corretores.filter(resp => resp.uid === response)[0].displayName }));
-                  
-                    document.getElementById('placaModal').focus();
+
+                  document.getElementById('placaModal').focus();
                 }}
                 showSearch
                 optionFilterProp="children"
@@ -321,7 +372,7 @@ const Seguro = () => {
             </Col>
             <Col span={19}>
               <label>SEGURADORA: <span style={{ color: 'red' }}>*</span></label>
-              <Select id='seguradora' placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={response => {
+              <Select id='seguradora' placeholder='SELECIONAR SEGURADORA' style={{ width: '100%', textTransform: 'uppercase' }} onChange={response => {
                 setDataNewSeguro(e => ({...e, seguradora: response }));
                 document.getElementById('inicioVigencia').focus()
               }}
@@ -529,14 +580,14 @@ const Seguro = () => {
             <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
           <Col span={24} style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{String(seguros.length).padStart(2, '0')}</span></div>
+            <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? String(valoresIniciais.seguros).padStart(2, '0') : String(seguros.length).padStart(2, '0')}</span></div>
             <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
               <div>
-                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(valoresIniciais.totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : Number(totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{!seguros.length > 0 ? 'R$ 0,00' : Number(totalPremio / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(valoresIniciais.totalPremio / valoresIniciais.seguros).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(totalPremio / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
             </div>
             <div style={{ width: '100%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
@@ -632,7 +683,7 @@ const Seguro = () => {
               <>
                 <div>
                   <div style={{ width: '100%' }}>PLACA:</div>
-                  <Input maxLength={7} style={{ width: '100%' }} type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
+                  <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
                 </div>
                 <div
                   style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
@@ -643,7 +694,7 @@ const Seguro = () => {
               <>
                 <div>
                   <div style={{ width: '100%' }}>CPF:</div>
-                  <Input style={{ width: '100%' }} type='tel' value={cpf} placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
+                  <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
                 </div>
                 <div
                   style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}

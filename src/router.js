@@ -11,7 +11,7 @@ const router = [
     pages: [
       {
         title: 'COTAÇÕES',
-        patchname: '/painel/cotacoes',
+        patchname: '/painel/ cotacoes',
         icon: 'bx bx-file',
       },
       {
@@ -43,7 +43,13 @@ const router = [
     title: 'CORRETORES',
     patchname: '/painel/corretores',
     icon: 'bx bx-user',
-    roles: ['administrador']
+    roles: ['administrador', 'gestor']
+  },
+  {
+    title: 'MENSAGENS',
+    patchname: '/painel/mensagens',
+    icon: 'bx bx-chat',
+    roles: ['administrador', 'gestor']
   },
 ]
 

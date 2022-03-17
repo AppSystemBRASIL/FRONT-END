@@ -17,7 +17,7 @@ import {
   notification
 } from 'antd';
 
-import { FaFileAlt, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaFileAlt, FaPlus } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons'
@@ -247,16 +247,16 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   }, []);
 
   const getCotacao = async (init) => {
-    let ref = firebase.firestore().collection('seguros').where('status', '==', 'ativo');
+    let ref = firebase.firestore().collection('seguros').where('ativo', '==', true);
 
     if(date) {
-      ref = ref.where('seguro.vigenciaToDate', '>=', startOfDay(new Date(date[0].toDate())));
-      ref = ref.where('seguro.vigenciaToDate', '<=', startOfDay(new Date(date[1].toDate())));
+      ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
+      ref = ref.where('seguro.vigencia', '<=', startOfDay(new Date(date[1].toDate())));
     }else {
-      ref = ref.where('seguro.vigenciaToDate', '>=', new Date());
+      ref = ref.where('seguro.vigencia', '>=', new Date());
     }
 
-    ref = ref.orderBy('seguro.vigenciaToDate', 'asc');
+    ref = ref.orderBy('seguro.vigencia', 'asc');
 
     if(user.tipo !== 'corretor') {
       ref = ref.where('corretora.uid', '==', corretora);
@@ -355,8 +355,9 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ],
       onOk: () => {
         firebase.firestore().collection('seguros').doc(dados.uid).set({
-          status: 'cancelado'
-        }, { merge: true });
+          ativo: false
+        }, { merge: true })
+        .then(() => setSeguros(resp => resp.filter(e => e.uid !== dados.uid)));
       },
       okText: 'CONFIRMAR',
       cancelText: 'FECHAR'
@@ -581,22 +582,26 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           )}
         />
         <Table.Column
+          width={220}
           key="seguro"
           dataIndex="seguro"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                FINAL DA VIGÊNCIA
+                VIGÊNCIA
               </div>
             ]
           }
-          render={(seguro) => (
-            <div className={!loadingData && 'skeleton'}>
-              {seguro ? format(seguro.vigenciaToDate.toDate(), 'dd/MM/yyyy') : '00000000000'}
+          render={(seguro) => seguro && (
+            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
+              {format(seguro.vigencia.toDate(), 'dd/MM/yyyy')}
+              <br/>
+              <span style={{ fontSize: '.7rem' }}>até: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
             </div>
           )}
         />
         <Table.Column
+          width={250}
           key="comissao"
           dataIndex="comissao"
           title={
@@ -606,11 +611,11 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               </div>
             ]
           }
-          render={(comissao) => (
+          render={(comissao) => comissao && (
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-              R$ {comissao && comissao.premio} | {comissao && Number(comissao.percentual).toFixed(0)}%
+              {Number(comissao.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(comissao.percentual).toFixed(0)}%
               <br/>
-              <span style={{ fontSize: '.7rem' }}>comissão: {comissao && Number(comissao.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+              <span style={{ fontSize: '.7rem' }}>comissão: {Number(comissao.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
             </div>
           )}
         />
