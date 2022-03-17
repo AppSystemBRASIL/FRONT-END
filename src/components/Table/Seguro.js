@@ -516,6 +516,25 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         }}
       >
         <Table.Column
+          width={220}
+          key="seguro"
+          dataIndex="seguro"
+          title={
+            [
+              <div className={!loadingData && 'skeleton'}>
+                VIGÊNCIA
+              </div>
+            ]
+          }
+          render={(seguro) => seguro && (
+            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
+              {format(seguro.vigencia.toDate(), 'dd/MM/yyyy')}
+              <br/>
+              <span style={{ fontSize: '.7rem' }}>até: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
+            </div>
+          )}
+        />
+        <Table.Column
           width={300}
           key="segurado"
           dataIndex="segurado"
@@ -590,25 +609,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           render={(seguradora) => (
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
               {seguradora ? seguradora.razao_social : '00000000000'}
-            </div>
-          )}
-        />
-        <Table.Column
-          width={220}
-          key="seguro"
-          dataIndex="seguro"
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                VIGÊNCIA
-              </div>
-            ]
-          }
-          render={(seguro) => seguro && (
-            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-              {format(seguro.vigencia.toDate(), 'dd/MM/yyyy')}
-              <br/>
-              <span style={{ fontSize: '.7rem' }}>até: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
             </div>
           )}
         />
