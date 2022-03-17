@@ -86,7 +86,7 @@ const ContentEndosso = ({ data, type }) => {
       }
     }
 
-    if(!state.valor || !state.percentual || !state.comissao) {
+    if(state.valor >= 0 || !state.percentual || !state.comissao) {
       notification.warn({
         message: 'PREENCHA TODOS OS CAMPOS!'
       });
