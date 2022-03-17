@@ -215,6 +215,24 @@ const Seguro = () => {
         });
 
         const arrayFirst = array.sort((a, b) => a.vigencia - b.vigencia)[0];
+
+        setDataNewSeguro(e => ({
+          ...e,
+          corretorUid: arrayFirst.corretor.uid,
+          placa: arrayFirst.veiculo.placa,
+          seguradora: arrayFirst.seguradora.uid,
+          vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
+          premio: arrayFirst.comissao.premio,
+          franquia: arrayFirst.comissao.franquia,
+          percentual: arrayFirst.comissao.percentual,
+          anoAdesao: arrayFirst.segurado.anoAdesao,
+          veiculo: arrayFirst.veiculo.veiculo,
+          nome: arrayFirst.segurado.nome,
+          cpf: arrayFirst.segurado.cpf,
+          telefone: arrayFirst.segurado.telefone,
+          condutor: arrayFirst.veiculo.condutor,
+          cep: arrayFirst.endereco.cep,
+        }))
       })
     }
   }, [dataNewSeguro.placa]);

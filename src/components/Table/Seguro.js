@@ -500,7 +500,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   return (
     <>
       <Table
-        dataSource={loadingData ? seguros.map(item => ({...item, key: generateToken()})) : _.times(listLimitDefault)}
+        dataSource={loadingData ? seguros.map(item => ({...item, key: generateToken(), seguro: { vigencia: item.seguro.vigencia, vigenciaFinal: item.seguro.vigenciaFinal }})).sort((a, b) => a.seguro.vigencia - b.seguro.vigencia) : _.times(listLimitDefault)}
         pagination={false}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
