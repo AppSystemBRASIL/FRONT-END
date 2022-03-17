@@ -420,7 +420,7 @@ const Login = () => {
     return (
       <Fragment>
         <Head>
-          <title>{modeView === 'sign-in-mode' ? 'LOGIN' : 'CADASTRAR'} - SEGURO APPSYSTEM-BRAISL</title>
+          <title>{modeView === 'sign-in-mode' ? 'LOGIN' : 'CADASTRAR'} - {businessInfo ? businessInfo.razao_social : 'SEGURO APPSYSTEM-BRAISL'}</title>
         </Head>
         <Container bg={businessInfo ? businessInfo.layout.theme : 'blue'} className={modeView}>
           <div className='forms-container'>

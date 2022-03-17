@@ -12,7 +12,7 @@ import Cards from 'react-credit-cards';
 import 'react-credit-cards/es/styles-compiled.css';
 
 const Perfil = () => {
-  const { loading, user, corretora } = useAuth();
+  const { loading, user, corretora, businessInfo } = useAuth();
 
   const CardComponent = ({children}) => {
     return (
@@ -38,9 +38,9 @@ const Perfil = () => {
   } 
 
   return (
-    <LayoutAdmin >
+    <LayoutAdmin>
       <Head>
-        <title>PERFIL - SEGURO APPSYSTEM-BRAISL</title>
+        <title>PERFIL - {businessInfo ? businessInfo.razao_social : 'SEGURO APPSYSTEM-BRAISL'}</title>
       </Head>
       <Content>
         <Row gutter={[16, 20]}>
