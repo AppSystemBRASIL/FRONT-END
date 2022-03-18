@@ -79,18 +79,20 @@ const Seguro = () => {
   });
 
   useEffect(() => {
-    firebase.firestore().collection('relatorios').doc('seguros').onSnapshot((response) => {
-      if(response.exists) {
-        const data = response.data();
-
-        setValoresIniciais({
-          seguros: data.total,
-          totalPremio: data.valores.premio,
-          totalComissao: data.valores.comissao,
-        });
-      }
-    })
-  }, []);
+    if(user) {
+      firebase.firestore().collection('relatorios_seguros').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).onSnapshot((response) => {
+        if(response.exists) {
+          const data = response.data();
+  
+          setValoresIniciais({
+            seguros: data.total,
+            totalPremio: data.valores.premio,
+            totalComissao: data.valores.comissao,
+          });
+        }
+      })
+    }
+  }, [user]);
 
   useEffect(() => {
     if(String(dataNewSeguro.cep).length === 9) {
@@ -214,25 +216,30 @@ const Seguro = () => {
           array.push({...data, created: data.created.toDate()})
         });
 
-        const arrayFirst = array.sort((a, b) => a.vigencia - b.vigencia)[0];
+        const arrayFirst = array.length > 0 ? array.sort((a, b) => a.vigencia - b.vigencia)[0] : null;
 
-        setDataNewSeguro(e => ({
-          ...e,
-          corretorUid: arrayFirst.corretor.uid,
-          placa: arrayFirst.veiculo.placa,
-          seguradora: arrayFirst.seguradora.uid,
-          vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
-          premio: arrayFirst.comissao.premio,
-          franquia: arrayFirst.comissao.franquia,
-          percentual: arrayFirst.comissao.percentual,
-          anoAdesao: arrayFirst.segurado.anoAdesao,
-          veiculo: arrayFirst.veiculo.veiculo,
-          nome: arrayFirst.segurado.nome,
-          cpf: arrayFirst.segurado.cpf,
-          telefone: arrayFirst.segurado.telefone,
-          condutor: arrayFirst.veiculo.condutor,
-          cep: arrayFirst.endereco.cep,
-        }))
+        if(arrayFirst) {
+          setDataNewSeguro(e => ({
+            ...e,
+            corretorUid: arrayFirst.corretor ? arrayFirst.corretor.uid : null,
+            placa: arrayFirst.veiculo.placa,
+            seguradora: arrayFirst.seguradora.uid,
+            vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
+            premio: arrayFirst.comissao.premio,
+            franquia: arrayFirst.comissao.franquia,
+            percentual: arrayFirst.comissao.percentual,
+            anoAdesao: arrayFirst.segurado.anoAdesao,
+            veiculo: arrayFirst.veiculo.veiculo,
+            nome: arrayFirst.segurado.nome,
+            cpf: arrayFirst.segurado.cpf,
+            telefone: arrayFirst.segurado.telefone,
+            condutor: arrayFirst.veiculo.condutor,
+            cep: arrayFirst.endereco.cep,
+            bairro: arrayFirst.endereco.bairro,
+            cidade: arrayFirst.endereco.cidade,
+            estado: arrayFirst.endereco.estado,
+          }))
+        }
       })
     }
   }, [dataNewSeguro.placa]);
@@ -322,7 +329,7 @@ const Seguro = () => {
         message: 'SEGURO CADASTRADO COM SUCESSO!',
       });
 
-      firebase.firestore().collection('relatorios').doc('seguros').set({
+      firebase.firestore().collection('relatorios_seguros').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).set({
         total: firebase.firestore.FieldValue.increment(1),
         valores: {
           premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),

@@ -72,7 +72,7 @@ const Perfil = () => {
                 }}
               >
                 <Col span={3}>
-                  <Image preview='false' src='https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1' alt='usuário' />
+                  <Image preview={false} src='https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1' alt='usuário' />
                   <center>
                     <label>{user.displayName}</label>
                   </center>
@@ -123,7 +123,7 @@ const Perfil = () => {
                 }}
               >
                 <Col span={3}>
-                  <Image preview='false' src={corretora.icon} alt='corretora' />
+                  <Image preview={false} src={corretora.icon} alt='corretora' />
                   <center>
                     <label>{corretora.razao_social}</label>
                   </center>

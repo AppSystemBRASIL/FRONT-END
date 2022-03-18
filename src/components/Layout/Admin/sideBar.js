@@ -40,7 +40,7 @@ const SideBar = ({ collapsed, responsive }) => {
     >
       <div className="logo-details" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10 }}>
         {businessInfo.icon ? (
-          <img width={50} preview='false' style={{ marginRight: 10 }} src={businessInfo.icon} />
+          <img width={50} preview={false} style={{ marginRight: 10 }} src={businessInfo.icon} />
         ) : (
           <i style={{fontSize: 45}} className='bx bx-car' />
         )}
@@ -119,7 +119,7 @@ const SideBar = ({ collapsed, responsive }) => {
         <li>
           <div className="profile-details">
             <div className="profile-content">
-              <Image preview='false' src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
+              <Image preview={false} src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
             </div>
             <span className='content-user'>
               <div className="name-job"

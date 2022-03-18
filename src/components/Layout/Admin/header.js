@@ -117,7 +117,7 @@ const Header = ({ collapsed }) => {
             <div style={{textTransform: 'uppercase', fontWeight: 700, fontSize: '1rem'}}>{user.displayName}</div>
             <div>{String(user.tipo).toUpperCase()}</div>
           </div>
-          <Image style={{width: 45, height: 45, borderRadius: 8, marginLeft: 10}} preview='false' src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
+          <Image style={{width: 45, height: 45, borderRadius: 8, marginLeft: 10}} preview={false} src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
           <DropdownMenu bg={businessInfo.layout.theme} className={'dropdown-menu '}>
             <div className={'content '+(collapsed ? 'collapsed' : null)}>
               <CSSTransition

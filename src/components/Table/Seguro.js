@@ -359,7 +359,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           ativo: false
         }, { merge: true })
         .then(() => {
-          firebase.firestore().collection('relatorios').doc('seguros').set({
+          firebase.firestore().collection('relatorios_seguros').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).set({
             total: firebase.firestore.FieldValue.increment(-1),
             valores: {
               premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
