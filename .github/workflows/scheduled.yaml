@@ -9,4 +9,4 @@ jobs:
       - name: Call our API route
         run: |
           curl --request POST \
-          --url 'https://seguro.appsystembrasil.com.br/api/cron' \
+          --url 'https://seguros-e-sinistros.vercel.app/api/cron' \
