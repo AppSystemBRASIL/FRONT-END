@@ -359,13 +359,25 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           ativo: false
         }, { merge: true })
         .then(() => {
-          firebase.firestore().collection('relatorios_seguros').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).set({
-            total: firebase.firestore.FieldValue.increment(-1),
-            valores: {
-              premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
-              comissao: firebase.firestore.FieldValue.increment(-dados.comissao.comissao),
-            }
-          }, { merge: true });
+          if(dados.corretor) {
+            firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(dados.corretor.uid).set({
+              total: firebase.firestore.FieldValue.increment(-1),
+              valores: {
+                premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
+                comissao: firebase.firestore.FieldValue.increment(-dados.comissao.comissao),
+              }
+            }, { merge: true });
+          }
+
+          if(dados.corretora) {
+            firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(dados.corretora.uid).set({
+              total: firebase.firestore.FieldValue.increment(-1),
+              valores: {
+                premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
+                comissao: firebase.firestore.FieldValue.increment(-dados.comissao.comissao),
+              }
+            }, { merge: true });
+          }
 
           setSeguros(resp => resp.filter(e => e.uid !== dados.uid));
         });

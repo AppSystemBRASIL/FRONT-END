@@ -80,7 +80,7 @@ const Seguro = () => {
 
   useEffect(() => {
     if(user) {
-      firebase.firestore().collection('relatorios_seguros').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).onSnapshot((response) => {
+      firebase.firestore().collection('relatorios').doc('seguros').collection(user.tipo !== 'corretor' ? 'corretora' : 'corretor').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).onSnapshot((response) => {
         if(response.exists) {
           const data = response.data();
   
@@ -337,13 +337,25 @@ const Seguro = () => {
         message: 'SEGURO CADASTRADO COM SUCESSO!',
       });
 
-      firebase.firestore().collection('relatorios_seguros').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).set({
-        total: firebase.firestore.FieldValue.increment(1),
-        valores: {
-          premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
-          comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
-        }
-      }, { merge: true })
+      if(data.corretor) {
+        firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
+          total: firebase.firestore.FieldValue.increment(1),
+          valores: {
+            premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
+            comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
+          }
+        }, { merge: true })
+      }
+
+      if(data.corretora) {
+        firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
+          total: firebase.firestore.FieldValue.increment(1),
+          valores: {
+            premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
+            comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
+          }
+        }, { merge: true })
+      }
 
       setViewNewSeguro(false);
     })
