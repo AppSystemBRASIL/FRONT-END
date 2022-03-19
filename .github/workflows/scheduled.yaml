@@ -1,12 +1,12 @@
-name: Cron job per day
+name: 15-minute-cron
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '*/15 * * * *'
 jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Cron job per day
+      - name: Call our API route
         run: |
           curl --request POST \
-          --url 'https://seguro.appsystembrasil.com.br/api/cron'
+          --url 'https://seguro.appsystembrasil.com.br/api/cron' \
