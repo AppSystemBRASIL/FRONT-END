@@ -1,7 +1,12 @@
 import Head from 'next/head';
 import Router from 'next/router';
-import NProgress from 'nprogress';
+
 import { AuthProvider } from '../context/AuthContext';
+import { ThemeProvider } from 'styled-components';
+import { ConfigProvider } from 'antd';
+import pt_BR from 'antd/lib/locale/pt_BR';
+
+import NProgress from 'nprogress';
 
 import 'antd/dist/antd.css';
 import '../styles/index.scss';
@@ -13,14 +18,6 @@ Router.events.on('routeChangeStart', () => {
 
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
-
-import { ThemeProvider } from 'styled-components';
-
-import {
-  ConfigProvider
-} from 'antd';
-
-import pt_BR from 'antd/lib/locale/pt_BR';
 
 const theme = {
   colors: {

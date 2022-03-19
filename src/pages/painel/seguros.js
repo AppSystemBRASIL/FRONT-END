@@ -219,9 +219,7 @@ const Seguro = () => {
         const arrayFirst = array.length > 0 ? array.sort((a, b) => a.vigencia - b.vigencia)[0] : null;
 
         if(arrayFirst) {
-          setDataNewSeguro(e => ({
-            ...e,
-            corretorUid: arrayFirst.corretor ? arrayFirst.corretor.uid : null,
+          const dataSeguro = {
             placa: arrayFirst.veiculo.placa,
             seguradora: arrayFirst.seguradora.uid,
             vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
@@ -238,7 +236,17 @@ const Seguro = () => {
             bairro: arrayFirst.endereco.bairro,
             cidade: arrayFirst.endereco.cidade,
             estado: arrayFirst.endereco.estado,
-          }))
+          }
+
+          if(arrayFirst.corretor) {
+            dataSeguro.corretorUid = arrayFirst.corretor ? arrayFirst.corretor.uid : null;
+            dataSeguro.corretorDisplayName = arrayFirst.corretor ? arrayFirst.corretor.nome : null;
+          }
+
+          setDataNewSeguro(e => ({
+            ...e,
+            ...dataSeguro
+          }));
         }
       })
     }
@@ -364,7 +372,7 @@ const Seguro = () => {
             {user.tipo !== 'corretor' && (
               <Col span={24}>
                 <label>CORRETOR:</label>
-                <Select placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={response => {
+                <Select allowClear placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={response => {
                   setDataNewSeguro(e => !response ? ({ ...e, corretorUid: null, corretorDisplayName: null }) : ({...e, corretorUid: response, corretorDisplayName: corretores.filter(resp => resp.uid === response)[0].displayName }));
 
                   document.getElementById('placaModal').focus();
