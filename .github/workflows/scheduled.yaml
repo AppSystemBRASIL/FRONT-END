@@ -1,4 +1,4 @@
-name: Hourly cron job
+name: Cron job per day
 on:
   schedule:
     - cron: '0 0 * * *'
@@ -6,7 +6,7 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Hourly cron job
+      - name: Cron job per day
         run: |
           curl --request POST \
           --url 'https://seguro.appsystembrasil.com.br/api/cron'
