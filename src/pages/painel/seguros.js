@@ -15,7 +15,7 @@ import {
   
 } from '../../hooks/mask'
 import generateToken from 'hooks/generateToken';
-import { addDays, addYears, endOfDay, format, setHours, setMinutes } from 'date-fns';
+import { addYears, endOfDay, format, setHours, setMinutes } from 'date-fns';
 import axios from 'axios';
 import printListSeguros from 'components/PDF/ListSeguros';
 
@@ -41,10 +41,6 @@ const Seguro = () => {
   const [corretor, setCorretor] = useState(null);
 
   const [date, setDate] = useState(null);
-
-  const [totalSeguro, setTotalSeguro] = useState(0);
-  const [totalPremio, setTotalPremio] = useState(0);
-  const [totalComissao, setTotalComissao] = useState(0);
 
   const [viewNewSeguro, setViewNewSeguro] = useState(false);
 
@@ -629,7 +625,7 @@ const Seguro = () => {
             position: 'relative'
           }}
         >
-          {((date || corretor || seguradora || (placa.length === 7 || cpf.length === 14)) && seguros.length > 0) && (
+          {(date && seguros.length > 0) && (
             <span
               style={{
                 position: 'absolute',
@@ -654,24 +650,24 @@ const Seguro = () => {
             <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{String(verifyFilter ? valoresIniciais.seguros : seguros.length).padStart(2, '0')}</span></div>
             <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
               <div>
-                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalPremio : totalPremio).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalPremio : seguros.reduce((a, b) => a + b.comissao.premio, 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalPremio / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(totalPremio / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalPremio / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(seguros.reduce((a, b) => a + b.comissao.premio, 0) / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
             </div>
             <div style={{ width: '100%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
               <div>
-                TOTAL DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalComissao : totalComissao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                TOTAL DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalComissao : seguros.reduce((a, b) => a + b.comissao.comissao, 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                VALOR MÉDIO DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalComissao / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(totalComissao / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                VALOR MÉDIO DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalComissao / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(seguros.reduce((a, b) => a + b.comissao.comissao, 0) / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
               </div>
               <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
               <div>
-                MÉDIA DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(((valoresIniciais.totalComissao / valoresIniciais.totalPremio) * 100) || 0).toFixed(2).split('.').join(',') : !seguros.length > 0 ? 0 : Number((totalComissao / totalPremio) * 100).toFixed(2).split('.').join(',')}%</span>
+                MÉDIA DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(((valoresIniciais.totalComissao / valoresIniciais.totalPremio) * 100) || 0).toFixed(2).split('.').join(',') : !seguros.length > 0 ? 0 : Number((seguros.reduce((a, b) => a + b.comissao.comissao, 0) / seguros.reduce((a, b) => a + b.comissao.premio, 0)) * 100).toFixed(2).split('.').join(',')}%</span>
               </div>
             </div>
           </Col>
@@ -782,11 +778,9 @@ const Seguro = () => {
           placa={placa}
           user={user}
           infiniteData={true}
-          setTotalSeguro={setTotalSeguro}
-          setTotalPremio={setTotalPremio} 
-          setTotalComissao={setTotalComissao} 
           corretora={corretora.uid}
           setSeguros={setSeguros}
+          seguros={seguros}
           setViewNewSeguro={setViewNewSeguro}
           setDataNewSeguro={setDataNewSeguro}
         />

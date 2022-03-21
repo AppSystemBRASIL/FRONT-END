@@ -213,9 +213,8 @@ const ContentEndosso = ({ data, type }) => {
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, setTotalSeguro, setTotalPremio, setTotalComissao, setSeguros: setSegurosList, setViewNewSeguro, setDataNewSeguro }) => {
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, setViewNewSeguro, setDataNewSeguro }) => {
   const [loadingData, setLoadingData] = useState(false);
-  const [seguros, setSeguros] = useState([]);
 
   const [lastData, setLastData] = useState(0);
 
@@ -295,38 +294,34 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         snap.forEach((item) => {
           array.push(item.data());
         });
-      }
 
-      if(snap.docs[snap.docs.length-1]) {
-        setLastData(snap.docs[snap.docs.length-1]);
-      }
-
-      setSeguros(response => {
-        const objetos = [...response];
-
-        array.map((item) => {
-          const index = objetos.findIndex(resp => resp.uid === item.uid);
-          if(index >= 0) {
-            objetos[index] = item;
-          }else {
-            objetos.push(item);
-          }
+        if(snap.docs[snap.docs.length-1]) {
+          setLastData(snap.docs[snap.docs.length-1]);
+        }
+  
+        setSeguros(response => {
+          const objetos = [...response];
+  
+          array.map((item) => {
+            const index = objetos.findIndex(resp => resp.uid === item.uid);
+            if(index >= 0) {
+              objetos[index] = item;
+            }else {
+              objetos.push(item);
+            }
+          });
+  
+          return objetos;
         });
 
-        setTotalPremio(objetos.reduce((a, b) => a + Number(String(b.comissao.premio).split('.').join('').split(',').join('.')), 0))
-        setTotalComissao(objetos.reduce((a, b) => a + Number(String(b.comissao.comissao)), 0))
-
-        setSegurosList(objetos);
-        return objetos;
-      });
-
-      if(array.length === (limit || listLimitDefault)) {
-        setViewButtonMore(true);
+        if(array.length === (limit || listLimitDefault)) {
+          setViewButtonMore(true);
+        }
+      }else {
+        setSeguros([]);
       }
-
-      setTotalSeguro(snap.size);
     });
-    
+
     setLoadingData(true);
   }
 
