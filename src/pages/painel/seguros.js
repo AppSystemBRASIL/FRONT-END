@@ -681,7 +681,7 @@ const Seguro = () => {
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
             <div>
-              <div style={{ width: '100%' }}>PERIODO:</div>
+              <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
               <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => setDate(e)} />
             </div>
             {(user && user.tipo !== 'corretor') && (

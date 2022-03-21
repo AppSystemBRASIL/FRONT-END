@@ -104,7 +104,7 @@ export default async function printListSeguros(seguros, corretora, filtros) {
             alignment: 'center'
           },
           {
-            text: format(item.seguro.vigenciaToDate.toDate(), 'dd/MM/yyyy'),
+            text: format(item.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
             fontSize: 10
           },
           {
