@@ -220,33 +220,27 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   const listLimitDefault = 10;
 
   useEffect(() => {
-    (async () => {
-      await setLastData(0);
-      await setSeguros([]);
-
-      if((cpf.length === 14) || (placa.length === 7)) {
+    if((cpf.length === 14) || (placa.length === 7)) {
+      getCotacao('init');
+    }else if(cpf.length === 0) {
+      if(placa.length === 7 || placa.length === 0) {
         getCotacao('init');
-      }else if(cpf.length === 0) {
-        if(placa.length === 7 || placa.length === 0) {
-          getCotacao('init');
-        }
-      }else if(placa.length === 0) {
-        if(cpf.length === 14 || cpf.length === 0) {
-          getCotacao('init');
-        }
       }
-    })();
+    }else if(placa.length === 0) {
+      if(cpf.length === 14 || cpf.length === 0) {
+        getCotacao('init');
+      }
+    }
   }, [cpf, placa, seguradora, corretor, date]);
 
   useEffect(() => {
-    (async () => {
-      await setLastData(0);
-      await setSeguros([]);
-      getCotacao('init');
-    })();
+    getCotacao('init');
   }, []);
 
   const getCotacao = async (init) => {
+    await setLastData(0);
+    await setSeguros([]);
+
     let ref = firebase.firestore().collection('seguros').where('ativo', '==', true);
 
     if(date) {
