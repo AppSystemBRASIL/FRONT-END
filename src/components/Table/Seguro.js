@@ -151,6 +151,10 @@ const ContentEndosso = ({ data, type }) => {
   return (
     <>
       <Row gutter={[20, 20]}>
+        <Col span={24}>
+          <label>SEGURADO:</label>
+          <Input value={data.segurado.nome} readOnly style={{ width: '100%', textTransform: 'uppercase' }} />
+        </Col>  
         {(type === 'VEÍCULO' || type === 'GERAL') && (
           <>
             <Col span={8}>
@@ -432,6 +436,10 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               <h3 style={{ margin: 0 }}>ENDOSSO - {item.tipo}</h3>
               <Divider style={{ margin: 0, marginBottom: 10 }} />
               <Row gutter={[20, 20]}>
+                <Col span={24}>
+                  <label>SEGURADO:</label>
+                  <Input value={item.segurado.nome} style={{ width: '100%', textTransform: 'uppercase' }} readOnly />
+                </Col>  
                 {(item.tipo === 'VEÍCULO' || item.tipo === 'GERAL') && (
                   <>
                     <Col span={8}>
@@ -450,18 +458,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     )}
                   </>
                 )}
-                <Col span={8}>
-                  <label>VALOR DO ENDOSSO:</label>
-                  <Input value={Number(item.valores.valor).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
-                </Col>
-                <Col span={8}>
-                  <label>COMISSÃO:</label>
-                  <Input value={Number(item.valores.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='%' style={{ textTransform: 'uppercase' }} readOnly />
-                </Col>
-                <Col span={8}>
-                  <label>COMISSÃO: </label>
-                  <Input value={Number(item.valores.percentual).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
-                </Col>
                 {(item.tipo === 'ENDEREÇO' || item.tipo === 'GERAL') && (
                   <>
                     <Col span={6}>
@@ -482,6 +478,18 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     </Col>
                   </>
                 )}
+                <Col span={8}>
+                  <label>VALOR DO ENDOSSO:</label>
+                  <Input value={Number(item.valores.valor).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
+                </Col>
+                <Col span={8}>
+                  <label>COMISSÃO:</label>
+                  <Input value={Number(item.valores.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='%' style={{ textTransform: 'uppercase' }} readOnly />
+                </Col>
+                <Col span={8}>
+                  <label>COMISSÃO: </label>
+                  <Input value={Number(item.valores.percentual).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
+                </Col>
               </Row>
             </div>
           ))}
