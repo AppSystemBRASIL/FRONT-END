@@ -17,7 +17,7 @@ import {
   notification
 } from 'antd';
 
-import { FaFileAlt, FaPlus } from 'react-icons/fa';
+import { FaEye, FaFileAlt, FaPlus } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons'
@@ -34,9 +34,9 @@ const ContentEndosso = ({ data, type }) => {
     placa: data.veiculo.placa,
     veiculo: data.veiculo.veiculo,
     condutor: data.veiculo.condutor,
-    valor: null,
+    valor: 0,
     percentual: data.comissao.percentual,
-    comissao: null,
+    comissao: 0,
     cep: data.endereco.cep,
     bairro: data.endereco.bairro,
     cidade: data.endereco.cidade,
@@ -86,7 +86,7 @@ const ContentEndosso = ({ data, type }) => {
       }
     }
 
-    if(state.valor >= 0 || !state.percentual || !state.comissao) {
+    if(Number(state.valor) >= 0 || Number(state.percentual) >= 0 || Number(state.comissao) >= 0) {
       notification.warn({
         message: 'PREENCHA TODOS OS CAMPOS!'
       });
@@ -167,18 +167,6 @@ const ContentEndosso = ({ data, type }) => {
             </Col>  
           </>
         )}
-        <Col span={8}>
-          <label>VALOR DO ENDOSSO:</label>
-          <Input value={state.valor} type='tel' autoComplete='off' style={{ textTransform: 'uppercase' }} prefix='R$' placeholder='0' onChange={(e) => setState(resp => ({ ...resp, valor: !e.target.value ? null : maskMoney(maskOnlyNumbers(e.target.value)) }))} />
-        </Col>
-        <Col span={8}>
-          <label>COMISSÃO:</label>
-          <Input value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))} />
-        </Col>
-        <Col span={8}>
-          <label>COMISSÃO: </label>
-          <Input value={!state.comissao ? 0 : Number(state.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} type='tel' readOnly prefix='R$' autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='0' />
-        </Col>
         {(type === 'ENDEREÇO' || type === 'GERAL') && (
           <>
             <Col span={6}>
@@ -199,6 +187,18 @@ const ContentEndosso = ({ data, type }) => {
             </Col>
           </>
         )}
+        <Col span={8}>
+          <label>VALOR DO ENDOSSO:</label>
+          <Input value={state.valor} type='tel' autoComplete='off' style={{ textTransform: 'uppercase' }} prefix='R$' placeholder='0' onChange={(e) => setState(resp => ({ ...resp, valor: !e.target.value ? null : maskMoney(maskOnlyNumbers(e.target.value)) }))} />
+        </Col>
+        <Col span={8}>
+          <label>COMISSÃO:</label>
+          <Input value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))} />
+        </Col>
+        <Col span={8}>
+          <label>COMISSÃO: </label>
+          <Input value={!state.comissao ? 0 : Number(state.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} type='tel' readOnly prefix='R$' autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='0' />
+        </Col>
       </Row>
       <Divider />
       <div style={{ float: 'right' }}>
@@ -629,11 +629,16 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               </div> 
             ]
           }
-          render={(comissao) => comissao && (
-            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-              {Number(comissao.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(comissao.percentual).toFixed(0)}%
-              <br/>
-              <span style={{ fontSize: '.7rem' }}>comissão: {Number(comissao.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+          render={(comissao, dados) => comissao && (
+            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
+              <div>
+                {Number(comissao.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(comissao.percentual).toFixed(0)}%
+                <br/>
+                <span style={{ fontSize: '.7rem' }}>comissão: {Number(comissao.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+              </div>
+              {dados.corretor && (
+                <FaEye color='#999' cursor='pointer' />
+              )}
             </div>
           )}
         />
