@@ -513,7 +513,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   return (
     <>
       <Table
-        dataSource={seguros?.map(item => ({...item, key: generateToken() }))}
+        dataSource={seguros?.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal)}
         pagination={false}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
