@@ -57,6 +57,7 @@ const Seguro = () => {
   });
 
   const [dataNewSeguro, setDataNewSeguro] = useState({
+    uid: null,
     search: false,
     corretorUid: null,
     corretorDisplayName: null,
@@ -116,6 +117,7 @@ const Seguro = () => {
 
   useEffect(() => {
     const dados = {
+      uid: null,
       search: false,
       corretorUid: null,
       corretorDisplayName: null,
@@ -258,7 +260,7 @@ const Seguro = () => {
   const salvarSeguro = async () => {
     function objetoVazio(obj) {
       for (const prop in obj) {
-        if((prop !== 'corretorUid' && prop !== 'corretorDisplayName') && obj[prop] === null) {
+        if((prop !== 'corretorUid' && prop !== 'corretorDisplayName' && prop !== 'bairro' && prop !== 'uid' &&  prop !== 'search') && obj[prop] === null) {
           return false;
         };
       }
@@ -336,37 +338,43 @@ const Seguro = () => {
         comissao: dataNewSeguro.comissao
       },
       ativo: true,
-      uid: generateToken(),
+      uid: dataNewSeguro.uid,
       created: new Date(),
       tipo: 'veicular'
     };
+
+    if(!dataNewSeguro.uid) {
+      data.uid = generateToken();
+    }
 
     await firebase.firestore().collection('seguros').doc(data.uid).set({
       ...data
     }, { merge: true })
     .then(() => {
       notification.success({
-        message: 'SEGURO CADASTRADO COM SUCESSO!',
+        message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
       });
 
-      if(data.corretor) {
-        firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
-          total: firebase.firestore.FieldValue.increment(1),
-          valores: {
-            premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
-            comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
-          }
-        }, { merge: true })
-      }
-
-      if(data.corretora) {
-        firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
-          total: firebase.firestore.FieldValue.increment(1),
-          valores: {
-            premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
-            comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
-          }
-        }, { merge: true })
+      if(!dataNewSeguro.search) {
+        if(data.corretor) {
+          firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
+            total: firebase.firestore.FieldValue.increment(1),
+            valores: {
+              premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
+              comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
+            }
+          }, { merge: true })
+        }
+  
+        if(data.corretora) {
+          firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
+            total: firebase.firestore.FieldValue.increment(1),
+            valores: {
+              premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
+              comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
+            }
+          }, { merge: true })
+        }
       }
 
       setViewNewSeguro(false);
@@ -586,7 +594,7 @@ const Seguro = () => {
               }} placeholder='CEP' />
             </Col>
             <Col span={6}>
-              <label>BAIRRO: <span style={{ color: 'red' }}>*</span></label>
+              <label>BAIRRO:</label>
               <Input id='bairroModal' autoComplete='off' value={dataNewSeguro.bairro} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, bairro: !response.target.value ? '' : response.target.value}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('cidadeModal').focus();

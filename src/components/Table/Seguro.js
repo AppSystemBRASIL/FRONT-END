@@ -700,9 +700,10 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                               await setDataNewSeguro(e => (
                               {
                                 ...e,
+                                uid: dados.uid,
                                 search: true,
                                 placa: dados.veiculo.placa,
-                                corretor: dados.corretor ? dados.corretor.uid : null,
+                                corretorUid: dados.corretor ? dados.corretor.uid : null,
                                 seguradora: dados.seguradora ? dados.seguradora.uid : null,
                                 vigencia: format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
                                 vigenciaFinal: format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
