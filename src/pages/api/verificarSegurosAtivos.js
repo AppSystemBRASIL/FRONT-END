@@ -7,7 +7,23 @@ export default async function handler(req, res) {
   .firestore()
   .collection('seguros')
   .where('ativo', '==', true)
-  .where('vigenciaFinal', '>', new Date())
+  .where('seguro.vigenciaFinal', '<', new Date())
+  .get()
+  .then((response) => {
+    if(!response.empty) {
+      response.forEach((item) => {
+        firebase.firestore().collection('seguros').doc(item.data().uid).set({
+          ativo: false
+        }, { merge: true });
+      })
+    }
+  });
+
+  await firebase
+  .firestore()
+  .collection('seguros')
+  .where('ativo', '==', true)
+  .where('seguro.vigenciaFinal', '>=', new Date())
   .get()
   .then((response) => {
     const array = [];
@@ -54,24 +70,6 @@ export default async function handler(req, res) {
       }, { merge: true });
     });
   });
-
-  await firebase
-  .firestore()
-  .collection('seguros')
-  .where('ativo', '==', true)
-  .where('vigenciaFinal', '<', new Date())
-  .get()
-  .then((response) => {
-    if(!response.empty) {
-      response.forEach(async (item) => {
-        const uid = item.data().uid;
-
-        await firebase.firestore().collection('seguros').doc(uid).set({
-          ativo: false
-        }, { merge: true });
-      })
-    }
-  })
   
   const date = new Date();
 

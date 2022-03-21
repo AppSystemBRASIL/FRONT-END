@@ -24,7 +24,7 @@ import {
 
 import _ from 'lodash';
 
-import { format, startOfDay } from 'date-fns';
+import { endOfDay, format, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
 import { maskCEP, maskMoney, maskOnlyNumbers } from 'hooks/mask';
 import axios from 'axios';
@@ -213,7 +213,7 @@ const ContentEndosso = ({ data, type }) => {
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, setTotalSeguro, setTotalPremio, setTotalComissao, setSeguros: setSegurosList }) => {
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, setTotalSeguro, setTotalPremio, setTotalComissao, setSeguros: setSegurosList, setViewNewSeguro, setDataNewSeguro }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [seguros, setSeguros] = useState([]);
 
@@ -249,7 +249,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
 
     if(date) {
       ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
-      ref = ref.where('seguro.vigencia', '<=', startOfDay(new Date(date[1].toDate())));
+      ref = ref.where('seguro.vigencia', '<', endOfDay(new Date(date[1].toDate())));
       ref = ref.orderBy('seguro.vigencia', 'asc');
     }else {
       ref = ref.where('seguro.vigenciaFinal', '>=', new Date());
@@ -694,6 +694,39 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                           )}
                           <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
                             ENDOSSO DE CANCELAMENTO
+                          </Menu.Item>
+                          <Menu.Item icon={<FaFileAlt />} onClick={async () => {
+                            setTimeout(async () => {
+                              await setDataNewSeguro(e => (
+                              {
+                                ...e,
+                                search: true,
+                                placa: dados.veiculo.placa,
+                                corretor: dados.corretor ? dados.corretor.uid : null,
+                                seguradora: dados.seguradora ? dados.seguradora.uid : null,
+                                vigencia: format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
+                                vigenciaFinal: format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
+                                premio: Number(dados.comissao.premio).toLocaleString('pt-br', {minimumFractionDigits: 2}),
+                                franquia: Number(dados.comissao.franquia).toLocaleString('pt-br', {minimumFractionDigits: 2}),
+                                comissao: dados.comissao.comissao,
+                                percentual: dados.comissao.percentual,
+                                nome: dados.segurado.nome,
+                                anoAdesao: dados.segurado.anoAdesao,
+                                veiculo: dados.veiculo.veiculo,
+                                telefone: dados.segurado.telefone,
+                                cpf: dados.segurado.cpf,
+                                condutor: dados.veiculo.condutor,
+                                cep: dados.endereco.cep,
+                                bairro: dados.endereco.bairro,
+                                cidade: dados.endereco.cidade,
+                                estado: dados.endereco.estado,
+                              }
+                            ));
+                            }, 100)
+
+                            setViewNewSeguro(true);
+                          }}>
+                            AJUSTE GERAL
                           </Menu.Item>
                         </Menu>
                       )}>

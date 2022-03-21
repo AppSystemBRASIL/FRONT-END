@@ -57,6 +57,7 @@ const Seguro = () => {
   });
 
   const [dataNewSeguro, setDataNewSeguro] = useState({
+    search: false,
     corretorUid: null,
     corretorDisplayName: null,
     anoAdesao: null,
@@ -115,6 +116,7 @@ const Seguro = () => {
 
   useEffect(() => {
     const dados = {
+      search: false,
       corretorUid: null,
       corretorDisplayName: null,
       anoAdesao: null,
@@ -206,7 +208,7 @@ const Seguro = () => {
   });
 
   useEffect(() => {
-    if(String(dataNewSeguro.placa).length === 7) {
+    if(String(dataNewSeguro.placa).length === 7 && dataNewSeguro.search === false) {
       firebase.firestore().collection('seguros').where('veiculo.placa', '==', String(dataNewSeguro.placa)).get()
       .then((response) => {
         const array = [];
@@ -777,6 +779,8 @@ const Seguro = () => {
           setTotalComissao={setTotalComissao} 
           corretora={corretora.uid}
           setSeguros={setSeguros}
+          setViewNewSeguro={setViewNewSeguro}
+          setDataNewSeguro={setDataNewSeguro}
         />
       </CardComponent>
     </LayoutAdmin>
