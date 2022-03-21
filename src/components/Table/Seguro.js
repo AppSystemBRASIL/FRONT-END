@@ -256,7 +256,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.orderBy('seguro.vigenciaFinal', 'asc');
     }
 
-
     if(user.tipo !== 'corretor') {
       ref = ref.where('corretora.uid', '==', corretora);
     }else {
@@ -514,7 +513,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   return (
     <>
       <Table
-        dataSource={loadingData ? seguros.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())) : _.times(listLimitDefault)}
+        dataSource={seguros?.map(item => ({...item, key: generateToken() }))}
         pagination={false}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{

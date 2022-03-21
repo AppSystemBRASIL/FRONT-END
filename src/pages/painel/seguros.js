@@ -15,7 +15,7 @@ import {
   
 } from '../../hooks/mask'
 import generateToken from 'hooks/generateToken';
-import { addDays, addYears, format, setHours, setMinutes } from 'date-fns';
+import { addDays, addYears, endOfDay, format, setHours, setMinutes } from 'date-fns';
 import axios from 'axios';
 import printListSeguros from 'components/PDF/ListSeguros';
 
@@ -311,7 +311,7 @@ const Seguro = () => {
       },
       seguro: {
         vigencia: setMinutes(setHours(new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]), 0), 0),
-        vigenciaFinal: addDays(setMinutes(setHours(addYears(new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]), 1), 0), 0), 1),
+        vigenciaFinal: endOfDay(setMinutes(setHours(addYears(new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]), 1), 0), 0)),
       },
       segurado: {
         anoAdesao: dataNewSeguro.anoAdesao,
