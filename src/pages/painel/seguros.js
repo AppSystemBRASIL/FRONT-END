@@ -20,6 +20,7 @@ import axios from 'axios';
 import printListSeguros from 'components/PDF/ListSeguros';
 
 import { useTheme } from 'styled-components';
+import { validateCPF } from 'hooks/validate';
 
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
@@ -281,6 +282,15 @@ const Seguro = () => {
       return;
     }
 
+    if(!validateCPF(dataNewSeguro.cpf)) {
+      notification.destroy();
+      notification.warn({
+        message: 'CPF INVÁLIDO!'
+      });
+
+      return;
+    }
+
     const vigencia = dataNewSeguro.vigencia.split('/');
 
     const data = {
@@ -532,7 +542,13 @@ const Seguro = () => {
               <Input autoComplete='off' id='cpfSeguro' placeholder='CPF DO SEGURADO'
                 onKeyPress={(e) => {
                   if(e.code === 'Enter') {
-                    document.getElementById('telefoneModal').focus()
+                    if(validateCPF(dataNewSeguro.cpf)) {
+                      document.getElementById('telefoneModal').focus()
+                    }else {
+                      notification.warn({
+                        message: 'CPF INVÁLIDO!'
+                      })
+                    }
                   }
                 }}
                 value={dataNewSeguro.cpf}
