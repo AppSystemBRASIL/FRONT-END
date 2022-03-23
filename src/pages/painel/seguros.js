@@ -4,7 +4,7 @@ import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider } fro
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers, maskPhone, maskYear } from '../../hooks/mask';
+import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers, maskPhone, maskPlaca, maskYear } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
 import { FaPlus, FaPrint } from 'react-icons/fa';
@@ -20,7 +20,7 @@ import axios from 'axios';
 import printListSeguros from 'components/PDF/ListSeguros';
 
 import { useTheme } from 'styled-components';
-import { validateCPF } from 'hooks/validate';
+import { validarCelular, validarPlaca, validateCPF } from 'hooks/validate';
 
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
@@ -291,6 +291,24 @@ const Seguro = () => {
       return;
     }
 
+    if(!validarPlaca(dataNewSeguro.placa)) {
+      notification.destroy();
+      notification.warn({
+        message: 'PLACA INVÁLIDA!'
+      });
+
+      return;
+    }
+
+    if(!validarCelular(dataNewSeguro.telefone)) {
+      notification.destroy();
+      notification.warn({
+        message: 'CELULAR INVÁLIDO!'
+      });
+
+      return;
+    }
+
     const vigencia = dataNewSeguro.vigencia.split('/');
 
     const data = {
@@ -415,6 +433,9 @@ const Seguro = () => {
                 }
                 value={dataNewSeguro.corretorUid}
                 >
+                  <Select.Option value={null}>
+                    {corretora.razao_social}
+                  </Select.Option>
                   {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
                     <Select.Option key={index} value={item.uid}>
                       {item.nomeCompleto}
@@ -425,9 +446,15 @@ const Seguro = () => {
             )}
             <Col span={5}>
               <label>PLACA: <span style={{ color: 'red' }}>*</span></label>
-              <Input id='placaModal' autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: String(response.target.value).toUpperCase()}))} onKeyPress={(e) => {
+              <Input id='placaModal' autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: maskPlaca(String(response.target.value)).toUpperCase()}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
-                  document.getElementById('seguradora').focus()
+                  if(validarPlaca(dataNewSeguro.placa)) {
+                    document.getElementById('seguradora').focus()
+                  }else {
+                    notification.warn({
+                      message: 'PLACA INVÁLIDA!'
+                    })
+                  }
                 }
               }} placeholder='PLACA' />
             </Col>
@@ -531,7 +558,7 @@ const Seguro = () => {
                 onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
               />
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <label>SEGURADO: <span style={{ color: 'red' }}>*</span></label>
               <Input autoComplete='off' id='nomeSeguradoText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
                 onKeyPress={(e) => {
@@ -543,7 +570,7 @@ const Seguro = () => {
                 onChange={(e) => setDataNewSeguro(response => ({...response, nome: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
               />  
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <label>CPF: <span style={{ color: 'red' }}>*</span></label>
               <Input autoComplete='off' id='cpfSeguro' placeholder='CPF DO SEGURADO'
                 onKeyPress={(e) => {
@@ -561,11 +588,17 @@ const Seguro = () => {
                 onChange={(e) => setDataNewSeguro(response => ({...response, cpf: maskCPF(e.target.value)}))}
               />
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <label>TELEFONE: <span style={{ color: 'red' }}>*</span></label>
               <Input id='telefoneModal' autoComplete='off' maxLength={15} value={dataNewSeguro.telefone} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, telefone: !response.target.value ? '' : maskPhone(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
-                  document.getElementById('condutorText').focus();
+                  if(validarCelular(dataNewSeguro.telefone)) {
+                    document.getElementById('condutorText').focus();
+                  }else {
+                    notification.warn({
+                      message: 'CELULAR INVÁLIDO!'
+                    })
+                  }
                 }
               }} placeholder='TELEFONE' />
             </Col>

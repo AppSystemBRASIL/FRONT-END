@@ -34,3 +34,30 @@ export function validateCPF(cpf) {
 		return false;		
 	return true;   
 }
+
+export function validarPlaca(placa){
+  var resposta = false;
+
+  const regexPlaca = /^[a-zA-Z]{3}[0-9]{4}$/;
+  const regexPlacaMercosulCarro = /^[a-zA-Z]{3}[0-9]{1}[a-zA-Z]{1}[0-9]{2}$/;
+  const regexPlacaMercosulMoto = /^[a-zA-Z]{3}[0-9]{2}[a-zA-Z]{1}[0-9]{1}$/;
+
+  if(regexPlaca.test(placa)){
+    resposta = true;
+  }
+
+  if(regexPlacaMercosulCarro.test(placa)){
+    resposta = true;
+  }
+
+  if(regexPlacaMercosulMoto.test(placa)){
+    resposta = true;
+  }
+
+  return resposta;
+}
+
+export function validarCelular (phone) {
+  var regex = /(\(\d{2}\)\s)(\d{5}\-\d{4})/g;
+  return regex.test(phone);
+}

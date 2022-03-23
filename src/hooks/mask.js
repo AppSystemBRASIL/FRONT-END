@@ -41,16 +41,16 @@ export const maskPhone = (value) => {
 }
 
 export const maskMoney = (value) => {
-  value = value.replace('.', '').replace(',', '').replace(/\D/g, '')
+  value = value.replace('.', '').replace(',', '').replace(/\D/g, '') || 0;
 
-  const options = { minimumFractionDigits: 2 }
+  const options = { minimumFractionDigits: 2 };
+
   const result = new Intl.NumberFormat('pt-BR', options).format(
     parseFloat(value) / 100
-  )
+  );
 
-  return result
+  return result || 0;
 }
-
 
 // 00000-000
 export const maskCEP = value => {
@@ -72,6 +72,11 @@ export const maskDate = value => {
     .replace(/(\d{4})(\d)/, "$1");
 };
 
+//placa
+export const maskPlaca = value => {
+  return value;
+};
+
 // Aceita apenas que letras sejam digitadas
 export const maskOnlyLetters = value => {
   return value.replace(/[0-9!@#¨$%^&*)(+=._-]+/g, "");
@@ -79,5 +84,5 @@ export const maskOnlyLetters = value => {
 
 // Aceita apenas números
 export const maskOnlyNumbers = value => {
-  return value.replace(/\D/g, "");
+  return value.replace(/\D/g, "") || 0;
 };
