@@ -52,8 +52,8 @@ export default async function handler(req, res) {
       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
         total: data.length,
         valores: {
-          comissao: data.reduce((accum, curr) => accum + curr.comissao.comissao, 0),
-          premio: data.reduce((accum, curr) => accum + curr.comissao.premio, 0),
+          comissao: data.reduce((accum, curr) => accum + curr.valores.comissao, 0),
+          premio: data.reduce((accum, curr) => accum + curr.valores.premio, 0),
         }
       }, { merge: true });
     });
@@ -64,8 +64,8 @@ export default async function handler(req, res) {
       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
         total: data.length,
         valores: {
-          comissao: data.reduce((accum, curr) => accum + curr.comissao.comissao, 0),
-          premio: data.reduce((accum, curr) => accum + curr.comissao.premio, 0),
+          comissao: data.reduce((accum, curr) => accum + curr.valores.comissao, 0),
+          premio: data.reduce((accum, curr) => accum + curr.valores.premio, 0),
         }
       }, { merge: true });
     });

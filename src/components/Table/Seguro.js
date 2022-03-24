@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
+import MaskedInput from 'antd-mask-input';
+
 import {
   Table,
   Button,
@@ -24,18 +26,21 @@ import {
 
 import _ from 'lodash';
 
-import { endOfDay, format, startOfDay } from 'date-fns';
+import { endOfDay, format, formatDistanceStrict, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
-import { maskCEP, maskMoney, maskOnlyNumbers } from 'hooks/mask';
+import { maskCEP, maskMoney, maskOnlyNumbers, maskDate } from 'hooks/mask';
 import axios from 'axios';
+import { validarData } from 'hooks/validate';
+import { useTheme } from 'styled-components';
 
-const ContentEndosso = ({ data, type }) => {
+const ContentEndosso = ({ data, type, businessInfo, theme }) => {
+
   const [state, setState] = useState({
     placa: data.veiculo.placa,
     veiculo: data.veiculo.veiculo,
     condutor: data.veiculo.condutor,
     valor: 0,
-    percentual: data.comissao.percentual,
+    percentual: data.valores.percentual,
     comissao: 0,
     cep: data.endereco.cep,
     bairro: data.endereco.bairro,
@@ -206,14 +211,14 @@ const ContentEndosso = ({ data, type }) => {
       </Row>
       <Divider />
       <div style={{ float: 'right' }}>
-        <Button onClick={() => Modal.destroyAll()}>FECHAR</Button>
-        <Button style={{ background: '#141414', color: 'white', border: 'none', outline: 'none', marginLeft: 10, fontWeight: 'bold' }} onClick={confirmarEndosso}>CONFIRMAR</Button>
+        <Button onClick={() => Modal.destroyAll()} style={{ border: '1px solid black', outline: 'none', color: 'black' }}>FECHAR</Button>
+        <Button style={{ background: theme.colors[businessInfo.layout.theme].primary, color: 'white', border: 'none', outline: 'none', marginLeft: 10, fontWeight: 'bold' }} onClick={confirmarEndosso}>CONFIRMAR</Button>
       </div>
     </>
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, setViewNewSeguro, setDataNewSeguro }) => {
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, setViewNewSeguro, setDataNewSeguro, businessInfo }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -221,6 +226,8 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   const [viewButtonMore, setViewButtonMore] = useState(false);
 
   const listLimitDefault = 10;
+
+  const theme = useTheme();
 
   useEffect(() => {
     if((cpf.length === 14) || (placa.length === 7)) {
@@ -326,56 +333,142 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   }
 
   const cancelarSeguro = (dados) => {
-    Modal.confirm({
+    let dateCancel = '';
+
+    let valorRembolso = 0;
+
+    const modal = Modal.confirm({
       width: '50%',
       title: 'DESEJA REALMENTE CANCELAR O SEGURO?',
+      closable: true,
       content: [
         <>
           <h3>
             Ao confirmar a ação não será possível desfazer a mesma
           </h3>
           <br/>
-          <span>
-            <b>SEGURADO:</b> {dados.segurado.nome}
-            <br/>
-            <b>SEGURADORA:</b> {dados.seguradora.razao_social}
-            <br/>
-            <b>PLACA:</b> {dados.veiculo.placa}
-            <br/>
-            <b>VEÍCULO:</b> {dados.veiculo.veiculo}
-          </span>
+          <div>
+            <div>
+              <b>SEGURADO:</b><br/>{dados.segurado.nome}
+              <br/>
+              <br/>
+              <b>SEGURADORA:</b><br/>{dados.seguradora.razao_social}
+              <br/>
+              <br/>
+              <b>PLACA:</b><br/>{dados.veiculo.placa}
+              <br/>
+              <br/>
+              <b>VEÍCULO:</b><br/>{dados.veiculo.veiculo}
+              <br/>
+              <br/>
+              <b>VIGÊNCIA ATÉ:</b><br/>{format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}
+              <br/>
+              <br/>
+            </div>
+            <b>DATA DO CANCELAMENTO:</b>
+            <MaskedInput mask='11/11/1111' placeholderChar={null} type='tel' onChange={(e) => {
+              if(e.target.value) {
+                const data = maskDate(e.target.value);
+                dateCancel = data;
+                
+                if(validarData(data)) {
+                  const dia = dateCancel.split('/')[0];
+                  const mes = dateCancel.split('/')[1];
+                  const ano = dateCancel.split('/')[2];
+
+                  const dataCancelamento = new Date(ano, (mes - 1), dia);
+                  const dataVigencia = dados.seguro.vigenciaFinal.toDate();
+
+                  const daysDistance = Number(formatDistanceStrict(dataCancelamento, dataVigencia, { unit: 'day', roundingMethod: 'floor' }).split(' ')[0]) - 1;
+                
+                  const valorDay = dados.valores.comissao / 365;
+
+                  const proporcaoValorDay = valorDay * daysDistance;
+                }
+              }else {
+                dateCancel = '';
+              }
+            }} autoComplete='off' />
+          </div>
+          <Divider />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
+            <div>
+              <label>VALOR DE ESTORNO:</label>
+              <h2 style={{ margin: 0, padding: 0 }}>{Number(valorRembolso).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}</h2>
+            </div>
+            <div>
+              <Button onClick={() => modal.destroy()}
+                style={{
+                  border: '1px solid black',
+                  outline: 'none',
+                  color: 'black'
+                }}
+              >
+                FECHAR
+              </Button>
+              <Button
+                style={{
+                  marginLeft: 10,
+                  background: theme.colors[businessInfo.layout.theme].primary,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  outline: 'none'
+                }}
+                onClick={async () => {
+                  if(!validarData(dateCancel)) {
+                    notification.destroy();
+                    notification.warn({
+                      message: 'PREENCHA A DATA DE CANCELAMENTO!'
+                    });
+
+                    return;
+                  }
+
+                  await firebase.firestore().collection('seguros').doc(dados.uid).set({
+                    ativo: false,
+                    cancelada: dateCancel
+                  }, { merge: true })
+                  .then(async () => {
+                    if(dados.corretor) {
+                      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(dados.corretor.uid).set({
+                        total: firebase.firestore.FieldValue.increment(-1),
+                        valores: {
+                          premio: firebase.firestore.FieldValue.increment(-Number(String(dados.valores.premio).split('.').join('').split(',').join('.'))),
+                          comissao: firebase.firestore.FieldValue.increment(-dados.valores.comissao),
+                        }
+                      }, { merge: true });
+                    }
+
+                    if(dados.corretora) {
+                      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(dados.corretora.uid).set({
+                        total: firebase.firestore.FieldValue.increment(-1),
+                        valores: {
+                          premio: firebase.firestore.FieldValue.increment(-Number(String(dados.valores.premio).split('.').join('').split(',').join('.'))),
+                          comissao: firebase.firestore.FieldValue.increment(-dados.valores.comissao),
+                        }
+                      }, { merge: true });
+                    }
+
+                    setSeguros(resp => resp.filter(e => e.uid !== dados.uid));
+                  });
+                }}
+              >
+                CONFIRMAR
+              </Button>
+            </div>
+          </div>
         </>
       ],
-      onOk: () => {
-        firebase.firestore().collection('seguros').doc(dados.uid).set({
-          ativo: false
-        }, { merge: true })
-        .then(() => {
-          if(dados.corretor) {
-            firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(dados.corretor.uid).set({
-              total: firebase.firestore.FieldValue.increment(-1),
-              valores: {
-                premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
-                comissao: firebase.firestore.FieldValue.increment(-dados.comissao.comissao),
-              }
-            }, { merge: true });
-          }
-
-          if(dados.corretora) {
-            firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(dados.corretora.uid).set({
-              total: firebase.firestore.FieldValue.increment(-1),
-              valores: {
-                premio: firebase.firestore.FieldValue.increment(-Number(String(dados.comissao.premio).split('.').join('').split(',').join('.'))),
-                comissao: firebase.firestore.FieldValue.increment(-dados.comissao.comissao),
-              }
-            }, { merge: true });
-          }
-
-          setSeguros(resp => resp.filter(e => e.uid !== dados.uid));
-        });
+      okButtonProps: {
+        style: {
+          display: 'none'
+        }
       },
-      okText: 'CONFIRMAR',
-      cancelText: 'FECHAR'
+      cancelButtonProps: {
+        style: {
+          display: 'none'
+        }
+      }
     })
   }
 
@@ -389,7 +482,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           <Divider style={{ margin: 0, marginBottom: 10 }} />
         </>
       ],
-      content: <ContentEndosso data={data} type={type} />,
+      content: <ContentEndosso data={data} type={type} theme={theme} businessInfo={businessInfo} />,
       okButtonProps: {
         style: {
           display: 'none',
@@ -488,7 +581,13 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             </div>
           ))}
           <div style={{ float: 'right' }}>
-            <Button onClick={() => Modal.destroyAll()}>FECHAR</Button>
+            <Button onClick={() => Modal.destroyAll()}
+              style={{
+                border: '1px solid black',
+                outline: 'none',
+                color: 'black'
+              }}
+            >FECHAR</Button>
           </div>
         </>
       ],
@@ -622,8 +721,8 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         />
         <Table.Column
           width={250}
-          key="comissao"
-          dataIndex="comissao"
+          key="valores"
+          dataIndex="valores"
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -631,12 +730,12 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               </div> 
             ]
           }
-          render={(comissao, dados) => comissao && (
+          render={(valores, dados) => valores && (
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
               <div>
-                {Number(comissao.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(comissao.percentual).toFixed(0)}%
+                {Number(valores.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(valores.percentual).toFixed(0)}%
                 <br/>
-                <span style={{ fontSize: '.7rem' }}>comissão: {Number(comissao.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+                <span style={{ fontSize: '.7rem' }}>comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
               </div>
               {dados.corretor && (
                 <FaEye color='#999' cursor='pointer' />
@@ -702,10 +801,10 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                                 seguradora: dados.seguradora ? dados.seguradora.uid : null,
                                 vigencia: format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
                                 vigenciaFinal: format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
-                                premio: Number(dados.comissao.premio).toLocaleString('pt-br', {minimumFractionDigits: 2}),
-                                franquia: Number(dados.comissao.franquia).toLocaleString('pt-br', {minimumFractionDigits: 2}),
-                                comissao: dados.comissao.comissao,
-                                percentual: dados.comissao.percentual,
+                                premio: Number(dados.valores.premio).toLocaleString('pt-br', {minimumFractionDigits: 2}),
+                                franquia: Number(dados.valores.franquia).toLocaleString('pt-br', {minimumFractionDigits: 2}),
+                                comissao: dados.valores.comissao,
+                                percentual: dados.valores.percentual,
                                 nome: dados.segurado.nome,
                                 anoAdesao: dados.segurado.anoAdesao,
                                 veiculo: dados.veiculo.veiculo,
@@ -726,7 +825,13 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                           </Menu.Item>
                         </Menu>
                       )}>
-                        <Button block>
+                        <Button block
+                          style={{
+                            border: '1px solid black',
+                            outline: 'none',
+                            color: 'black'
+                          }}
+                        >
                           OPÇÕES <DownOutlined />
                         </Button>
                       </Dropdown>

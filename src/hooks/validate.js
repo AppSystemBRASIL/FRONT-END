@@ -57,7 +57,13 @@ export function validarPlaca(placa){
   return resposta;
 }
 
-export function validarCelular (phone) {
+export function validarCelular(phone) {
   var regex = /(\(\d{2}\)\s)(\d{5}\-\d{4})/g;
   return regex.test(phone);
+}
+
+export function validarData(data) {
+  const regex = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
+  
+  return regex.test(data);
 }

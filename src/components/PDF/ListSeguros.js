@@ -120,7 +120,7 @@ export default async function printListSeguros(seguros, corretora, filtros) {
             fontSize: 10
           },
           {
-            text: item.comissao.percentual,
+            text: item.valores.percentual,
             fontSize: 10
           },
         ])

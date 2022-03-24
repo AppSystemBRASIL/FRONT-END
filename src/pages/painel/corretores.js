@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
 import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider, InputNumber } from 'antd';
 
-import TableSeguro from '../../components/Table/Seguro';
+import TableCorretores from '../../components/Table/Corretores';
 
 import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers, maskPhone, maskPlaca, maskYear } from '../../hooks/mask';
 
@@ -53,10 +53,6 @@ const Seguro = () => {
   });
 
   const [dataNewSeguro, setDataNewSeguro] = useState({
-    comissaoCorretora: '100,00',
-    comissaoCorretoraValor: 0,
-    comissaoCorretor: '0,00',
-    comissaoCorretorValor: 0,
     parcelas: 1,
     uid: null,
     search: false,
@@ -118,10 +114,6 @@ const Seguro = () => {
 
   useEffect(() => {
     const dados = {
-      comissaoCorretora: '100,00',
-      comissaoCorretoraValor: 0,
-      comissaoCorretor: '0,00',
-      comissaoCorretorValor: 0,
       parcelas: 1,
       uid: null,
       search: false,
@@ -201,17 +193,11 @@ const Seguro = () => {
   }, [user]);
 
   useEffect(() => {
-    const comissaoNumber = Number((Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')) / 100) * Number(String(dataNewSeguro.percentual).split('.').join('').split(',').join('.')));
-    const comissaoCorretoraValorNumber = Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.')));
-    const comissaoCorretorValorNumber = Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')));
-
     setDataNewSeguro(e => ({
       ...e,
-      comissao: comissaoNumber,
-      comissaoCorretoraValor: comissaoCorretoraValorNumber,
-      comissaoCorretorValor: comissaoCorretorValorNumber,
+      comissao: Number((Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')) / 100) * dataNewSeguro.percentual)
     }))
-  }, [dataNewSeguro.premio, dataNewSeguro.percentual, dataNewSeguro.comissaoCorretora]);
+  }, [dataNewSeguro.premio, dataNewSeguro.percentual]);
 
   const printSeguros = async () => await printListSeguros(seguros, corretora, {
     date,
@@ -365,7 +351,7 @@ const Seguro = () => {
         parcelas: dataNewSeguro.parcelas,
         premio: Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')),
         franquia: Number(String(dataNewSeguro.franquia).split('.').join('').split(',').join('.')),
-        percentual: Number(String(dataNewSeguro.percentual).split('.').join('').split(',').join('.')),
+        percentual: Number(dataNewSeguro.percentual),
         comissao: dataNewSeguro.comissao
       },
       ativo: true,
@@ -428,9 +414,9 @@ const Seguro = () => {
   }
 
   return (
-    <LayoutAdmin title='SEGUROS'>
+    <LayoutAdmin title='CORRETORES'>
       <CardComponent>
-        <Modal onOk={salvarSeguro} title='NOVO SEGURO' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='60%' cancelButtonProps={{ style: { border: '1px solid black', outline: 'none', color: 'black' } }} okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
+        <Modal onOk={salvarSeguro} title='NOVO CORRETOR' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%' cancelButtonProps={{ style: { border: '1px solid black', outline: 'none', color: 'black' } }} okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
           <Row gutter={[10, 20]}>
             {user.tipo !== 'corretor' && (
               <Col span={24}>
@@ -531,7 +517,7 @@ const Seguro = () => {
                 }
               }} placeholder='0' />
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <label>PRÊMIO LÍQUIDO: <span style={{ color: 'red' }}>*</span></label>
               <Input id='premioModal' prefix='R$' autoComplete='off' value={dataNewSeguro.premio} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, premio: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
@@ -539,8 +525,8 @@ const Seguro = () => {
                 }
               }} placeholder='0' />
             </Col>
-            <Col span={4}>
-              <label>FRÂNQUIA: <span style={{ color: 'red' }}>*</span></label>
+            <Col span={6}>
+              <label>VALOR DA FRÂNQUIA: <span style={{ color: 'red' }}>*</span></label>
               <Input id='franquiaModal' prefix='R$' autoComplete='off' value={dataNewSeguro.franquia} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, franquia: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('percentualModal').focus();
@@ -548,61 +534,21 @@ const Seguro = () => {
               }} placeholder='0' />
             </Col>
             <Col span={4}>
-              <label>PERCENTUAL: <span style={{ color: 'red' }}>*</span></label>
-              <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskMoney(String(response.target.value) || '0')}))} onKeyPress={(e) => {
+              <label>COMISSÃO: <span style={{ color: 'red' }}>*</span></label>
+              <Input id='percentualModal' maxLength={2} max={99} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: !response.target.value ? '' : maskOnlyNumbers(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
-                  if(dataNewSeguro.comissao) {
-                    document.getElementById('percentualCorretoraModal').focus();
-                  }else {
-                    document.getElementById('anoAdesao').focus();
-                  }
+                  document.getElementById('anoAdesao').focus();
                 }
               }} placeholder='0' />
             </Col>
             <Col span={4}>
-              <label>COMISSÃO:</label>
-              <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : Number(dataNewSeguro.comissao).toLocaleString('pt-br', { minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
+              <label>COMISSÃO: </label>
+              <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : String(Number(dataNewSeguro.comissao).toFixed(2)).split('.').join(',')} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   //document.getElementById('placa').focus();
                 }
               }} placeholder='0' />
             </Col>
-            {dataNewSeguro.comissao > 0 && (
-              <Col span={24} style={{ background: '#f1f1f1', padding: 10 }}>
-                <Row gutter={[10, 20]}>
-                  <Col span={4}>
-                    <label>% CORRETORA: <span style={{ color: 'red' }}>*</span></label>
-                    <Input id='percentualCorretoraModal' maxLength={dataNewSeguro.corretorUid ? 5 : 6} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretora} style={{ textTransform: 'uppercase' }} onChange={(response) => dataNewSeguro.corretorUid && setDataNewSeguro(e => ({...e, comissaoCorretora: maskMoney(String(response.target.value) || '0')}))} onKeyPress={(e) => {
-                      if(e.code === 'Enter') {
-                        document.getElementById('anoAdesao').focus();
-                      }
-                    }} placeholder='0' />
-                  </Col>
-                  <Col span={8}>
-                    <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETORA</sup></label>
-                    <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.'))).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretoraValor: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
-                      if(e.code === 'Enter') {
-                        //document.getElementById('placa').focus();
-                      }
-                    }} placeholder='0' />
-                  </Col>
-                  {dataNewSeguro.corretorUid ? (
-                    <>
-                      <Col span={4}>
-                        <label>% CORRETOR: <span style={{ color: 'red' }}>*</span></label>
-                        <Input readOnly id='percentualModal' maxLength={2} max={99} prefix='%' autoComplete='off' value={Number(100 - Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.'))).toLocaleString('pt-br', { minimumFractionDigits: 2 })} placeholder='0' />
-                      </Col>
-                      <Col span={8}>
-                        <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETOR</sup></label>
-                        <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(dataNewSeguro.comissao) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.')))).toLocaleString('pt-br', { minimumFractionDigits: 2 })} placeholder='0' />
-                      </Col>
-                    </>
-                  ) : (
-                    <Col span={12} />
-                  )}
-                </Row>
-              </Col>
-            )}
             <Col span={5}>
               <label>ANO DE ADESÃO: <span style={{ color: 'red' }}>*</span></label>
               <Input id='anoAdesao' autoComplete='off' value={dataNewSeguro.anoAdesao} maxLength={4} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, anoAdesao: !response.target.value ? '' : maskYear(response.target.value)}))} onKeyPress={(e) => {
@@ -723,152 +669,11 @@ const Seguro = () => {
             position: 'relative'
           }}
         >
-          {(date && seguros.length > 0) && (
-            <span
-              style={{
-                position: 'absolute',
-                top: 15,
-                right: 15,
-                fontSize: '1.2rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                zIndex: 1
-              }}
-              onClick={printSeguros}
-            >
-              <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
-            </span>
-          )}
           <Col span={24}>
-            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
-          </Col>
-          <Col span={24} style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>TOTAL DE SEGUROS:<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{String(verifyFilter ? valoresIniciais.seguros : seguros.length).padStart(2, '0')}</span></div>
-            <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
-              <div>
-                TOTAL EM PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalPremio : seguros.reduce((a, b) => a + b.valores.premio, 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-              </div>
-              <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
-              <div>
-                MÉDIA DO PRÊMIO LÍQUIDO<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalPremio / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(seguros.reduce((a, b) => a + b.valores.premio, 0) / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-              </div>
-            </div>
-            <div style={{ width: '100%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
-              <div>
-                TOTAL DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{Number(verifyFilter ? valoresIniciais.totalComissao : seguros.reduce((a, b) => a + b.valores.comissao, 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-              </div>
-              <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
-              <div>
-                VALOR MÉDIO DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number((valoresIniciais.totalComissao / valoresIniciais.seguros) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : !seguros.length > 0 ? 'R$ 0,00' : Number(seguros.reduce((a, b) => a + b.valores.comissao, 0) / seguros.length).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-              </div>
-              <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
-              <div>
-                MÉDIA DAS COMISSÕES<br/><span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>{verifyFilter ? Number(((valoresIniciais.totalComissao / valoresIniciais.totalPremio) * 100) || 0).toFixed(2).split('.').join(',') : !seguros.length > 0 ? 0 : Number((seguros.reduce((a, b) => a + b.valores.comissao, 0) / seguros.reduce((a, b) => a + b.valores.premio, 0)) * 100).toFixed(2).split('.').join(',')}%</span>
-              </div>
-            </div>
-          </Col>
-          <Divider style={{ borderColor: '#d1d1d1', marginBottom: 15 }} />
-          <Col span={24}
-            style={{
-              display: width > 768 && 'flex',
-              alignItems: width > 768 && 'center',
-              flexDirection: width > 768 && 'row',
-              justifyContent: width > 768 && 'space-between',
-              textAlign: 'center'
-            }}
-          >
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div>
-              <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
-              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => setDate(e)} />
-            </div>
-            {(user && user.tipo !== 'corretor') && (
-              <>
-                <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-                />
-                <div>
-                  <div style={{ width: '100%' }}>CORRETOR:</div>
-                  <Select allowClear placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={e => {
-                    setCorretor(e ? e : null);
-                  }}
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  filterSort={(optionA, optionB) =>
-                    optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-                  }
-                  value={corretor}
-                  >
-                    <Select.Option value={'null'}>{corretora.razao_social}</Select.Option>
-                    {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
-                      <Select.Option key={index} value={item.uid}>
-                        {item.nomeCompleto}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
-              </>
-            )}
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div>
-              <div style={{ width: '100%' }}>SEGURADORA:</div>
-              <Select allowClear placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={e => {
-                setSeguradora(e ? e : null);
-              }}
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              filterSort={(optionA, optionB) =>
-                optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-              }
-              value={seguradora}
-              >
-                {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
-                  <Select.Option key={index} value={item.uid}>
-                    {item.razao_social}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            {cpf.length === 0 && (
-              <>
-                <div>
-                  <div style={{ width: '100%' }}>PLACA:</div>
-                  <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
-                </div>
-                <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-                />
-              </>
-            )}
-            {placa.length === 0 && (
-              <>
-                <div>
-                  <div style={{ width: '100%' }}>CPF:</div>
-                  <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
-                </div>
-                <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-                />
-              </>
-            )}
+            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center'}}>CORRETORES <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
         </Row>
-        <TableSeguro
+        <TableCorretores
           seguradora={seguradora}
           corretor={corretor}
           date={date}
