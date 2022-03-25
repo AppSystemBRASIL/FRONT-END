@@ -49,11 +49,14 @@ export default async function handler(req, res) {
     arrayCorretor.map(async (item) => {
       const data = array.filter(e => e.corretor).filter(e => e.corretor.uid === item);
 
+      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
+      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
+
       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
         total: data.length,
         valores: {
-          comissao: data.reduce((accum, curr) => accum + curr.valores.comissao, 0),
-          premio: data.reduce((accum, curr) => accum + curr.valores.premio, 0),
+          premio: premioValor,
+          comissao: comissaoValor,
         }
       }, { merge: true });
     });
@@ -61,11 +64,14 @@ export default async function handler(req, res) {
     arrayCorretora.map(async (item) => {
       const data = array.filter(e => e.corretora).filter(e => e.corretora.uid === item);
 
+      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
+      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
+
       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
         total: data.length,
         valores: {
-          comissao: data.reduce((accum, curr) => accum + curr.valores.comissao, 0),
-          premio: data.reduce((accum, curr) => accum + curr.valores.premio, 0),
+          premio: premioValor,
+          comissao: comissaoValor,
         }
       }, { merge: true });
     });

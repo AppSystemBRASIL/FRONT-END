@@ -39,6 +39,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
     placa: data.veiculo.placa,
     veiculo: data.veiculo.veiculo,
     condutor: data.veiculo.condutor,
+    tipoValor: '+',
     valor: 0,
     percentual: data.valores.percentual,
     comissao: 0,
@@ -82,7 +83,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
     }
 
     if(type === 'ENDEREÇO') {
-      if(!state.cep || !state.bairro || !state.cidade || !state.estado) {
+      if(!state.cep || !state.cidade || !state.estado) {
         notification.warn({
           message: 'PREENCHA TODOS OS CAMPOS!'
         });
@@ -91,20 +92,26 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
       }
     }
 
-    if(Number(state.valor) >= 0 || Number(state.percentual) >= 0 || Number(state.comissao) >= 0) {
+    if(state.valor === null || state.percentual === null || state.comissao === null) {
       notification.warn({
         message: 'PREENCHA TODOS OS CAMPOS!'
       });
-      
+
       return;
     }
+    const valorEndosso = state.tipoValor === '+' ? Number(String(state.valor).split('.').join('').split(',').join('.')) : -Number(String(state.valor).split('.').join('').split(',').join('.'));
+    const comissaoEndosso = state.tipoValor === '+' ? state.comissao : -state.comissao;
 
     const dados = {
+      valores: {
+        premio: firebase.firestore.FieldValue.increment(valorEndosso),
+        comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
+      },
       endossos: firebase.firestore.FieldValue.arrayUnion({
         valores: {
-          valor: Number(String(state.valor).split('.').join('').split(',').join('.')),
+          valor: valorEndosso,
           percentual: Number(state.percentual),
-          comissao: state.comissao,
+          comissao: comissaoEndosso,
         },
         created: new Date(),
         tipo: type,
@@ -140,13 +147,30 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
     }
 
     await firebase.firestore().collection('seguros').doc(data.uid).set(dados, { merge: true })
-    .then(() => {
+    .then(async () => {
+      if(data.corretor) {
+        await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
+          valores: {
+            premio: firebase.firestore.FieldValue.increment(valorEndosso),
+            comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
+          }
+        }, { merge: true });
+      }
+
+      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
+        valores: {
+          premio: firebase.firestore.FieldValue.increment(valorEndosso),
+          comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
+        }
+      }, { merge: true });
+
       Modal.destroyAll();
       notification.success({
         message: 'ENDOSSO GERADO COM SUCESSO!'
       });
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log(error)
       notification.error({
         message: 'ERRO AO GERAR ENDOSSO!'
       });
@@ -198,7 +222,12 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         )}
         <Col span={8}>
           <label>VALOR DO ENDOSSO:</label>
-          <Input value={state.valor} type='tel' autoComplete='off' style={{ textTransform: 'uppercase' }} prefix='R$' placeholder='0' onChange={(e) => setState(resp => ({ ...resp, valor: !e.target.value ? null : maskMoney(maskOnlyNumbers(e.target.value)) }))} />
+          <Input value={state.valor} type='tel' addonBefore={(
+            <Select value={state.tipoValor} showArrow={false} className="select-after" onChange={(e) => setState(resp => ({...resp, tipoValor: e}))}>
+              <Select.Option value="+">+</Select.Option>
+              <Select.Option value="-">-</Select.Option>
+            </Select>
+          )} autoComplete='off' style={{ textTransform: 'uppercase' }} prefix='R$' placeholder='0' onChange={(e) => setState(resp => ({ ...resp, valor: !e.target.value ? null : maskMoney(maskOnlyNumbers(e.target.value)) }))} />
         </Col>
         <Col span={8}>
           <label>COMISSÃO:</label>
@@ -206,7 +235,12 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         </Col>
         <Col span={8}>
           <label>COMISSÃO: </label>
-          <Input value={!state.comissao ? 0 : Number(state.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} type='tel' readOnly prefix='R$' autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='0' />
+          <Input addonBefore={(
+            <Select value={state.tipoValor} showArrow={false} className="select-after">
+              <Select.Option value="+">+</Select.Option>
+              <Select.Option value="-">-</Select.Option>
+            </Select>
+          )} value={!state.comissao ? 0 : Number(state.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} type='tel' readOnly prefix='R$' autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='0' />
         </Col>
       </Row>
       <Divider />
@@ -433,7 +467,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(dados.corretor.uid).set({
                         total: firebase.firestore.FieldValue.increment(-1),
                         valores: {
-                          premio: firebase.firestore.FieldValue.increment(-Number(String(dados.valores.premio).split('.').join('').split(',').join('.'))),
+                          premio: firebase.firestore.FieldValue.increment(-dados.valores.premio),
                           comissao: firebase.firestore.FieldValue.increment(-dados.valores.comissao),
                         }
                       }, { merge: true });
@@ -443,11 +477,13 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(dados.corretora.uid).set({
                         total: firebase.firestore.FieldValue.increment(-1),
                         valores: {
-                          premio: firebase.firestore.FieldValue.increment(-Number(String(dados.valores.premio).split('.').join('').split(',').join('.'))),
+                          premio: firebase.firestore.FieldValue.increment(-dados.valores.premio),
                           comissao: firebase.firestore.FieldValue.increment(-dados.valores.comissao),
                         }
                       }, { merge: true });
                     }
+
+                    modal.destroy();
 
                     setSeguros(resp => resp.filter(e => e.uid !== dados.uid));
                   });

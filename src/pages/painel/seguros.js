@@ -83,6 +83,35 @@ const Seguro = () => {
   });
 
   useEffect(() => {
+    const getPercentualComissao = () => {
+      if(dataNewSeguro.parcelas <= 4) {
+        return '52,97';
+      }
+
+      if(dataNewSeguro.parcelas > 4 && dataNewSeguro.parcelas <= 7) {
+        return '54,97';
+      }
+
+      if(dataNewSeguro.parcelas > 7) {
+        return '57,97';
+      }
+    }
+
+    if(dataNewSeguro.corretorUid) {
+      setDataNewSeguro(e => ({
+        ...e,
+        comissaoCorretor: getPercentualComissao(),
+      }));
+    }else {
+      setDataNewSeguro(e => ({
+        ...e,
+        comissaoCorretor: '0,00',
+        comissaoCorretora: '100,00',
+      }));
+    }
+  }, [dataNewSeguro.corretorUid, dataNewSeguro.parcelas]);
+
+  useEffect(() => {
     if(user) {
       firebase.firestore().collection('relatorios').doc('seguros').collection(user.tipo !== 'corretor' ? 'corretora' : 'corretor').doc(user.tipo !== 'corretor' ? user.corretora.uid : user.uid).onSnapshot((response) => {
         if(response.exists) {
@@ -211,7 +240,7 @@ const Seguro = () => {
       comissaoCorretoraValor: comissaoCorretoraValorNumber,
       comissaoCorretorValor: comissaoCorretorValorNumber,
     }))
-  }, [dataNewSeguro.premio, dataNewSeguro.percentual, dataNewSeguro.comissaoCorretora]);
+  }, [dataNewSeguro.premio, dataNewSeguro.percentual, dataNewSeguro.comissaoCorretor]);
 
   const printSeguros = async () => await printListSeguros(seguros, corretora, {
     date,
@@ -355,24 +384,46 @@ const Seguro = () => {
       },
       corretora: {
         uid: corretora.uid,
-        razao_social: corretora.razao_social
-      },
-      corretor: (!dataNewSeguro.corretorUid && !dataNewSeguro.corretorDisplayName) ? null : {
-        nome: dataNewSeguro.corretorDisplayName,
-        uid: dataNewSeguro.corretorUid
+        razao_social: corretora.razao_social,
+        comissao: {
+          percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))),
+          valor: Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toFixed(2)
+        }
       },
       valores: {
         parcelas: dataNewSeguro.parcelas,
         premio: Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')),
         franquia: Number(String(dataNewSeguro.franquia).split('.').join('').split(',').join('.')),
         percentual: Number(String(dataNewSeguro.percentual).split('.').join('').split(',').join('.')),
-        comissao: dataNewSeguro.comissao
+        comissao: dataNewSeguro.comissao,
+        corretora: {
+          percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))),
+          valor: Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toFixed(2)
+        }
       },
       ativo: true,
       uid: dataNewSeguro.uid,
       created: new Date(),
       tipo: 'veicular'
     };
+
+    if(dataNewSeguro.corretorUid) {
+      const comissaoCorretorJSON = {
+        percentual: Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.')).toFixed(2),
+        valor: dataNewSeguro.comissaoCorretorValor
+      }
+      
+      data.corretor = {
+        nome: dataNewSeguro.corretorDisplayName,
+        uid: dataNewSeguro.corretorUid,
+        comissao: comissaoCorretorJSON
+      };
+
+      data.valores = {
+        ...data.valores,
+        corretor: comissaoCorretorJSON
+      }
+    }
 
     if(!dataNewSeguro.uid) {
       data.uid = generateToken();
@@ -561,7 +612,7 @@ const Seguro = () => {
             </Col>
             <Col span={4}>
               <label>COMISSÃO:</label>
-              <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : Number(dataNewSeguro.comissao).toLocaleString('pt-br', { minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
+              <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : Number(dataNewSeguro.comissao).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   //document.getElementById('placa').focus();
                 }
@@ -570,36 +621,30 @@ const Seguro = () => {
             {dataNewSeguro.comissao > 0 && (
               <Col span={24} style={{ background: '#f1f1f1', padding: 10 }}>
                 <Row gutter={[10, 20]}>
-                  <Col span={4}>
-                    <label>% CORRETORA: <span style={{ color: 'red' }}>*</span></label>
-                    <Input id='percentualCorretoraModal' maxLength={dataNewSeguro.corretorUid ? 5 : 6} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretora} style={{ textTransform: 'uppercase' }} onChange={(response) => dataNewSeguro.corretorUid && setDataNewSeguro(e => ({...e, comissaoCorretora: maskMoney(String(response.target.value) || '0')}))} onKeyPress={(e) => {
-                      if(e.code === 'Enter') {
-                        document.getElementById('anoAdesao').focus();
-                      }
-                    }} placeholder='0' />
-                  </Col>
-                  <Col span={8}>
-                    <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETORA</sup></label>
-                    <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.'))).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretoraValor: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
-                      if(e.code === 'Enter') {
-                        //document.getElementById('placa').focus();
-                      }
-                    }} placeholder='0' />
-                  </Col>
-                  {dataNewSeguro.corretorUid ? (
+                  {dataNewSeguro.corretorUid && (
                     <>
                       <Col span={4}>
                         <label>% CORRETOR: <span style={{ color: 'red' }}>*</span></label>
-                        <Input readOnly id='percentualModal' maxLength={2} max={99} prefix='%' autoComplete='off' value={Number(100 - Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.'))).toLocaleString('pt-br', { minimumFractionDigits: 2 })} placeholder='0' />
+                        <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskMoney(String(response.target.value) || '0')}))} onKeyPress={(e) => {
+                          if(e.code === 'Enter') {
+                            document.getElementById('anoAdesao').focus();
+                          }
+                        }} placeholder='0' />
                       </Col>
                       <Col span={8}>
                         <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETOR</sup></label>
-                        <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(dataNewSeguro.comissao) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretora).split('.').join('').split(',').join('.')))).toLocaleString('pt-br', { minimumFractionDigits: 2 })} placeholder='0' />
+                        <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(dataNewSeguro.comissao) / 100) * Number(Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} placeholder='0' />
                       </Col>
                     </>
-                  ) : (
-                    <Col span={12} />
                   )}
+                  <Col span={4}>
+                    <label>% CORRETORA: <span style={{ color: 'red' }}>*</span></label>
+                    <Input readOnly id='percentualCorretoraModal' maxLength={dataNewSeguro.corretorUid ? 5 : 6} prefix='%' autoComplete='off' value={Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} placeholder='0' />
+                  </Col>
+                  <Col span={8}>
+                    <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETORA</sup></label>
+                    <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretoraValor: !response.target.value ? '' : maskMoney(response.target.value)}))} placeholder='0' />
+                  </Col>
                 </Row>
               </Col>
             )}
