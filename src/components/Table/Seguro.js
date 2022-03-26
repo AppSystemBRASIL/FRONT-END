@@ -458,9 +458,20 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     return;
                   }
 
+                  const dateNew = new Date(String(dateCancel).split('/')[2], String(dateCancel).split('/')[1] - 1, String(dateCancel).split('/')[0]);
+
+                  if(dateNew > new Date()) {
+                    notification.destroy();
+                    notification.warn({
+                      message: 'DATA NÃO PODE SER SUPERIOR AO DIA ATUAL!'
+                    });
+
+                    return;
+                  }
+
                   await firebase.firestore().collection('seguros').doc(dados.uid).set({
                     ativo: false,
-                    cancelada: dateCancel
+                    cancelada: dateNew
                   }, { merge: true })
                   .then(async () => {
                     if(dados.corretor) {
