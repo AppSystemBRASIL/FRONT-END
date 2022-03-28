@@ -613,7 +613,7 @@ const Seguro = () => {
               <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskPercentual(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
-                    document.getElementById('percentualModalfsdfds').focus();
+                    document.getElementById('percentualModalfsdfds').focus(); 
                   }else {
                     document.getElementById('anoAdesao').focus();
                   }
