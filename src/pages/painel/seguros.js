@@ -4,7 +4,7 @@ import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider, Inpu
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers, maskPhone, maskPlaca, maskYear } from '../../hooks/mask';
+import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers, maskPercentual, maskPhone, maskPlaca, maskYear } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
 import { FaPlus, FaPrint } from 'react-icons/fa';
@@ -610,10 +610,10 @@ const Seguro = () => {
             </Col>
             <Col span={4}>
               <label>PERCENTUAL: <span style={{ color: 'red' }}>*</span></label>
-              <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskOnlyNumbers(response.target.value)}))} onKeyPress={(e) => {
+              <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskPercentual(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
-                  if(dataNewSeguro.comissao) {
-                    document.getElementById('percentualCorretoraModal').focus();
+                  if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
+                    document.getElementById('percentualModalfsdfds').focus();
                   }else {
                     document.getElementById('anoAdesao').focus();
                   }
@@ -635,7 +635,7 @@ const Seguro = () => {
                     <>
                       <Col span={4}>
                         <label>% CORRETOR: <span style={{ color: 'red' }}>*</span></label>
-                        <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskMoney(String(response.target.value) || '0')}))} onKeyPress={(e) => {
+                        <Input id='percentualModalfsdfds' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
                           if(e.code === 'Enter') {
                             document.getElementById('anoAdesao').focus();
                           }
