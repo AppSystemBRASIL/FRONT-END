@@ -84,5 +84,6 @@ export const maskOnlyLetters = value => {
 
 // Aceita apenas números
 export const maskOnlyNumbers = value => {
-  return value.replace(/\D/g, "") || 0;
+  return value.replace(/\D/g, "")
+  .replace(/(\d{2})(\d)/, "$1,$2") || '';
 };

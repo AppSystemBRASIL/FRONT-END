@@ -610,7 +610,7 @@ const Seguro = () => {
             </Col>
             <Col span={4}>
               <label>PERCENTUAL: <span style={{ color: 'red' }}>*</span></label>
-              <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskMoney(String(response.target.value) || '0')}))} onKeyPress={(e) => {
+              <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskOnlyNumbers(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   if(dataNewSeguro.comissao) {
                     document.getElementById('percentualCorretoraModal').focus();

@@ -1,6 +1,6 @@
 import firebase from '../../auth/AuthConfig';
 
-import { format } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 
 export default async function handler(req, res) {
   await firebase
@@ -13,7 +13,8 @@ export default async function handler(req, res) {
     if(!response.empty) {
       response.forEach((item) => {
         firebase.firestore().collection('seguros').doc(item.data().uid).set({
-          ativo: false
+          ativo: false,
+          cancelada: startOfDay(new Date())
         }, { merge: true });
       })
     }
@@ -79,15 +80,13 @@ export default async function handler(req, res) {
   
   const date = new Date();
 
-  const data = {
-    [format(date, 'dd_MM_yyyy')]: format(date, 'hh:mm:ss')
-  }
-
   await firebase
   .firestore()
   .collection('postback')
   .doc('githubActions')
-  .set(data, { merge: true });
+  .set({
+    [format(date, 'dd_MM_yyyy')]: format(date, 'hh:mm:ss')
+  }, { merge: true });
 
   res.status(200).json({
     success: true
