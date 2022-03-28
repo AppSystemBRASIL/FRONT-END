@@ -77,7 +77,7 @@ export const maskPlaca = value => {
   return value;
 };
 
-// Aceita apenas que letras sejam digitadas
+// Aceita apenas que letras sejam digitadas 
 export const maskOnlyLetters = value => {
   return value.replace(/[0-9!@#¨$%^&*)(+=._-]+/g, "");
 };
