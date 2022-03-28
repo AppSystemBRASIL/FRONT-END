@@ -427,7 +427,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           <Divider />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
             <div>
-              <label>VALOR DE ESTORNO:</label>
+              <label>VALOR DE ENDOSSO:</label>
               <h2 style={{ margin: 0, padding: 0 }}>{Number(valorRembolso).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}</h2>
             </div>
             <div>
