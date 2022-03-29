@@ -3,12 +3,19 @@ import firebase from '../../auth/AuthConfig';
 import { format, startOfDay } from 'date-fns';
 
 export default async function handler(req, res) {
-  await firebase
+  let ref = firebase
   .firestore()
   .collection('seguros')
-  .where('ativo', '==', true)
-  .where('seguro.vigenciaFinal', '<', new Date())
-  .get()
+  .where('ativo', '==', true);
+
+  if(req.query.corretora) {
+    console.log(req.query.corretora)
+    ref = ref.where('corretora.uid', '==', req.query.corretora);
+  }
+
+  ref = ref.where('seguro.vigenciaFinal', '<', new Date());
+
+  await ref.get()
   .then((response) => {
     if(!response.empty) {
       response.forEach((item) => {

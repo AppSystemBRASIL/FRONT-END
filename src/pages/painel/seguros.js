@@ -446,35 +446,16 @@ const Seguro = () => {
     await firebase.firestore().collection('seguros').doc(data.uid).set({
       ...data
     }, { merge: true })
-    .then(() => {
+    .then(async () => {
+      axios.get('/api/verificarSegurosAtivos', {
+        params: {
+          corretora: user.corretora.uid
+        }
+      });
+
       notification.success({
         message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
       });
-
-      if(!dataNewSeguro.search) {
-        if(data.corretor) {
-          firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
-            total: firebase.firestore.FieldValue.increment(1),
-            valores: {
-              premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
-              comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
-            }
-          }, { merge: true })
-        }
-  
-        if(data.corretora) {
-          firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
-            total: firebase.firestore.FieldValue.increment(1),
-            valores: {
-              premio: firebase.firestore.FieldValue.increment(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'))),
-              comissao: firebase.firestore.FieldValue.increment(dataNewSeguro.comissao),
-            }
-          }, { merge: true })
-        }
-      }else {
-        alert(dataNewSeguro.comissao);
-        alert(data.valores.comissao);
-      }
 
       setViewNewSeguro(false);
     })
