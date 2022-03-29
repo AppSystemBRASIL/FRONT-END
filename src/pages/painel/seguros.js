@@ -392,6 +392,7 @@ const Seguro = () => {
         cpf: dataNewSeguro.cpf,
         telefone: dataNewSeguro.telefone,
       },
+      corretor: null,
       corretora: {
         uid: corretora.uid,
         razao_social: corretora.razao_social,
@@ -413,7 +414,6 @@ const Seguro = () => {
       },
       ativo: true,
       uid: dataNewSeguro.uid,
-      created: new Date(),
       tipo: 'veicular'
     };
 
@@ -439,9 +439,13 @@ const Seguro = () => {
       data.uid = generateToken();
     }
 
+    if(!dataNewSeguro.search) {
+      data.search = new Date()
+    }
+
     await firebase.firestore().collection('seguros').doc(data.uid).set({
       ...data
-    }, { merge: true })
+    }, { merge: !dataNewSeguro.search })
     .then(() => {
       notification.success({
         message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
@@ -601,7 +605,7 @@ const Seguro = () => {
               }} placeholder='0' />
             </Col>
             <Col span={4}>
-              <label>FRÂNQUIA: <span style={{ color: 'red' }}>*</span></label>
+              <label>FRANQUIA: <span style={{ color: 'red' }}>*</span></label>
               <Input id='franquiaModal' prefix='R$' autoComplete='off' value={dataNewSeguro.franquia} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, franquia: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('percentualModal').focus();

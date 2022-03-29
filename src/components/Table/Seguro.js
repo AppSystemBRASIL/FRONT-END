@@ -862,6 +862,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                                 bairro: dados.endereco.bairro,
                                 cidade: dados.endereco.cidade,
                                 estado: dados.endereco.estado,
+                                parcelas: dados.valores.parcelas
                               }
                             ));
                             }, 100)

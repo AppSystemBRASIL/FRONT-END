@@ -526,7 +526,7 @@ const Seguro = () => {
               }} placeholder='0' />
             </Col>
             <Col span={6}>
-              <label>VALOR DA FRÂNQUIA: <span style={{ color: 'red' }}>*</span></label>
+              <label>VALOR DA FRANQUIA: <span style={{ color: 'red' }}>*</span></label>
               <Input id='franquiaModal' prefix='R$' autoComplete='off' value={dataNewSeguro.franquia} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, franquia: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
                 if(e.code === 'Enter') {
                   document.getElementById('percentualModal').focus();
