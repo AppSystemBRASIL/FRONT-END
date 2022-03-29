@@ -283,7 +283,9 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
 
   const getCotacao = async (init) => {
     await setLastData(0);
-    await setSeguros([]);
+    if(init) {
+      await setSeguros([]); 
+    }
 
     let ref = firebase.firestore().collection('seguros').where('ativo', '==', true);
 
@@ -302,17 +304,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.where('corretor.uid', '==', user.uid);
     }
 
-    if(cpf !== undefined && cpf.length === 14) {
-      ref = ref.where('segurado.cpf', '==', cpf);
-      ref = ref.orderBy('created', 'desc');
-    }if(placa !== undefined && placa.length === 7) {
-      ref = ref.where('veiculo.placa', '==', placa);
-      ref = ref.orderBy('created', 'desc');
-    }else if((!init && lastData !== 0)) {
-      ref = ref.orderBy('created', 'asc');
-      ref = ref.startAfter(lastData);
-    }
-
     if(corretor) {
       if(corretor === 'null') {
         ref = ref.where('corretor', '==', null);
@@ -325,19 +316,30 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.where('seguradora.uid', '==', seguradora);
     }
 
+    if(cpf !== undefined && cpf.length === 14) {
+      ref = ref.where('segurado.cpf', '==', cpf);
+      ref = ref.orderBy('created', 'desc');
+    }if(placa !== undefined && placa.length === 7) {
+      ref = ref.where('veiculo.placa', '==', placa);
+      ref = ref.orderBy('created', 'desc');
+    }else if((!init && lastData !== 0)) {
+      ref = ref.orderBy('created', 'asc');
+      ref = ref.startAfter(lastData);
+    }
+
     ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)) ? 10000 : limit || listLimitDefault)
     .onSnapshot((snap) => {
       setViewButtonMore(false);
 
-      const array = [];
-
       if(!snap.empty) {
+        const array = [];
+
         snap.forEach((item) => {
           array.push(item.data());
         });
 
-        if(snap.docs[snap.docs.length-1]) {
-          setLastData(snap.docs[snap.docs.length-1]);
+        if(snap.docs[snap.docs.length - 1]) {
+          setLastData(snap.docs[snap.docs.length - 1]);
         }
   
         setSeguros(response => {
@@ -358,8 +360,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         if(array.length === (limit || listLimitDefault)) {
           setViewButtonMore(true);
         }
-      }else {
-        setSeguros([]);
       }
     });
 

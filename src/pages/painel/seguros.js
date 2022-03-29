@@ -403,7 +403,7 @@ const Seguro = () => {
       },
       valores: {
         parcelas: dataNewSeguro.parcelas,
-        premio: Number(String(dataNewSeguro.premio).split(',').join('.')),
+        premio: Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')),
         franquia: Number(String(dataNewSeguro.franquia).split(',').join('.')),
         percentual: Number(String(dataNewSeguro.percentual).split(',').join('.')),
         comissao: dataNewSeguro.comissao,
@@ -413,7 +413,7 @@ const Seguro = () => {
         }
       },
       ativo: true,
-      uid: dataNewSeguro.uid,
+      uid: generateToken(),
       tipo: 'veicular'
     };
 
@@ -435,17 +435,17 @@ const Seguro = () => {
       }
     }
 
-    if(!dataNewSeguro.uid) {
-      data.uid = generateToken();
+    if(dataNewSeguro.search) {
+      data.uid = dataNewSeguro.uid;
     }
 
     if(!dataNewSeguro.search) {
-      data.search = new Date()
+      data.created = new Date();
     }
 
     await firebase.firestore().collection('seguros').doc(data.uid).set({
       ...data
-    }, { merge: !dataNewSeguro.search })
+    }, { merge: true })
     .then(() => {
       notification.success({
         message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
@@ -471,6 +471,9 @@ const Seguro = () => {
             }
           }, { merge: true })
         }
+      }else {
+        alert(dataNewSeguro.comissao);
+        alert(data.valores.comissao);
       }
 
       setViewNewSeguro(false);

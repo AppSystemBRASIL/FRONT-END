@@ -50,8 +50,8 @@ export default async function handler(req, res) {
     arrayCorretor.map(async (item) => {
       const data = array.filter(e => e.corretor).filter(e => e.corretor.uid === item);
 
-      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio + curr.endossos.reduce((a, b) => a + b.valores.valor, 0), 0);
-      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao + curr.endossos.reduce((a, b) => a + b.valores.comissao, 0), 0);
+      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio + (!curr.endossos ? 0 : curr.endossos.reduce((a, b) => a + b.valores.valor, 0)), 0);
+      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao + (!curr.endossos ? 0 : curr.endossos.reduce((a, b) => a + b.valores.comissao, 0)), 0);
 
       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
         total: data.length,
@@ -65,8 +65,8 @@ export default async function handler(req, res) {
     arrayCorretora.map(async (item) => {
       const data = array.filter(e => e.corretora).filter(e => e.corretora.uid === item);
 
-      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio + curr.endossos.reduce((a, b) => a + b.valores.valor, 0), 0);
-      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao + curr.endossos.reduce((a, b) => a + b.valores.comissao, 0), 0);
+      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio + (!curr.endossos ? 0 : curr.endossos.reduce((a, b) => a + b.valores.valor, 0)), 0);
+      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao + (!curr.endossos ? 0 : curr.endossos.reduce((a, b) => a + b.valores.comissao, 0)), 0);
 
       await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
         total: data.length,
