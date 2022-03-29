@@ -241,8 +241,8 @@ const Seguro = () => {
     const comissaoCorretora = Number(String(dataNewSeguro.comissaoCorretora).split(',').join('.'));
 
     const comissaoNumber = Number((premio / 100) * percentual);
-    const comissaoCorretoraValorNumber = (comissaoNumber / 100) * comissaoCorretor;
-    const comissaoCorretorValorNumber = (comissaoNumber / 100) * comissaoCorretora;
+    const comissaoCorretoraValorNumber = (comissaoNumber / 100) * comissaoCorretora;
+    const comissaoCorretorValorNumber = (comissaoNumber / 100) * comissaoCorretor;
 
     setDataNewSeguro(e => ({
       ...e,
@@ -397,19 +397,19 @@ const Seguro = () => {
         uid: corretora.uid,
         razao_social: corretora.razao_social,
         comissao: {
-          percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))),
-          valor: Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toFixed(2)
+          percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.'))),
+          valor: dataNewSeguro.comissaoCorretoraValor
         }
       },
       valores: {
         parcelas: dataNewSeguro.parcelas,
-        premio: Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')),
-        franquia: Number(String(dataNewSeguro.franquia).split('.').join('').split(',').join('.')),
-        percentual: Number(String(dataNewSeguro.percentual).split('.').join('').split(',').join('.')),
+        premio: Number(String(dataNewSeguro.premio).split(',').join('.')),
+        franquia: Number(String(dataNewSeguro.franquia).split(',').join('.')),
+        percentual: Number(String(dataNewSeguro.percentual).split(',').join('.')),
         comissao: dataNewSeguro.comissao,
         corretora: {
-          percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))),
-          valor: Number((Number(String(dataNewSeguro.comissao).split('.').join('').split(',').join('.')) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toFixed(2)
+          percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.'))),
+          valor: dataNewSeguro.comissaoCorretoraValor
         }
       },
       ativo: true,
@@ -419,12 +419,12 @@ const Seguro = () => {
 
     if(dataNewSeguro.corretorUid) {
       const comissaoCorretorJSON = {
-        percentual: Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.')).toFixed(2),
+        percentual: Number(Number(Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.')).toFixed(2))),
         valor: dataNewSeguro.comissaoCorretorValor
       }
       
       data.corretor = {
-        nome: dataNewSeguro.corretorDisplayName,
+        nome: corretores.filter(e => e.uid === dataNewSeguro.corretorUid)[0].displayName,
         uid: dataNewSeguro.corretorUid,
         comissao: comissaoCorretorJSON
       };
