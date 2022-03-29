@@ -150,7 +150,7 @@ const LayoutAdmin = ({ children, title }) => {
             <div className='order'>
               <h2 style={{color: '#444'}}>INFORMAÇÕES</h2>
               <div className='info'>
-                <h3><b>CORRETOR:</b> <br/> {user.displayName.toUpperCase()}</h3>
+                <h3><b>PRODUTOR:</b> <br/> {user.displayName.toUpperCase()}</h3>
                 <br/>
                 <h3><b>CORRETORA:</b> <br/> {corretora.razao_social.toUpperCase()}</h3>
                 <br/>
@@ -158,7 +158,7 @@ const LayoutAdmin = ({ children, title }) => {
               </div>
               <br/>
               <p style={{color: '#6d819c', fontSize: 15, fontWeight: '500', textTransform: 'uppercase'}}>
-                A utilização de sistema de gestão de seguros é fundamental para que o corretor consiga otimizar seu tempo e focar nas vendas.
+                A utilização de sistema de gestão de seguros é fundamental para que o produtor consiga otimizar seu tempo e focar nas vendas.
               </p>
               <br/>
               <h5 className='total'>Custo mensal</h5>

@@ -40,7 +40,7 @@ export default async function cotacaoPDF(dados, type) {
               },
               {
                 fillColor: '#CCCCCC',
-                text: !dados.corretor ? '' : 'CORRETOR:',
+                text: !dados.corretor ? '' : 'PRODUTOR:',
                 alignment: 'left',
                 bold: true,
                 fontSize: 10,

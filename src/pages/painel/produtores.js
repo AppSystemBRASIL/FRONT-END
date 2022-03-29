@@ -414,14 +414,14 @@ const Seguro = () => {
   }
 
   return (
-    <LayoutAdmin title='CORRETORES'>
+    <LayoutAdmin title='PRODUTORES'>
       <CardComponent>
-        <Modal onOk={salvarSeguro} title='NOVO CORRETOR' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%' cancelButtonProps={{ style: { border: '1px solid black', outline: 'none', color: 'black' } }} okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
+        <Modal onOk={salvarSeguro} title='NOVO PRODUTOR' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%' cancelButtonProps={{ style: { border: '1px solid black', outline: 'none', color: 'black' } }} okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
           <Row gutter={[10, 20]}>
             {user.tipo !== 'corretor' && (
               <Col span={24}>
-                <label>CORRETOR:</label>
-                <Select allowClear placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={response => {
+                <label>PRODUTOR:</label>
+                <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: '100%' }} onChange={response => {
                   setDataNewSeguro(e => !response ? ({ ...e, corretorUid: null, corretorDisplayName: null }) : ({...e, corretorUid: response, corretorDisplayName: corretores.filter(resp => resp.uid === response)[0].displayName }));
 
                   document.getElementById('placaModal').focus();

@@ -701,7 +701,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             title={
               [
                 <div className={!loadingData && 'skeleton'}>
-                  CORRETOR
+                  PRODUTOR
                 </div>
               ]
             }

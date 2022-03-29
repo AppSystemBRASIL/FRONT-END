@@ -36,7 +36,7 @@ export default async function printListSeguros(seguros, corretora, filtros) {
                 fontSize: 10,
               },
               {
-                text: filtros.corretor && `Corretor:\n${filtros.corretor}`,
+                text: filtros.corretor && `Produtor:\n${filtros.corretor}`,
                 bold: true,
                 fontSize: 10,
               },

@@ -499,8 +499,8 @@ const Seguro = () => {
           <Row gutter={[10, 20]}>
             {user.tipo !== 'corretor' && (
               <Col span={24}>
-                <label>CORRETOR:</label>
-                <Select allowClear placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={response => {
+                <label>PRODUTOR:</label>
+                <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: '100%' }} onChange={response => {
                   setDataNewSeguro(e => !response ? ({ ...e, corretorUid: null, corretorDisplayName: null }) : ({...e, corretorUid: response, corretorDisplayName: corretores.filter(resp => resp.uid === response)[0].displayName }));
 
                   document.getElementById('placaModal').focus();
@@ -638,7 +638,7 @@ const Seguro = () => {
                   {dataNewSeguro.corretorUid && (
                     <>
                       <Col span={4}>
-                        <label>% CORRETOR: <span style={{ color: 'red' }}>*</span></label>
+                        <label>% PRODUTOR: <span style={{ color: 'red' }}>*</span></label>
                         <Input id='percentualModalfsdfds' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
                           if(e.code === 'Enter') {
                             document.getElementById('anoAdesao').focus();
@@ -646,7 +646,7 @@ const Seguro = () => {
                         }} placeholder='0' />
                       </Col>
                       <Col span={8}>
-                        <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETOR</sup></label>
+                        <label>COMISSÃO: <sup style={{ color: 'red' }}>PRODUTOR</sup></label>
                         <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(dataNewSeguro.comissao) / 100) * Number(Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} placeholder='0' />
                       </Col>
                     </>
@@ -851,8 +851,8 @@ const Seguro = () => {
                   style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
                 />
                 <div>
-                  <div style={{ width: '100%' }}>CORRETOR:</div>
-                  <Select allowClear placeholder='SELECIONAR CORRETOR' style={{ width: '100%' }} onChange={e => {
+                  <div style={{ width: '100%' }}>PRODUTOR:</div>
+                  <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: '100%' }} onChange={e => {
                     setCorretor(e ? e : null);
                   }}
                   showSearch

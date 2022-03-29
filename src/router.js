@@ -40,8 +40,8 @@ const router = [
     roles: ['administrador']
   },
   {
-    title: 'CORRETORES',
-    patchname: '/painel/corretores',
+    title: 'PRODUTORES',
+    patchname: '/painel/produtores',
     icon: 'bx bx-user',
     roles: ['administrador', 'gestor']
   },
