@@ -34,7 +34,6 @@ import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
-
   const [state, setState] = useState({
     placa: data.veiculo.placa,
     veiculo: data.veiculo.veiculo,
@@ -567,12 +566,15 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 marginBottom: 10
               }}
             >
-              <h3 style={{ margin: 0 }}>ENDOSSO - {item.tipo}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ margin: 0 }}>ENDOSSO - {item.tipo}</h3>
+                <h5>REGISTRO: {format(item.created.toDate(), 'dd/MM/yyyy')}</h5>
+              </div>
               <Divider style={{ margin: 0, marginBottom: 10 }} />
               <Row gutter={[20, 20]}>
                 <Col span={24}>
                   <label>SEGURADO:</label>
-                  <Input value={item.segurado.nome} style={{ width: '100%', textTransform: 'uppercase' }} readOnly />
+                  <Input value={dados.segurado.nome} style={{ width: '100%', textTransform: 'uppercase' }} readOnly />
                 </Col>  
                 {(item.tipo === 'VEÍCULO' || item.tipo === 'GERAL') && (
                   <>
