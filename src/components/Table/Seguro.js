@@ -19,7 +19,7 @@ import {
   notification
 } from 'antd';
 
-import { FaEye, FaFileAlt, FaPlus } from 'react-icons/fa';
+import { FaCog, FaEye, FaFileAlt, FaPlus } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons'
@@ -616,15 +616,15 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 )}
                 <Col span={8}>
                   <label>VALOR DO ENDOSSO:</label>
-                  <Input value={Number(item.valores.valor).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
+                  <Input className={`${item.valores.valor < 0 ? 'text-danger' : 'text-success'}`} value={Number(Math.abs(item.valores.valor)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
                 </Col>
                 <Col span={8}>
                   <label>COMISSÃO:</label>
-                  <Input value={Number(item.valores.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='%' style={{ textTransform: 'uppercase' }} readOnly />
+                  <Input value={Number(item.valores.percentual).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='%' style={{ textTransform: 'uppercase' }} readOnly />
                 </Col>
                 <Col span={8}>
                   <label>COMISSÃO: </label>
-                  <Input value={Number(item.valores.percentual).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix='R$' style={{ textTransform: 'uppercase' }} readOnly />
+                  <Input className={`${item.valores.comissao < 0 ? 'text-danger' : 'text-success'}`} value={Number(Math.abs(item.valores.comissao)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
                 </Col>
               </Row>
             </div>
@@ -669,6 +669,18 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               }
             />
           ]
+        }}
+        expandable={{
+          rowExpandable: record => record.endossos,
+          expandedRowRender: record => (
+            <>
+              {record.endossos?.map((itemEndosso, indexEndosso) => (
+                <>
+                  
+                </>
+              ))}
+            </>
+          ),
         }}
       >
         <Table.Column
@@ -830,15 +842,15 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                           <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
                             ENDOSSO DO ENDEREÇO
                           </Menu.Item>
+                          <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
+                            ENDOSSO DE CANCELAMENTO
+                          </Menu.Item>
                           {dados.endossos?.length > 0 && (
                             <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
                               REGISTROS DE ENDOSSOS
                             </Menu.Item>
                           )}
-                          <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
-                            ENDOSSO DE CANCELAMENTO
-                          </Menu.Item>
-                          <Menu.Item icon={<FaFileAlt />} onClick={async () => {
+                          <Menu.Item icon={<FaCog />} onClick={async () => {
                             setTimeout(async () => {
                               await setDataNewSeguro(e => (
                               {

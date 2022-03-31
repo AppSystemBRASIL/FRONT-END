@@ -15,6 +15,22 @@ input, textarea {
   font-size: 14px !important;
 }
 
+.text-success {
+  color: green;
+
+  input {
+    color: green;
+  }
+}
+
+.text-danger {
+  color: red;
+
+  input {
+    color: red;
+  }
+}
+
 .input-field {
   width: 100%;
   height: 100%;
