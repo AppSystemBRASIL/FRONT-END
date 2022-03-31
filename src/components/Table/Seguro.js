@@ -22,7 +22,9 @@ import {
 import { FaCog, FaEye, FaFileAlt, FaPlus } from 'react-icons/fa';
 import {
   DownOutlined
-} from '@ant-design/icons'
+} from '@ant-design/icons';
+
+import { v4 as uuid } from 'uuid';
 
 import _ from 'lodash';
 
@@ -34,7 +36,10 @@ import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
+  console.log(data);
+
   const [state, setState] = useState({
+    segurado: data.segurado,
     placa: data.veiculo.placa,
     veiculo: data.veiculo.veiculo,
     condutor: data.veiculo.condutor,
@@ -64,7 +69,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         console.log(error);
       })
     }
-  }, [state.cep])
+  }, [state.cep]);
 
   useEffect(() => {
     setState(e => ({...e, comissao: Number((Number(String(state.valor).split('.').join('').split(',').join('.')) / 100) * Number(state.percentual))}))
@@ -98,6 +103,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
 
       return;
     }
+
     const valorEndosso = state.tipoValor === '+' ? Number(String(state.valor).split('.').join('').split(',').join('.')) : -Number(String(state.valor).split('.').join('').split(',').join('.'));
     const comissaoEndosso = state.tipoValor === '+' ? state.comissao : -state.comissao;
 
@@ -107,6 +113,8 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
       },
       endossos: firebase.firestore.FieldValue.arrayUnion({
+        uid: uuid(),
+        segurado: state.segurado,
         valores: {
           valor: valorEndosso,
           percentual: Number(state.percentual),
@@ -652,6 +660,60 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       },
     });
   }
+
+  const expandedRowRender = (endossos) => {
+    const columns = [
+      { title: 'DATA', dataIndex: 'created', key: 'created', width: 100, render: (e) => format(e.toDate(), 'dd/MM/yyyy') },
+      { title: 'TIPO', dataIndex: 'tipo', key: 'tipo', width: 100 },
+      {
+        title: 'DADOS',
+        dataIndex: 'uid',
+        key: 'uid',
+        render: (uid, dados) => (
+          <>
+            {dados.tipo === 'ENDEREÇO' ? (
+              <>
+                <span>
+                  <b>ENDEREÇO:</b>
+                  <br/>
+                  Veículo: {dados.veiculo.veiculo} | Placa: {dados.veiculo.placa} | Condutor: {(dados.veiculo.condutor === 'O MESMO' || dados.veiculo.condutor === null || dados.veiculo.condutor === '') ? dados.segurado && dados.segurado.nome : dados.veiculo.condutor}
+                </span>
+              </>
+            ) : (
+              <>
+                <span>
+                  <b>VEÍCULO:</b>
+                  <br/>
+                  Bairro: {dados.endereco.bairro} | Cidade: {dados.endereco.cidade} | Estado: {dados.endereco.estado}
+                </span>
+              </>
+            )}
+          </>
+        )
+      },
+      {
+        title: <span style={{ float: 'right' }}>PRÊMIO LÍQUIDO | COMISSÃO</span>,
+        dataIndex: 'valores',
+        key: 'valores',
+        width: 300,
+        render: (valores, dados) => (
+          <div style={{ float: 'right', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
+            <div>
+              <span style={{ color: valores.valor < 0 ? 'red' : 'green' }}>{valores.valor > 0 && '+'}{Number(valores.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span> | {Number(valores.percentual).toFixed(0)}%
+              <br/>
+              <span style={{ fontSize: '.7rem' }}>comissão: <span style={{ color: valores.comissao < 0 ? 'red' : 'green' }}>{valores.comissao > 0 && '+'}{Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span></span>
+            </div>
+            {dados.corretor && (
+              <FaEye color='#999' cursor='pointer' />
+            )}
+          </div>
+        )
+      },
+    ];
+
+    return <Table columns={columns} dataSource={endossos} pagination={false} />;
+  };
+
   
   return (
     <>
@@ -672,15 +734,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         }}
         expandable={{
           rowExpandable: record => record.endossos,
-          expandedRowRender: record => (
-            <>
-              {record.endossos?.map((itemEndosso, indexEndosso) => (
-                <>
-                  
-                </>
-              ))}
-            </>
-          ),
+          expandedRowRender: record => expandedRowRender(record.endossos)
         }}
       >
         <Table.Column
@@ -709,7 +763,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         />
         {user.tipo === 'administrador' && (
           <Table.Column
-            width={150}
+            width={200}
             key="corretor"
             dataIndex="corretor"
             title={
@@ -781,7 +835,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           )}
         />
         <Table.Column
-          width={250}
+          width={300}
           key="valores"
           dataIndex="valores"
           title={
