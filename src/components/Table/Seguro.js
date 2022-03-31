@@ -734,7 +734,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         }}
         expandable={{
           rowExpandable: record => record.endossos,
-          expandedRowRender: record => expandedRowRender(record.endossos)
+          expandedRowRender: record => expandedRowRender([...record.endossos].sort((a, b) => b.created - a.created))
         }}
       >
         <Table.Column
