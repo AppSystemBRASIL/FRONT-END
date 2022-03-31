@@ -711,7 +711,18 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       },
     ];
 
-    return <Table columns={columns} dataSource={endossos} pagination={false} />;
+    return <Table title={() => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'left',
+          alignItems: 'center',
+          color: '#444',
+        }}
+      >
+        <FaFileAlt style={{ marginRight: 10 }} /> <span style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1rem' }}>DADOS DOS ENDOSSOS</span>
+      </div>
+    )} columns={columns} dataSource={endossos} pagination={false} />;
   };
 
   
