@@ -711,18 +711,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       },
     ];
 
-    return <Table title={() => (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'left',
-          alignItems: 'center',
-          color: '#444',
-        }}
-      >
-        <FaFileAlt style={{ marginRight: 10 }} /> <span style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1rem' }}>DADOS DOS ENDOSSOS</span>
-      </div>
-    )} columns={columns} dataSource={endossos} pagination={false} />;
+    return <Table columns={columns} dataSource={endossos} pagination={false} />;
   };
 
   
@@ -745,7 +734,23 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         }}
         expandable={{
           rowExpandable: record => record.endossos,
-          expandedRowRender: record => expandedRowRender([...record.endossos].sort((a, b) => b.created - a.created))
+          expandedRowRender: record => (
+            <>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'left',
+                  alignItems: 'center',
+                  color: '#444',
+                  background: '#F1F1F1',
+                  padding: '1rem'
+                }}
+              >
+                <FaFileAlt style={{ marginRight: 10 }} /> <span style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1rem' }}>DADOS DOS ENDOSSOS</span>
+              </div>
+              {expandedRowRender([...record.endossos].sort((a, b) => b.created - a.created))}
+            </>
+          )
         }}
       >
         <Table.Column

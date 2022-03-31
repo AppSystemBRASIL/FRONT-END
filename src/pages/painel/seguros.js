@@ -404,7 +404,7 @@ const Seguro = () => {
       valores: {
         parcelas: dataNewSeguro.parcelas,
         premio: Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')),
-        franquia: Number(String(dataNewSeguro.franquia).split(',').join('.')),
+        franquia: Number(String(dataNewSeguro.franquia).split('.').join('').split(',').join('.')),
         percentual: Number(String(dataNewSeguro.percentual).split(',').join('.')),
         comissao: dataNewSeguro.comissao,
         corretora: {
