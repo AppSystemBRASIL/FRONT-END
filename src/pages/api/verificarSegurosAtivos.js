@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   .where('ativo', '==', true);
 
   if(req.query.corretora) {
-    console.log(req.query.corretora)
     ref = ref.where('corretora.uid', '==', req.query.corretora);
   }
 
