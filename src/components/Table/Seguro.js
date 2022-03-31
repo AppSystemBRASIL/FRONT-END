@@ -624,7 +624,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 )}
                 <Col span={8}>
                   <label>VALOR DO ENDOSSO:</label>
-                  <Input className={`${item.valores.valor < 0 ? 'text-danger' : 'text-success'}`} value={Number(Math.abs(item.valores.valor)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
+                  <Input className={`${item.valores.valor < 0 ? 'text-danger' : item.valores.valor > 0 && 'text-success'}`} value={Number(Math.abs(item.valores.valor)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : item.valor > 0 && '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
                 </Col>
                 <Col span={8}>
                   <label>COMISSÃO:</label>
@@ -632,7 +632,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 </Col>
                 <Col span={8}>
                   <label>COMISSÃO: </label>
-                  <Input className={`${item.valores.comissao < 0 ? 'text-danger' : 'text-success'}`} value={Number(Math.abs(item.valores.comissao)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
+                  <Input className={`${item.valores.comissao < 0 ? 'text-danger' : item.valores.valor > 0 && 'text-success'}`} value={Number(Math.abs(item.valores.comissao)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : item.valores.valor > 0 && '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
                 </Col>
               </Row>
             </div>
@@ -699,9 +699,9 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         render: (valores, dados) => (
           <div style={{ float: 'right', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
             <div>
-              <span style={{ color: valores.valor < 0 ? 'red' : 'green' }}>{valores.valor > 0 && '+'}{Number(valores.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span> | {Number(valores.percentual).toFixed(0)}%
+              <span style={{ color: valores.valor < 0 ? 'red' : valores.valor > 0 && 'green' }}>{valores.valor > 0 && '+'}{Number(valores.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span> | {Number(valores.percentual).toFixed(0)}%
               <br/>
-              <span style={{ fontSize: '.7rem' }}>comissão: <span style={{ color: valores.comissao < 0 ? 'red' : 'green' }}>{valores.comissao > 0 && '+'}{Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span></span>
+              <span style={{ fontSize: '.7rem' }}>comissão: <span style={{ color: valores.comissao < 0 ? 'red' : valores.valor > 0 && 'green' }}>{valores.comissao > 0 && '+'}{Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span></span>
             </div>
             {dados.corretor && (
               <FaEye color='#999' cursor='pointer' />
