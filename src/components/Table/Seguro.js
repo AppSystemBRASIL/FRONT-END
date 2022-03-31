@@ -676,7 +676,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 <span>
                   <b>ENDEREÇO:</b>
                   <br/>
-                  Veículo: {dados.veiculo.veiculo} | Placa: {dados.veiculo.placa} | Condutor: {(dados.veiculo.condutor === 'O MESMO' || dados.veiculo.condutor === null || dados.veiculo.condutor === '') ? dados.segurado && dados.segurado.nome : dados.veiculo.condutor}
+                  Bairro: {dados.endereco.bairro} | Cidade: {dados.endereco.cidade} | Estado: {dados.endereco.estado}
                 </span>
               </>
             ) : (
@@ -684,7 +684,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 <span>
                   <b>VEÍCULO:</b>
                   <br/>
-                  Bairro: {dados.endereco.bairro} | Cidade: {dados.endereco.cidade} | Estado: {dados.endereco.estado}
+                  Veículo: {dados.veiculo.veiculo} | Placa: {dados.veiculo.placa} | Condutor: {(dados.veiculo.condutor === 'O MESMO' || dados.veiculo.condutor === null || dados.veiculo.condutor === '') ? dados.segurado && dados.segurado.nome : dados.veiculo.condutor}
                 </span>
               </>
             )}
