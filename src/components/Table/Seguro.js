@@ -30,7 +30,7 @@ import _ from 'lodash';
 
 import { endOfDay, format, formatDistanceStrict, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
-import { maskCEP, maskMoney, maskOnlyNumbers, maskDate } from 'hooks/mask';
+import { maskCEP, maskMoney, maskOnlyNumbers, maskDate, maskOnlyLetters } from 'hooks/mask';
 import axios from 'axios';
 import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
