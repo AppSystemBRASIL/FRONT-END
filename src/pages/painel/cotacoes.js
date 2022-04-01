@@ -80,9 +80,9 @@ const Cotacao = () => {
                   value={status}
                 >
                   <Select.Option value={null}>TODAS</Select.Option>
-                  <Select.Option value={0}>AGUARDANDO</Select.Option>
-                  <Select.Option value={1}>INICIADO</Select.Option>
-                  <Select.Option value={2}>CONCLUÍDO</Select.Option>
+                  <Select.Option value={0}>AGUARDANDO COTAÇÃO</Select.Option>
+                  <Select.Option value={1}>COTANDO SEGURO</Select.Option>
+                  <Select.Option value={2}>SEGURO GERADO</Select.Option>
                 </Select>
               </div>
             )}

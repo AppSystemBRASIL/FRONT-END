@@ -15,7 +15,7 @@ import {
   DownOutlined
 } from '@ant-design/icons';
 
-import { FaEye, FaTimesCircle, FaFile, FaPlus } from 'react-icons/fa';
+import { FaEye, FaTimesCircle, FaFile, FaPlus, FaPrint } from 'react-icons/fa';
 
 import _ from 'lodash';
 import { format } from 'date-fns';
@@ -191,9 +191,9 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
           render={(status) => (
             <div className={!loadingData && 'skeleton'}>
               <center>
-                <Tag style={{color: !loadingData && 'transparent', width: '100%', textAlign: 'center'}} color={status === 0 ? 'gray' : status === 1 ? '#87d068' : status ? '#1890ff' : 'transparent'}>
+                <Tag style={{color: !loadingData && 'transparent', textAlign: 'center'}} color={status === 0 ? 'gray' : status === 1 ? '#87d068' : status ? '#1890ff' : 'transparent'}>
                   <b>
-                    {status === 0 ? 'AGUARDANDO' : status === 1 ? 'INICIADO' : 'CONCLUÍDO'}
+                    {status === 0 ? 'AGUARDANDO COTAÇÃO' : status === 1 ? 'COTANDO SEGURO' : 'SEGURO GERADO'}
                   </b>
                 </Tag>
               </center>
@@ -220,8 +220,8 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
                 {loadingData ? (
                   <Dropdown overlay={() => (
                     <Menu>
-                      <Menu.Item icon={<FaEye />} onClick={() => verSolicitacaoCotacao(dados)}>
-                        VER SOLICITAÇÃO
+                      <Menu.Item icon={<FaPrint />} onClick={() => verSolicitacaoCotacao(dados)}>
+                        IMPRIMIR COTAÇÃO
                       </Menu.Item>
                       {dados.status === 2 ? (
                         <Menu.Item icon={<FaFile />} onClick={() => verSeguro(dados.uid)}>
