@@ -11,7 +11,7 @@ const router = [
     pages: [
       {
         title: 'COTAÇÕES',
-        patchname: '/painel/ cotacoes',
+        patchname: '/painel/cotacoes',
         icon: 'bx bx-file',
       },
       {

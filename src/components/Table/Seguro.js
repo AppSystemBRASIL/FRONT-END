@@ -530,6 +530,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     Modal.confirm({
       icon: null,
       width: '50%',
+      closable: true,
       title: [
         <>
           <h3 style={{ margin: 0 }}>ENDOSSO ({type})</h3>

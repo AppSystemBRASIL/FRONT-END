@@ -311,7 +311,7 @@ const Seguro = () => {
   const salvarSeguro = async () => {
     function objetoVazio(obj) {
       for (const prop in obj) {
-        if((prop !== 'corretorUid' && prop !== 'corretorDisplayName' && prop !== 'bairro' && prop !== 'uid' &&  prop !== 'search') && obj[prop] === null) {
+        if((prop !== 'condutor' && prop !== 'corretorUid' && prop !== 'corretorDisplayName' && prop !== 'bairro' && prop !== 'uid' &&  prop !== 'search') && obj[prop] === null) {
           return false;
         };
       }
@@ -711,7 +711,7 @@ const Seguro = () => {
               }} placeholder='TELEFONE' />
             </Col>
             <Col span={24}>
-              <label>CONDUTOR: <span style={{ color: 'red' }}>*</span></label>
+              <label>CONDUTOR:</label>
               <Input autoComplete='off' id='condutorText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO CONDUTOR'
                 onKeyPress={(e) => {
                   if(e.code === 'Enter') {
