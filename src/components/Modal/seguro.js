@@ -9,12 +9,12 @@ import { useTheme } from 'styled-components';
 import { addYears, endOfDay, format, setHours, setMinutes } from 'date-fns';
 import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskPercentual, maskPhone, maskPlaca, maskYear } from 'hooks/mask';
 
-import firebase from '../../../auth/AuthConfig';
+import firebase from '../../auth/AuthConfig';
 import axios from 'axios';
 import { validarCelular, validarPlaca, validateCPF } from 'hooks/validate';
 import generateToken from 'hooks/generateToken';
 
-export default function ModalSeguro({ data, visible, setVisible }) {
+export default function ModalSeguro({ data, visible, setVisible, callback }) {
   const { user, corretora, businessInfo } = useAuth();
 
   const theme = useTheme();
@@ -414,9 +414,13 @@ export default function ModalSeguro({ data, visible, setVisible }) {
         }
       });
 
-      notification.success({
-        message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
-      });
+      if(callback) {
+        callback();
+      }else {
+        notification.success({
+          message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
+        });
+      }
 
       await fechar();
     })

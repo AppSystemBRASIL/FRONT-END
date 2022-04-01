@@ -260,7 +260,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, setViewNewSeguro, setDataNewSeguro, businessInfo }) => {
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);

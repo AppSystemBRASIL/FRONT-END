@@ -6,21 +6,23 @@ import {
   Table,
   Tag,
   Button,
-  Modal,
   Empty,
   Menu,
   Dropdown
 } from 'antd';
+
 import {
   DownOutlined
 } from '@ant-design/icons';
 
-import { FaEye, FaTimesCircle, FaFile, FaPlus, FaPrint } from 'react-icons/fa';
+import { FaTimesCircle, FaFile, FaPlus, FaPrint } from 'react-icons/fa';
 
 import _ from 'lodash';
+
 import { format } from 'date-fns';
 
 import { iniciarCotacao, apagarCotacao, vincularSeguro, verSolicitacaoCotacao, verSeguro } from '../../functions';
+import ModalSeguro from 'components/Modal/seguro';
 
 const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
   const [loadingData, setLoadingData] = useState(false);
@@ -96,9 +98,95 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
     
     setLoadingData(true);
   }
+
+  const dadaInitial = {
+    comissaoCorretora: '100,00',
+    comissaoCorretoraValor: 0,
+    comissaoCorretor: '0,00',
+    comissaoCorretorValor: 0,
+    parcelas: null,
+    uid: null,
+    search: false,
+    corretorUid: null,
+    corretorDisplayName: null,
+    anoAdesao: null,
+    nome: null,
+    cep: null,
+    bairro: null,
+    cidade: null,
+    estado: null,
+    telefone: null,
+    veiculo: null,
+    premio: null,
+    franquia: null,
+    percentual: null,
+    comissao: null,
+    placa: null,
+    vigencia: null,
+    seguradora: null,
+    cpf: null,
+    veiculo: null,
+    condutor: null
+  };
+
+  const dataSeguroInitial = {
+    comissaoCorretora: '100,00',
+    comissaoCorretoraValor: 0,
+    comissaoCorretor: '0,00',
+    comissaoCorretorValor: 0,
+    parcelas: null,
+    uid: null,
+    search: false,
+    corretorUid: null,
+    corretorDisplayName: null,
+    anoAdesao: null,
+    nome: null,
+    cep: null,
+    bairro: null,
+    cidade: null,
+    estado: null,
+    telefone: null,
+    veiculo: null,
+    premio: null,
+    franquia: null,
+    percentual: null,
+    comissao: null,
+    placa: null,
+    vigencia: null,
+    seguradora: null,
+    cpf: null,
+    veiculo: null,
+    condutor: null
+  };
   
+  const [dataSeguroView, setDataSeguroView] = useState(dataSeguroInitial);
+
+  const [visible, setVisible] = useState(false);
+
+  const vincularSeguroModal = async (dados) => {
+    await setDataSeguroView((e) => ({
+      ...e,
+      uid: dados.uid,
+      search: true,
+      placa: dados.veiculo.placa,
+      corretorUid: dados.corretor ? dados.corretor.uid : null,
+      seguradora: dados.seguradora ? dados.seguradora.uid : null,
+      nome: dados.segurado.nome,
+      anoAdesao: dados.segurado.anoAdesao,
+      veiculo: dados.veiculo.veiculo,
+      telefone: dados.segurado.telefone,
+      cpf: dados.segurado.cpf,
+      condutor: dados.veiculo.condutor,
+      cep: dados.veiculo.cep,
+      condutor: dados.condutor.nome
+    }));
+
+    setVisible(true);
+  }
+
   return (
     <>
+      <ModalSeguro data={dataSeguroView} visible={visible} setVisible={setVisible} callback={() => vincularSeguro(dataSeguroView)} />
       <Table
         dataSource={loadingData ? cotacoes : _.times(listLimitDefault)}
         pagination={false}
@@ -234,7 +322,7 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
                               INICIAR COTAÇÃO
                             </Menu.Item>
                           ) : (
-                            <Menu.Item icon={<FaFile />} onClick={() => vincularSeguro(dados)}>
+                            <Menu.Item icon={<FaFile />} onClick={() => vincularSeguroModal(dados)}>
                               VINCULAR SEGURO
                             </Menu.Item>
                           )}
