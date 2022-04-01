@@ -34,6 +34,7 @@ import { maskCEP, maskMoney, maskOnlyNumbers, maskDate } from 'hooks/mask';
 import axios from 'axios';
 import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
+import ModalSeguro from 'components/Modal/seguro';
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   console.log(data);
@@ -715,9 +716,75 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     return <Table columns={columns} dataSource={endossos} pagination={false} />;
   };
 
+  const dataSeguroInitial = {
+    comissaoCorretora: '100,00',
+    comissaoCorretoraValor: 0,
+    comissaoCorretor: '0,00',
+    comissaoCorretorValor: 0,
+    parcelas: null,
+    uid: null,
+    search: false,
+    corretorUid: null,
+    corretorDisplayName: null,
+    anoAdesao: null,
+    nome: null,
+    cep: null,
+    bairro: null,
+    cidade: null,
+    estado: null,
+    telefone: null,
+    veiculo: null,
+    premio: null,
+    franquia: null,
+    percentual: null,
+    comissao: null,
+    placa: null,
+    vigencia: null,
+    seguradora: null,
+    cpf: null,
+    veiculo: null,
+    condutor: null
+  };
+
+  const [dataSeguroView, setDataSeguroView] = useState(dataSeguroInitial);
+  const [visibleModalSeguro, setVisibleModalSeguro] = useState(false);
+
+  const verAjuste = async (dados) => {
+    await setDataSeguroView((e) => ({
+      uid: dados.uid,
+      search: true,
+      placa: dados.veiculo.placa,
+      corretorUid: dados.corretor ? dados.corretor.uid : null,
+      seguradora: dados.seguradora ? dados.seguradora.uid : null,
+      vigencia: format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
+      vigenciaFinal: format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
+      premio: Number(dados.valores.premio).toLocaleString('pt-br', {minimumFractionDigits: 2}),
+      franquia: Number(dados.valores.franquia).toLocaleString('pt-br', {minimumFractionDigits: 2}),
+      comissao: dados.valores.comissao,
+      percentual: dados.valores.percentual,
+      nome: dados.segurado.nome,
+      anoAdesao: dados.segurado.anoAdesao,
+      veiculo: dados.veiculo.veiculo,
+      telefone: dados.segurado.telefone,
+      cpf: dados.segurado.cpf,
+      condutor: dados.veiculo.condutor,
+      cep: dados.endereco.cep,
+      bairro: dados.endereco.bairro,
+      cidade: dados.endereco.cidade,
+      estado: dados.endereco.estado,
+      parcelas: dados.valores.parcelas,
+      comissaoCorretor: dados.corretor ? dados.valores.corretor.percentual : null,
+      comissaoCorretorValor: dados.corretor ? dados.valores.corretor.valor : null,
+      comissaoCorretora: dados.valores.corretora.percentual,
+      comissaoCorretoraValor: dados.valores.corretora.valor,
+    }));
+
+    setVisibleModalSeguro(true);
+  }
   
   return (
     <>
+      <ModalSeguro data={dataSeguroView} visible={visibleModalSeguro} setVisible={setVisibleModalSeguro} />
       <Table
         dataSource={seguros?.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal)}
         pagination={false}
@@ -922,37 +989,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                             </Menu.Item>
                           )}
                           <Menu.Item icon={<FaCog />} onClick={async () => {
-                            setTimeout(async () => {
-                              await setDataNewSeguro(e => (
-                              {
-                                ...e,
-                                uid: dados.uid,
-                                search: true,
-                                placa: dados.veiculo.placa,
-                                corretorUid: dados.corretor ? dados.corretor.uid : null,
-                                seguradora: dados.seguradora ? dados.seguradora.uid : null,
-                                vigencia: format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
-                                vigenciaFinal: format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
-                                premio: Number(dados.valores.premio).toLocaleString('pt-br', {minimumFractionDigits: 2}),
-                                franquia: Number(dados.valores.franquia).toLocaleString('pt-br', {minimumFractionDigits: 2}),
-                                comissao: dados.valores.comissao,
-                                percentual: dados.valores.percentual,
-                                nome: dados.segurado.nome,
-                                anoAdesao: dados.segurado.anoAdesao,
-                                veiculo: dados.veiculo.veiculo,
-                                telefone: dados.segurado.telefone,
-                                cpf: dados.segurado.cpf,
-                                condutor: dados.veiculo.condutor,
-                                cep: dados.endereco.cep,
-                                bairro: dados.endereco.bairro,
-                                cidade: dados.endereco.cidade,
-                                estado: dados.endereco.estado,
-                                parcelas: dados.valores.parcelas
-                              }
-                            ));
-                            }, 100)
-
-                            setViewNewSeguro(true);
+                            await verAjuste(dados);
                           }}>
                             AJUSTE GERAL
                           </Menu.Item>
