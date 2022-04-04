@@ -383,55 +383,67 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       width: '50%',
       title: 'DESEJA REALMENTE CANCELAR O SEGURO?',
       closable: true,
+      
       content: [
         <>
           <h3>
             Ao confirmar a ação não será possível desfazer a mesma
           </h3>
           <br/>
-          <div>
-            <div>
-              <b>SEGURADO:</b><br/>{dados.segurado.nome}
+          <Row gutter={[0, 20]}>
+            <Col span={12}>
+              <b>SEGURADO:</b>
               <br/>
+              {dados.segurado.nome}
+            </Col>
+            <Col span={12}>
+              <b>SEGURADORA:</b>
               <br/>
-              <b>SEGURADORA:</b><br/>{dados.seguradora.razao_social}
+              {dados.seguradora.razao_social}
+            </Col>
+            <Col span={12}>
+              <b>PLACA:</b>
               <br/>
+              {dados.veiculo.placa}
+            </Col>
+            <Col span={12}>
+              <b>VEÍCULO:</b>
               <br/>
-              <b>PLACA:</b><br/>{dados.veiculo.placa}
+              {dados.veiculo.veiculo}
+            </Col>
+            <Col span={12}>
+              <b>DATA DE INICIO:</b>
               <br/>
+              {format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy')}
+            </Col>
+            <Col span={12}>
+              <b>DATA DO CANCELAMENTO:</b>
               <br/>
-              <b>VEÍCULO:</b><br/>{dados.veiculo.veiculo}
-              <br/>
-              <br/>
-              <b>VIGÊNCIA ATÉ:</b><br/>{format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}
-              <br/>
-              <br/>
-            </div>
-            <b>DATA DO CANCELAMENTO:</b>
-            <MaskedInput mask='11/11/1111' placeholderChar={null} type='tel' onChange={(e) => {
-              if(e.target.value) {
-                const data = maskDate(e.target.value);
-                dateCancel = data;
-                
-                if(validarData(data)) {
-                  const dia = dateCancel.split('/')[0];
-                  const mes = dateCancel.split('/')[1];
-                  const ano = dateCancel.split('/')[2];
+              <MaskedInput mask='11/11/1111' placeholderChar={null} type='tel' onChange={(e) => {
+                if(e.target.value) {
+                  const data = maskDate(e.target.value);
+                  dateCancel = data;
+                  
+                  if(validarData(data)) {
+                    const dia = dateCancel.split('/')[0];
+                    const mes = dateCancel.split('/')[1];
+                    const ano = dateCancel.split('/')[2];
 
-                  const dataCancelamento = new Date(ano, (mes - 1), dia);
-                  const dataVigencia = dados.seguro.vigenciaFinal.toDate();
+                    const dataCancelamento = new Date(ano, (mes - 1), dia);
+                    const dataVigencia = dados.seguro.vigenciaFinal.toDate();
 
-                  const daysDistance = Number(formatDistanceStrict(dataCancelamento, dataVigencia, { unit: 'day', roundingMethod: 'floor' }).split(' ')[0]) - 1;
-                
-                  const valorDay = dados.valores.comissao / 365;
+                    const daysDistance = Number(formatDistanceStrict(dataCancelamento, dataVigencia, { unit: 'day', roundingMethod: 'floor' }).split(' ')[0]) - 1;
+                  
+                    const valorDay = dados.valores.comissao / 365;
 
-                  const proporcaoValorDay = valorDay * daysDistance;
+                    const proporcaoValorDay = valorDay * daysDistance;
+                  }
+                }else {
+                  dateCancel = '';
                 }
-              }else {
-                dateCancel = '';
-              }
-            }} autoComplete='off' />
-          </div>
+              }} autoComplete='off' />
+            </Col>
+          </Row>
           <Divider />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
             <div>
