@@ -196,15 +196,15 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
           <>
             <Col span={8}>
               <label>PLACA:</label>
-              <Input value={state.placa} maxLength={7} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='AAA0000' onChange={(e) => setState(resp => ({ ...resp, placa: String(e.target.value).toUpperCase() }))} />
+              <Input id='placaModalEndosso' onPressEnter={() => document.getElementById('veiculoModalEndosso').focus()} value={state.placa} maxLength={7} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='AAA0000' onChange={(e) => setState(resp => ({ ...resp, placa: String(e.target.value).toUpperCase() }))} />
             </Col>
             <Col span={16}>
               <label>VEÍCULO:</label>
-              <Input value={state.veiculo} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO VEÍCULO' onChange={(e) => setState(resp => ({ ...resp, veiculo: String(e.target.value).toUpperCase() }))} />
+              <Input id='veiculoModalEndosso' onPressEnter={() => document.getElementById('condutorModalEndosso').focus()} value={state.veiculo} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO VEÍCULO' onChange={(e) => setState(resp => ({ ...resp, veiculo: String(e.target.value).toUpperCase() }))} />
             </Col>
             <Col span={24}>
               <label>CONDUTOR:</label>
-              <Input value={state.condutor} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO CONDUTOR' onChange={(e) => setState(resp => ({ ...resp, condutor: maskOnlyLetters(String(e.target.value).toUpperCase()) }))} />
+              <Input id='condutorModalEndosso' value={state.condutor} onPressEnter={() => type === 'GERAL' ? document.getElementById('cepModalEndosso').focus() : document.getElementById('valorModalEndosso').focus()} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO CONDUTOR' onChange={(e) => setState(resp => ({ ...resp, condutor: maskOnlyLetters(String(e.target.value).toUpperCase()) }))} />
             </Col>  
           </>
         )}
@@ -212,25 +212,25 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
           <>
             <Col span={6}>
               <label>CEP:</label>
-              <Input value={state.cep} autoComplete='off' maxLength={9} style={{ textTransform: 'uppercase' }} onChange={(e) => setState(resp => ({ ...resp, cep: maskCEP(e.target.value) }))} placeholder='CEP' />
+              <Input id='cepModalEndosso' onPressEnter={() => document.getElementById('bairroModalEndosso').focus()} value={state.cep} autoComplete='off' maxLength={9} style={{ textTransform: 'uppercase' }} onChange={(e) => setState(resp => ({ ...resp, cep: maskCEP(e.target.value) }))} placeholder='CEP' />
             </Col>
             <Col span={6}>
               <label>BAIRRO:</label>
-              <Input value={state.bairro} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='BAIRRO' onChange={(e) => setState(resp => ({ ...resp, bairro: String(e.target.value).toUpperCase() }))} />
+              <Input id='bairroModalEndosso' onPressEnter={() => document.getElementById('cidadeModalEndosso').focus()} value={state.bairro} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='BAIRRO' onChange={(e) => setState(resp => ({ ...resp, bairro: String(e.target.value).toUpperCase() }))} />
             </Col>
             <Col span={6}>
               <label>CIDADE:</label>
-              <Input value={state.cidade} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='CIDADE' onChange={(e) => setState(resp => ({ ...resp, cidade: String(e.target.value).toUpperCase() }))} />
+              <Input id='cidadeModalEndosso' onPressEnter={() => document.getElementById('estadoModalEndosso').focus()} value={state.cidade} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='CIDADE' onChange={(e) => setState(resp => ({ ...resp, cidade: String(e.target.value).toUpperCase() }))} />
             </Col>
             <Col span={6}>
               <label>ESTADO:</label>
-              <Input value={state.estado} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='ESTADO' onChange={(e) => setState(resp => ({ ...resp, estado: String(e.target.value).toUpperCase() }))} />
+              <Input id='estadoModalEndosso' onPressEnter={() => document.getElementById('valorModalEndosso').focus()} value={state.estado} autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='ESTADO' onChange={(e) => setState(resp => ({ ...resp, estado: String(e.target.value).toUpperCase() }))} />
             </Col>
           </>
         )}
         <Col span={8}>
           <label>VALOR DO ENDOSSO:</label>
-          <Input value={state.valor} type='tel' addonBefore={(
+          <Input value={state.valor} type='tel' id='valorModalEndosso' onPressEnter={() => document.getElementById('comissaoModalEndosso').focus()} addonBefore={(
             <Select value={state.tipoValor} showArrow={false} className="select-after" onChange={(e) => setState(resp => ({...resp, tipoValor: e}))}>
               <Select.Option value="+">+</Select.Option>
               <Select.Option value="-">-</Select.Option>
@@ -239,7 +239,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         </Col>
         <Col span={8}>
           <label>COMISSÃO:</label>
-          <Input value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))} />
+          <Input id='comissaoModalEndosso' value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))} />
         </Col>
         <Col span={8}>
           <label>COMISSÃO: </label>
@@ -445,11 +445,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             </Col>
           </Row>
           <Divider />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
-            <div>
-              <label>VALOR DE ENDOSSO:</label>
-              <h2 style={{ margin: 0, padding: 0 }}>{Number(valorRembolso).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}</h2>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', float: 'right' }}>
             <div>
               <Button onClick={() => modal.destroy()}
                 style={{
