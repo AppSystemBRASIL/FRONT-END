@@ -16,10 +16,11 @@ import {
   Row,
   Col,
   Input,
-  notification
+  notification,
+  Popconfirm
 } from 'antd';
 
-import { FaCog, FaEye, FaFileAlt, FaPlus } from 'react-icons/fa';
+import { FaCog, FaEye, FaFileAlt, FaPlus, FaTimes } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons';
@@ -373,7 +374,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   }
 
   const cancelarSeguro = (dados) => {
-    let dateCancel = '';
+    let dateCancel = null;
 
     const modal = Modal.confirm({
       width: '50%',
@@ -670,7 +671,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     });
   }
 
-  const expandedRowRender = (endossos) => {
+  const expandedRowRender = (endossos, dadosSeguro) => {
     const columns = [
       { title: 'DATA', dataIndex: 'created', key: 'created', width: 100, render: (e) => format(e.toDate(), 'dd/MM/yyyy') },
       { title: 'TIPO', dataIndex: 'tipo', key: 'tipo', width: 100 },
@@ -718,6 +719,41 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           </div>
         )
       },
+      {
+        title: null,
+        dataIndex: 'uid',
+        key: 'uid',
+        render: (uid, dados) => (
+          <Popconfirm title='Deseja realmente deletar?' okText='DELETAR' cancelText='CANCELAR' onConfirm={async () => {
+            const endossos = dadosSeguro.endossos.filter((e) => e.uid !== dados.uid);
+
+            await firebase.firestore().collection('seguros').doc(dadosSeguro.uid).set({
+              endossos
+            }, { merge: true })
+            .then(async () => {
+              if(dadosSeguro.corretor) {
+                await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(dadosSeguro.corretor.uid).set({
+                  valores: {
+                    premio: firebase.firestore.FieldValue.increment(-dados.valores.valor),
+                    comissao: firebase.firestore.FieldValue.increment(-dados.valores.comissao),
+                  }
+                }, { merge: true });
+              }
+
+              if(dadosSeguro.corretora) {
+                await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(dadosSeguro.corretora.uid).set({
+                  valores: {
+                    premio: firebase.firestore.FieldValue.increment(-dados.valores.valor),
+                    comissao: firebase.firestore.FieldValue.increment(-dados.valores.comissao),
+                  }
+                }, { merge: true });
+              }
+            });
+          }}>
+            <FaTimes color='red' cursor='pointer' />
+          </Popconfirm>
+        )
+      }
     ];
 
     return <Table columns={columns} dataSource={endossos} pagination={false} />;
@@ -823,7 +859,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               >
                 <FaFileAlt style={{ marginRight: 10 }} /> <span style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1rem' }}>DADOS DOS ENDOSSOS</span>
               </div>
-              {expandedRowRender([...record.endossos].sort((a, b) => b.created - a.created))}
+              {expandedRowRender([...record.endossos].sort((a, b) => b.created - a.created), record)}
             </>
           )
         }}
