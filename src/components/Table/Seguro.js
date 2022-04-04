@@ -37,8 +37,6 @@ import { useTheme } from 'styled-components';
 import ModalSeguro from 'components/Modal/seguro';
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
-  console.log(data);
-
   const [state, setState] = useState({
     segurado: data.segurado,
     placa: data.veiculo.placa,
@@ -377,13 +375,10 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   const cancelarSeguro = (dados) => {
     let dateCancel = '';
 
-    let valorRembolso = 0;
-
     const modal = Modal.confirm({
       width: '50%',
       title: 'DESEJA REALMENTE CANCELAR O SEGURO?',
       closable: true,
-      
       content: [
         <>
           <h3>
@@ -564,6 +559,10 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     Modal.confirm({
       icon: null,
       width: '50%',
+      style: {
+        top: 10,
+      },
+      closable: true,
       title: [
         <>
           <h3 style={{ margin: 0 }}>REGISTROS DE ENDOSSOS ({dados.segurado.nome})</h3>
@@ -634,7 +633,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 )}
                 <Col span={8}>
                   <label>VALOR DO ENDOSSO:</label>
-                  <Input className={`${item.valores.valor < 0 ? 'text-danger' : item.valores.valor > 0 && 'text-success'}`} value={Number(Math.abs(item.valores.valor)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : item.valor > 0 && '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
+                  <Input className={`${item.valores.valor < 0 ? 'text-danger' : item.valores.valor > 0 && 'text-success'}`} value={Number(Math.abs(item.valores.valor)).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} prefix={`${item.valores.valor < 0 ? '-' : item.valores.valor > 0 && '+'}R$`} style={{ textTransform: 'uppercase' }} readOnly />
                 </Col>
                 <Col span={8}>
                   <label>COMISSÃO:</label>
