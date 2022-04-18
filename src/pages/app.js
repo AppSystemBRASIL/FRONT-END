@@ -30,10 +30,10 @@ export default function  App() {
             array.push(item.data());
           });
 
-          const app = array[0];
+          const corretora = array[0];
 
-          if(app[device]) {
-            window.location.href = app[device];
+          if(corretora.apps[device]) {
+            window.location.href = corretora.apps[device];
           }else {
             alert('Ainda não temos um app para seu sistema operacional');
           }
