@@ -1,16 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+
+import firebase from '../auth/AuthConfig';
 
 export default function  App() {
   useEffect(() => {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    let device = null;
 
     if(userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || userAgent.match(/iPod/i)) {
-      window.location.href = 'https://www.apple.com/br/app-store/';
+      device = 'IOS';
     }else if(userAgent.match(/Android/i)) {
-      window.location.href = 'https://play.google.com/store/apps';
-    }else {
-      alert('Acesse com seu celular!');
+      device = 'ANDROID';
     }
+
+    (async () => {
+      if(!device) {
+        alert('Acesse com seu celular!');
+        return;
+      }
+
+      const hostname = String(window.location.hostname).split('https://').join('').split('http://').join('').split('www.').join('');
+
+      firebase.firestore().collection('corretoras').where('site', '==', hostname).get()
+      .then((response) => {
+        if(!response.empty) {
+          const array = [];
+
+          response.forEach((item) => {
+            array.push(item.data());
+          });
+
+          const app = array[0];
+
+          if(app[device]) {
+            window.location.href = app[device];
+          }else {
+            alert('Ainda não temos um app para seu sistema operacional');
+          }
+        }else {
+
+        }
+      });
+    })();
   }, []);
 
   return null;
