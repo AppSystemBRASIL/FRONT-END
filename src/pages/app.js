@@ -1,8 +1,14 @@
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 import firebase from '../auth/AuthConfig';
 
 export default function  App() {
+  const {
+    corretora,
+    corretor
+  } = useRouter().query;
+
   useEffect(() => {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     let device = null;
@@ -33,12 +39,16 @@ export default function  App() {
           const corretora = array[0];
 
           if(corretora.apps[device]) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const corretora = urlParams.get('corretora');
+            const corretor = urlParams.get('corretor');
+
             window.location.href = corretora.apps[device];
           }else {
             alert('Ainda não temos um app para seu sistema operacional');
           }
         }else {
-
+          alert('Ainda não temos um app para seu sistema operacional');
         }
       });
     })();
