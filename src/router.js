@@ -45,12 +45,6 @@ const router = [
     icon: 'bx bx-user',
     roles: ['administrador', 'gestor']
   },
-  {
-    title: 'MENSAGENS',
-    patchname: '/painel/mensagens',
-    icon: 'bx bx-chat',
-    roles: ['administrador', 'gestor']
-  },
 ]
 
 export default router;
