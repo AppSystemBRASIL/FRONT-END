@@ -17,8 +17,6 @@ export default function  App() {
       device = 'IOS';
     }else if(userAgent.match(/Android/i)) {
       device = 'ANDROID';
-    }else {
-      device = 'ANDROID';
     }
 
     (async () => {
