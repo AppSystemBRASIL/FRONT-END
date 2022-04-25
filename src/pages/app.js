@@ -18,22 +18,20 @@ export default function  App({ corretora }) {
       device = 'ANDROID';
     }
 
-    (async () => {
-      if(!device) {
-        alert('Acesse com seu celular!');
-        return;
-      }
+    if(!device) {
+      alert('Acesse com seu celular!');
+      return;
+    }
 
-      if(corretora.apps[device]) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const corretoraUID = corretora.uid;
-        const corretorUID = urlParams.get('corretor');
+    if(corretora && corretora.apps[device]) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const corretoraUID = corretora.uid || null;
+      const corretorUID = urlParams.get('corretor');
 
-        window.location.href = corretora.apps[device];
-      }else {
-        alert('Ainda não temos um app para seu sistema operacional');
-      }
-    })();
+      window.location.href = corretora.apps[device];
+    }else {
+      alert('Ainda não temos um app para seu sistema operacional');
+    }
   }, []);
 
   return (
