@@ -39,9 +39,9 @@ export default function  App() {
           const corretora = array[0];
 
           if(corretora.apps[device]) {
-            //const urlParams = new URLSearchParams(window.location.search);
-            //const corretoraUID = corretora.uid;
-            //const corretorUID = urlParams.get('corretor');
+            const urlParams = new URLSearchParams(window.location.search);
+            const corretoraUID = corretora.uid;
+            const corretorUID = urlParams.get('corretor');
 
             window.location.href = corretora.apps[device];
           }else {
