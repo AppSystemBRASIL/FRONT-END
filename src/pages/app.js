@@ -17,6 +17,8 @@ export default function  App() {
       device = 'IOS';
     }else if(userAgent.match(/Android/i)) {
       device = 'ANDROID';
+    }else {
+      device = 'ANDROID';
     }
 
     (async () => {
@@ -39,9 +41,9 @@ export default function  App() {
           const corretora = array[0];
 
           if(corretora.apps[device]) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const corretora = urlParams.get('corretora');
-            const corretor = urlParams.get('corretor');
+            //const urlParams = new URLSearchParams(window.location.search);
+            //const corretora = urlParams.get('corretora');
+            //const corretor = urlParams.get('corretor');
 
             window.location.href = corretora.apps[device];
           }else {
