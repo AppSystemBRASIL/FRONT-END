@@ -38,10 +38,10 @@ export default function  App({ corretora }) {
     <Head>
       <title>{corretora.razao_social}</title>
       <link rel='icon' type='image/png' href={corretora.icon} sizes='192x192' />
-      
+
       <meta property='og:title' content={corretora.razao_social} />
       <meta property='og:url' content={corretora.site} />
-      <meta property='og:description' content={`Encontre o melhor seguro na ${corretora.razao_social}`} />
+      <meta property='og:description' content='seguros custam menos que você imagina' />
       <meta property='og:image' itemprop='image' content={corretora.icon}/>
       <meta property='og:image:width' content='300' />
       <meta property='og:image:height' content='300' />
