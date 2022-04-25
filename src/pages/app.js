@@ -37,12 +37,12 @@ export default function  App({ corretora }) {
   return (
     <Head>
       <title>{corretora.razao_social}</title>
+      <meta property='og:locale' content='pt_BR' />
+      <meta property='og:type' content='article' />
+      <meta property='og:image' itemprop='image' content={corretora.icon} />
       <meta property='og:title' content={corretora.razao_social} />
       <meta property='og:description' content='Seguros custam menos que você imagina' />
       <meta property='og:url' content={corretora.site} />
-      <meta property='og:image' itemprop='image' content={corretora.icon} />
-      <meta property='og:type' content='article' />
-      <meta property='og:locale' content='pt_BR' />
     </Head>
   );
 }
