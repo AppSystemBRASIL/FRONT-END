@@ -40,8 +40,8 @@ export default function  App() {
 
           if(corretora.apps[device]) {
             //const urlParams = new URLSearchParams(window.location.search);
-            //const corretora = urlParams.get('corretora');
-            //const corretor = urlParams.get('corretor');
+            //const corretoraUID = corretora.uid;
+            //const corretorUID = urlParams.get('corretor');
 
             window.location.href = corretora.apps[device];
           }else {
