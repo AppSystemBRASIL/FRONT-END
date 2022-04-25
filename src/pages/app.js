@@ -45,7 +45,7 @@ export default function  App({ corretora }) {
       <meta property='og:image' itemprop='image' content={corretora.icon}/>
       <meta property='og:image:width' content='300' />
       <meta property='og:image:height' content='300' />
-      <meta property='og:type' content='website' />
+      <meta property='og:type' content='article' />
       <meta property='og:locale' content='pt_BR' />
     </Head>
   );
