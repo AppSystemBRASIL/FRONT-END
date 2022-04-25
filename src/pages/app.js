@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
+import Head from 'next/head';
+
 import firebase from '../auth/AuthConfig';
 
-export default function  App() {
-  const {
-    corretora,
-    corretor
-  } = useRouter().query;
+export default function  App({ corretora }) {
+  const { corretor } = useRouter().query;
 
   useEffect(() => {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -25,34 +24,56 @@ export default function  App() {
         return;
       }
 
-      const hostname = String(window.location.hostname).split('https://').join('').split('http://').join('').split('www.').join('');
+      if(corretora.apps[device]) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const corretoraUID = corretora.uid;
+        const corretorUID = urlParams.get('corretor');
 
-      firebase.firestore().collection('corretoras').where('site', '==', hostname).get()
-      .then((response) => {
-        if(!response.empty) {
-          const array = [];
-
-          response.forEach((item) => {
-            array.push(item.data());
-          });
-
-          const corretora = array[0];
-
-          if(corretora.apps[device]) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const corretoraUID = corretora.uid;
-            const corretorUID = urlParams.get('corretor');
-
-            window.location.href = corretora.apps[device];
-          }else {
-            alert('Ainda não temos um app para seu sistema operacional');
-          }
-        }else {
-          alert('Ainda não temos um app para seu sistema operacional');
-        }
-      });
+        window.location.href = corretora.apps[device];
+      }else {
+        alert('Ainda não temos um app para seu sistema operacional');
+      }
     })();
   }, []);
 
-  return null;
+  return (
+    <Head>
+      <title>{corretora.razao_social}</title>
+      <meta property='og:title' content={corretora.razao_social} />
+      <meta property='og:url' content={corretora.site} />
+      <meta property='og:description' content={`Encontre o melhor seguro na ${corretora.razao_social}`} />
+      <meta property='og:image' itemprop='image' content={corretora.icon}/>
+      <meta property='og:type' content='website' />
+      <meta property='og:locale' content='pt_BR' />
+    </Head>
+  );
+}
+
+export const getServerSideProps = async (context) => {
+  const { req } = context;
+  const nodeENV = process.env.NODE_ENV;
+
+  const hostname = String(req.headers.host).split('https://').join('').split('http://').join('').split('www.').join('');
+
+  const corretora = await firebase.firestore().collection('corretoras').where('site', '==', nodeENV === 'development' ? 'xcarcorretora.com.br' : hostname).get()
+  .then((response) => {
+    if(!response.empty) {
+      const array = [];
+
+      response.forEach((item) => {
+        array.push(item.data());
+      });
+
+      return array[0];
+    }else {
+      return null;
+    }
+  })
+  .catch(() => null);
+
+  return {
+    props: {
+      corretora: {...corretora, created: new Date(corretora.created.toMillis()).getTime()},
+    }
+  }
 }
