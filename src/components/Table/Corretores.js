@@ -130,24 +130,6 @@ const TableCorretores = () => {
             </div>
           )}
         />
-        <Table.Column
-          key="comissao"
-          dataIndex="comissao"
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                <center>COMISSÃO</center>
-              </div>
-            ]
-          }
-          render={(comissao) => (
-            <div className={!loadingData && 'skeleton'}>
-              <center>
-                {comissao || 0} %
-              </center>
-            </div>
-          )}
-        />
         <Table.Column 
           key="uid"
           dataIndex="uid"

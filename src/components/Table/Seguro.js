@@ -859,7 +859,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               >
                 <FaFileAlt style={{ marginRight: 10 }} /> <span style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1rem' }}>DADOS DOS ENDOSSOS</span>
               </div>
-              {expandedRowRender([...record.endossos].sort((a, b) => b.created - a.created), record)}
+              {expandedRowRender([...record.endossos || []].sort((a, b) => b.created - a.created), record)}
             </>
           )
         }}
