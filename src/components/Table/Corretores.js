@@ -12,7 +12,6 @@ import {
 } from '@ant-design/icons';
 
 import _ from 'lodash';
-import { format } from 'date-fns';
 import { maskPhone } from 'hooks/mask';
 import useAuth from 'hooks/useAuth';
 import { useTheme } from 'styled-components';
@@ -45,20 +44,7 @@ const TableCorretores = () => {
         });
       }
 
-      setCotacoes(response => {
-        const objetos = [...response];
-
-        array.map((item) => {
-          const index = objetos.findIndex(resp => resp.uid === item.uid);
-          if(index >= 0) {
-            objetos[index] = item;
-          }else {
-            objetos.push(item);
-          }
-        });
-
-        return objetos;
-      });
+      setCotacoes(array);
     })
     
     setLoadingData(true);

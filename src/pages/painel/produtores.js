@@ -11,13 +11,9 @@ import { FaPlus, FaTimes } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 
-import generateToken from 'hooks/generateToken';
-import { addYears, endOfDay, format, setHours, setMinutes } from 'date-fns';
 import axios from 'axios';
-import printListSeguros from 'components/PDF/ListSeguros';
 
 import { useTheme } from 'styled-components';
-import { validarCelular, validarPlaca, validateCPF } from 'hooks/validate';
 
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
@@ -31,9 +27,6 @@ const Seguro = () => {
     setwidth(window.screen.width);
   }, []);
 
-  const [cpf, setCPF] = useState('');
-  const [placa, setPlaca] = useState('');
-
   const [seguradora, setSeguradora] = useState(null);
   const [corretor, setCorretor] = useState(null);
 
@@ -44,6 +37,10 @@ const Seguro = () => {
   const [seguros, setSeguros] = useState([]);
 
   const [dataNewSeguro, setDataNewSeguro] = useState({
+    cpf: null,
+    telefone: null,
+    nome: null,
+    email: null,
     bairro: null,
     cidade: null,
     estado: null,
@@ -71,8 +68,27 @@ const Seguro = () => {
     }
   }, [dataNewSeguro.cep]);
 
-  const salvarSeguro = () => {
-
+  const salvarSeguro = async () => {
+    await firebase.firestore().collection('usuarios').add({
+      corretora: {
+        uid: corretora.uid,
+        verified: true,
+      },
+      cpf: dataNewSeguro.cpf,
+      displayName: dataNewSeguro.nome,
+      email: dataNewSeguro.email,
+      emailVerified: false,
+      nomeCompleto: dataNewSeguro.nome,
+      status: 'paid',
+      telefone: dataNewSeguro.telefone,
+      tipo: 'corretor',
+      created: new Date(),
+      comissao: dataNewSeguro.parcelas || []
+    })
+    .then((response) => {
+      firebase.firestore().collection('usuarios').doc(response.id).set({ uid: response.id }, { merge: true });
+      setViewNewSeguro(false);
+    });
   }
 
   if(!user && !corretora) {
@@ -90,15 +106,19 @@ const Seguro = () => {
           <Row gutter={[10, 20]}>
             <Col span={8}>
               <label>NOME:</label>
-              <Input placeholder='NOME COMPLETO' />
+              <Input type='text' placeholder='NOME COMPLETO' value={dataNewSeguro.nome} onChange={value => setDataNewSeguro(e => ({...e, nome: maskOnlyLetters(value.target.value.toUpperCase())}))} />
             </Col>
             <Col span={8}>
-              <label>EMAIL:</label>
-              <Input placeholder='EXEMPLO@HOSPEDAGEM.COM' />
+              <label>CPF:</label>
+              <Input type='tel' placeholder='000.000.000-00' value={dataNewSeguro.cpf} onChange={value => setDataNewSeguro(e => ({...e, cpf: maskCPF(value.target.value)}))} />
             </Col>
             <Col span={8}>
               <label>CELULAR:</label>
-              <Input placeholder='(00) 00000-0000' />
+              <Input type='tel' placeholder='(00) 00000-0000' value={dataNewSeguro.telefone} onChange={value => setDataNewSeguro(e => ({...e, telefone: maskPhone(value.target.value)}))} />
+            </Col>
+            <Col span={24}>
+              <label>EMAIL:</label>
+              <Input type='email' placeholder='EXEMPLO@HOSPEDAGEM.COM' value={dataNewSeguro.email} onChange={value => setDataNewSeguro(e => ({...e, email: value.target.value.toUpperCase()}))} />
             </Col>
           </Row>
           <br/>
@@ -128,15 +148,15 @@ const Seguro = () => {
               <>
                 <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <InputNumber value={item.min} style={{ width: '40%' }}
-                    max={100}
-                    min={0}
+                    max={12}
+                    min={data[index - 1]?.max + 1 || 1}
                     onChange={(value) => {
                       data[index].min = value;
                       setDataNewSeguro(e => ({...e, parcelas: data }))
                     }}
                   /> - <InputNumber value={item.max} style={{ width: '40%' }}
-                    max={100}
-                    min={item.min + 1}
+                    max={12}
+                    min={item.min + 1 || 1}
                     onChange={(value) => {
                       data[index].max = value;
                       setDataNewSeguro(e => ({...e, parcelas: data }))
@@ -179,9 +199,6 @@ const Seguro = () => {
         <TableCorretores
           seguradora={seguradora}
           corretor={corretor}
-          date={date}
-          cpf={cpf}
-          placa={placa}
           user={user}
           infiniteData={true}
           corretora={corretora.uid}

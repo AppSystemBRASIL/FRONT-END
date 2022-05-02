@@ -62,17 +62,18 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
 
   useEffect(() => {
     const getPercentualComissao = () => {
-      if(dataNewSeguro.parcelas <= 4) {
-        return '52,97';
+      const corretorSearch = corretores.filter(e => e.uid === dataNewSeguro.corretorUid);
+
+      if(corretorSearch.length === 0) {
+        return '00,00';
       }
 
-      if(dataNewSeguro.parcelas > 4 && dataNewSeguro.parcelas <= 7) {
-        return '54,97';
-      }
+      const comissaoCorretorArray = corretorSearch[0].comissao;
 
-      if(dataNewSeguro.parcelas > 7) {
-        return '57,97';
-      }
+      const percentualString = comissaoCorretorArray.filter(e => dataNewSeguro.parcelas >= e.min && dataNewSeguro.parcelas <= e.max)[0]?.percentual;
+      const perfds = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, minimumIntegerDigits: 2 }).format(percentualString);
+
+      return perfds || '00,00';
     }
 
     const comissaoCorretor = Number(getPercentualComissao().split(',').join('.'));

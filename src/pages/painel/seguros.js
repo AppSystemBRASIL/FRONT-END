@@ -84,7 +84,7 @@ const Seguro = () => {
         setSeguradoras(array);
       })
 
-      firebase.firestore().collection('usuarios').where('corretora.uid', '==', user.corretora.uid).get()
+      firebase.firestore().collection('usuarios').where('corretora.uid', '==', user.corretora.uid).where('tipo', '==', 'corretor').get()
       .then((response) => {
         const array = [];
 
