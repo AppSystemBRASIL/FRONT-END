@@ -844,7 +844,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           ]
         }}
         expandable={{
-          rowExpandable: record => record.endossos.length > 0,
+          rowExpandable: record => [...record.endossos || []].length > 0,
           expandedRowRender: record => (
             <>
               <div
