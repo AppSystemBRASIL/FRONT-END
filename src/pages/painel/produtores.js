@@ -18,13 +18,28 @@ import { useTheme } from 'styled-components';
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
 
-  const theme = useTheme();
+  useEffect(() => {
+    juroComposto({
+      valor: 100,
+      taxa: 1,
+      tempo: 5,
+      mesInicial: 4
+    });
+  }, []);
 
-  const [width, setwidth] = useState(0);
+  function juroComposto({ valor, taxa, tempo, mesInicial }) {
+    const capital = Number(valor);
+    const taxaJuros = Number(taxa) / 100;
+    const tempoAplicacao = Number(tempo) - (mesInicial || 0);
+
+    const total = capital * Math.pow((1 + taxaJuros), tempoAplicacao);
+    return total - capital;
+  }
+
+  const theme = useTheme();
 
   useEffect(() => {
     setCollapsedSideBar(window.screen.width <= 768 ? false : true);
-    setwidth(window.screen.width);
   }, []);
 
   const [seguradora, setSeguradora] = useState(null);
@@ -45,9 +60,7 @@ const Seguro = () => {
     cidade: null,
     estado: null,
     cep: null,
-    parcelas: [
-      { min: 0, max: 0, percentual: 0 }
-    ]
+    parcelas: Array.from({ length: 12 }).map((item, index) => ({ parcela: (index + 1), percentual: 0 }))
   })
 
   useEffect(() => {
@@ -146,25 +159,11 @@ const Seguro = () => {
             <Col span={12} />
             {dataNewSeguro.parcelas?.map((item, index, data) => (
               <>
-                <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <InputNumber value={item.min} style={{ width: '40%' }}
-                    max={12}
-                    min={data[index - 1]?.max + 1 || 1}
-                    onChange={(value) => {
-                      data[index].min = value;
-                      setDataNewSeguro(e => ({...e, parcelas: data }))
-                    }}
-                  /> - <InputNumber value={item.max} style={{ width: '40%' }}
-                    max={12}
-                    min={item.min + 1 || 1}
-                    onChange={(value) => {
-                      data[index].max = value;
-                      setDataNewSeguro(e => ({...e, parcelas: data }))
-                    }}
-                  />
+                <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span>{item.parcela} parcelas</span>
                 </Col>
                 <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <InputNumber defaultValue={0} value={item.percentual} style={{ width: '40%' }}
+                  <InputNumber value={item.percentual} style={{ width: '40%' }}
                       max={100}
                       min={0}
                       onChange={(value) => {
@@ -173,11 +172,7 @@ const Seguro = () => {
                       }}
                     /> <span style={{ marginLeft: 10 }}>%</span>
                 </Col>
-                <Col span={12} style={{ textAlign: 'left', display: 'flex', alignItems: 'center'}}>
-                  {data.length > 1 && index >= 0 && <FaTimes cursor='pointer' color='red' onClick={() => {
-                    setDataNewSeguro(e => ({...e, parcelas: data.filter(x => x !== item)}))
-                  }} />}
-                </Col>
+                <Col span={12} style={{ textAlign: 'left', display: 'flex', alignItems: 'center'}} />
               </>
             ))}
           </Row>

@@ -209,7 +209,7 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                NOME
+                SEGURADO
               </div>
             ]
           }
@@ -217,11 +217,11 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
             <>
               {loadingData && (
                 <span style={{ fontSize: '.6rem' }}>
-                  SEGURO {(dados.tipo || dados.seguro.tipo).toUpperCase()} {((dados.tipo === 'veicular' || dados.seguro.tipo === 'veicular')) && `- ${dados.veiculo.placa}`}
+                  SEGURO {String(dados.tipo).toUpperCase().split('-').join(' ')} {((dados.tipo === 'veicular' || dados.seguro.tipo === 'veicular')) && `- ${dados.veiculo.placa}`}
                 </span>
               )}
               <div className={!loadingData && 'skeleton'}>
-                {segurado && segurado.nome}
+                {segurado && String(segurado.nome).toUpperCase()}
               </div>
             </>
           )}
