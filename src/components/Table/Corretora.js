@@ -12,7 +12,9 @@ import {
   Col,
   Input,
   Avatar,
-  Select
+  Select,
+  Divider,
+  InputNumber
 } from 'antd';
 
 import {
@@ -328,6 +330,20 @@ const TableCotacao = ({ infiniteData, limit, status, cnpj }) => {
                                       </Select.Option>
                                     ))}
                                   </Select>
+                                </Col>
+                                <Col span={24}>
+                                  <Divider style={{ margin: 0, padding: 0 }} />
+                                </Col>
+                                <Col span={24}>
+                                  <h4>COMISSÃO:</h4>
+                                </Col>
+                                <Col span={12}>
+                                  <label>PERCENTUAL: <sup><span style={{ color: 'red' }}>*</span></sup></label>
+                                  <InputNumber readOnly style={{ width: '100%' }} max={100} step={1} value={dados?.comissao?.percentual || 0} />
+                                </Col>
+                                <Col span={12}>
+                                  <label>JUROS: <sup>% mês</sup> <sup><span style={{ color: 'red' }}>*</span></sup></label>
+                                  <InputNumber readOnly style={{ width: '100%' }} step={.5} max={7} value={dados?.comissao?.juros || 0} />
                                 </Col>
                               </Row>
                             ],

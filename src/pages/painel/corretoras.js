@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import firebase from '../../auth/AuthConfig';
 
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Select, Input, Modal, Upload, Avatar, notification } from 'antd';
+import { Row, Col, Select, Input, Modal, Upload, Avatar, notification, Divider, InputNumber } from 'antd';
 
 import {
   FileOutlined,
@@ -36,12 +36,12 @@ const Corretora = () => {
     layout: {
       theme: null,
     },
+    comissao: {
+      percentual: 0,
+      juros: 0
+    }
   });
   const [loadingAddCorretora, setLoadingAddCorretora] = useState(false);
-
-  useEffect(() => {
-    console.log(novaCorretora);
-  }, []);
 
   const [width, setWidth] = useState(0);
 
@@ -75,11 +75,15 @@ const Corretora = () => {
       layout: {
         theme: null,
       },
+      comissao: {
+        percentual: 0,
+        juros: 0
+      }
     })
   }, [modalNovaCorretora]);
 
   const adicionarCorretora = async () => {
-    if(!novaCorretora.cnpj || !novaCorretora.razao_social || !novaCorretora.telefone || !novaCorretora.email || !novaCorretora.icon || !novaCorretora.logo || !novaCorretora.layout.theme) {
+    if(!novaCorretora.cnpj || !novaCorretora.razao_social || !novaCorretora.telefone || !novaCorretora.email || !novaCorretora.icon || !novaCorretora.logo || !novaCorretora.layout.theme || !novaCorretora.comissao.juros || !novaCorretora.comissao.percentual) {
       notification.warn({
         message: 'PREENCHA OS CAMPOS OBRIGATÓRIOS'
       })
@@ -202,6 +206,20 @@ const Corretora = () => {
                 </Select.Option>
               ))}
             </Select>
+          </Col>
+          <Col span={24}>
+            <Divider style={{ margin: 0, padding: 0 }} />
+          </Col>
+          <Col span={24}>
+            <h4>COMISSÃO:</h4>
+          </Col>
+          <Col span={12}>
+            <label>PERCENTUAL: <sup><span style={{ color: 'red' }}>*</span></sup></label>
+            <InputNumber style={{ width: '100%' }} max={100} step={1} value={novaCorretora.comissao.percentual} onChange={(e) => setNovaCorretora(response => ({...response, comissao: { ...response.comissao, percentual: Number(e) }}))} />
+          </Col>
+          <Col span={12}>
+            <label>JUROS: <sup>% mês</sup> <sup><span style={{ color: 'red' }}>*</span></sup></label>
+            <InputNumber style={{ width: '100%' }} step={.5} max={7} value={novaCorretora.comissao.juros} onChange={(e) => setNovaCorretora(response => ({...response, comissao: { ...response.comissao, juros: Number(e) }}))} />
           </Col>
         </Row>
       </Modal>
