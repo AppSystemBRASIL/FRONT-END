@@ -1,5 +1,5 @@
-import React, { Fragment, useState } from 'react';
-import { Image } from 'antd';
+import React, { Fragment, useState, useEffect } from 'react';
+import { Badge, Image } from 'antd';
 
 import styled from 'styled-components';
 import colors from '../../../utils/colors';
@@ -8,13 +8,26 @@ import { CSSTransition } from 'react-transition-group';
 
 import useAuth from '../../../hooks/useAuth';
 
+import firebase from '../../../auth/AuthConfig';
+
 import Router from 'next/router';
 import router from '../../../router';
+
+import { FaBell } from 'react-icons/fa';
 
 const Header = ({ collapsed }) => {
   const { user, signOut, businessInfo, setCollapsedSideBar } = useAuth();
 
   const [activeMenu, setActiveMenu] = useState('main');
+
+  const [qtdMsg, setQtdMsg] = useState(0);
+
+  useEffect(() => {
+    firebase.firestore().collection('feedback').where('corretora', '==', user.corretora.uid).where('lida', '==', false).get()
+    .then((response) => {
+      setQtdMsg(response.size); 
+    })
+  }, []);
 
   return (
     <HeaderComponent bg={businessInfo.layout.theme} sidebar={true} mobile={window.screen.width < 768} className={'home-section '+ (collapsed && 'close')}>
@@ -112,35 +125,44 @@ const Header = ({ collapsed }) => {
             </Fragment>
           )}
         </div>
-        <div className='box-user' style={{display: 'flex', alignItems: 'center'}}>
-          <div className='user-info' style={{ textAlign: 'right', lineHeight: 1 }}>
-            <div style={{textTransform: 'uppercase', fontWeight: 700, fontSize: '1rem'}}>{user.displayName}</div>
-            <div>{String(user.tipo).toUpperCase()}</div>
-          </div>
-          <Image style={{width: 45, height: 45, borderRadius: 8, marginLeft: 10}} preview={false} src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
-          <DropdownMenu bg={businessInfo.layout.theme} className={'dropdown-menu '}>
-            <div className={'content '+(collapsed ? 'collapsed' : null)}>
-              <CSSTransition
-                in={activeMenu === 'main'}
-                unmountOnExit
-                timeout={500}
-                classNames='menu-primary'
-              >
-                <div className='menu'>
-                  <DropdownItem onClick={() => Router.push('/painel/perfil')}>
-                    <div>
-                      <span className='icon-button'><i className='bx bxs-user'/></span> MEU PERFIL
-                    </div>
-                  </DropdownItem>
-                  <DropdownItem onClick={signOut}>
-                    <div>
-                      <span className='icon-button'><i className='bx bx-log-out'/></span> DESLOGAR
-                    </div>
-                  </DropdownItem>
-                </div>
-              </CSSTransition>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <Badge count={qtdMsg}>
+            <FaBell onClick={() => Router.push('/painel/mensagens')} cursor='pointer' size={20} color='#333' />
+          </Badge>
+          <div className='box-user' style={{display: 'flex', alignItems: 'center'}}>
+            <div className='user-info' style={{ textAlign: 'right', lineHeight: 1 }}>
+              <div style={{textTransform: 'uppercase', fontWeight: 700, fontSize: '1rem'}}>{user.displayName}</div>
+              <div>{String(user.tipo).toUpperCase()}</div>
             </div>
-          </DropdownMenu>
+            <Image style={{width: 45, height: 45, borderRadius: 8, marginLeft: 10}} preview={false} src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" alt="profile" />
+            <DropdownMenu bg={businessInfo.layout.theme} className={'dropdown-menu '}>
+              <div className={'content '+(collapsed ? 'collapsed' : null)}>
+                <CSSTransition
+                  in={activeMenu === 'main'}
+                  unmountOnExit
+                  timeout={500}
+                  classNames='menu-primary'
+                >
+                  <div className='menu'>
+                    <DropdownItem onClick={() => Router.push('/painel/perfil')}>
+                      <div>
+                        <span className='icon-button'><i className='bx bxs-user'/></span> MEU PERFIL
+                      </div>
+                    </DropdownItem>
+                    <DropdownItem onClick={signOut}>
+                      <div>
+                        <span className='icon-button'><i className='bx bx-log-out'/></span> DESLOGAR
+                      </div>
+                    </DropdownItem>
+                  </div>
+                </CSSTransition>
+              </div>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </HeaderComponent>

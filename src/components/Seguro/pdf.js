@@ -7,6 +7,7 @@ export default async function cotacaoPDF(dados) {
   const reportTitle = [{
     
   }];
+  
   const details = [
     {
       

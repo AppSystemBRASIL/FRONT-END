@@ -62,7 +62,7 @@ const Seguro = ({ dados }) => {
         <br/>
         <div>
           <label>FINAL DA VIGÊNCIA:</label>
-          <Input placeholder='00/00/0000' type='tel' maxLength={10} id='seguroVinculado-finalVigencia' value={finalVigencia} type='text' style={{fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}}
+          <Input placeholder='00/00/0000' type='tel' maxLength={10} id='seguroVinculado-finalVigencia' value={finalVigencia} style={{fontSize: 17, color: colors.text.secondary, fontWeight: 'bold'}}
             onChange={(e) => setFinalVigencia(maskDate(e.target.value))}
           />
         </div>

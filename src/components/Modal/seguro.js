@@ -14,6 +14,15 @@ import axios from 'axios';
 import { validarCelular, validarPlaca, validateCPF } from 'hooks/validate';
 import generateToken from 'hooks/generateToken';
 
+function juroComposto({ valor, taxa, tempo }) {
+  const capital = Number(valor);
+  const taxaJuros = Number(taxa) / 100;
+  const tempoAplicacao = Number(tempo);
+
+  const total = capital * Math.pow((1 + taxaJuros), tempoAplicacao);
+  return total - capital;
+}
+
 export default function ModalSeguro({ data, visible, setVisible, callback }) {
   const { user, corretora, businessInfo } = useAuth();
 
@@ -68,12 +77,11 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         return '00,00';
       }
 
-      const comissaoCorretorArray = corretorSearch[0].comissao;
+      const percentualComissao = 1;
 
-      const percentualString = comissaoCorretorArray.filter(e => dataNewSeguro.parcelas >= e.min && dataNewSeguro.parcelas <= e.max)[0]?.percentual;
-      const perfds = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, minimumIntegerDigits: 2 }).format(percentualString);
+      const juros = juroComposto({ valor: 0, taxa: percentualComissao, tempo: dataNewSeguro.parcelas });
 
-      return perfds || '00,00';
+      return '00,00';
     }
 
     const comissaoCorretor = Number(getPercentualComissao().split(',').join('.'));
@@ -215,7 +223,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   useEffect(() => {
     if(user) {
       if(user.tipo === 'corretor') {
-        setCorretor(user.uid);
+        //setCorretor(user.uid);
 
         setDataNewSeguro(e => ({
           ...e,

@@ -18,24 +18,6 @@ import { useTheme } from 'styled-components';
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
 
-  useEffect(() => {
-    juroComposto({
-      valor: 100,
-      taxa: 1,
-      tempo: 5,
-      mesInicial: 4
-    });
-  }, []);
-
-  function juroComposto({ valor, taxa, tempo, mesInicial }) {
-    const capital = Number(valor);
-    const taxaJuros = Number(taxa) / 100;
-    const tempoAplicacao = Number(tempo) - (mesInicial || 0);
-
-    const total = capital * Math.pow((1 + taxaJuros), tempoAplicacao);
-    return total - capital;
-  }
-
   const theme = useTheme();
 
   useEffect(() => {

@@ -64,7 +64,6 @@ const Seguro = () => {
   const [seguradoras, setSeguradoras] = useState([]);
   const [corretores, setCorretores] = useState([]);
 
-
   useEffect(() => {
     if(user) {
       if(user.tipo === 'corretor') {
