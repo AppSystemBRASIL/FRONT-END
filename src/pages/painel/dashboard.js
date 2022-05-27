@@ -5,30 +5,20 @@ import { Content } from 'antd/lib/layout/layout';
 
 import LayoutAdmin from '../../components/Layout/Admin';
 
-import { Row, Col, Divider, Select, Button, Empty } from 'antd';
-
-import firebase from '../../auth/AuthConfig';
+import { Row, Col } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
-import colors from '../../utils/colors';
-
 import useAuth from '../../hooks/useAuth';
+import Router from 'next/router';
 
 const Dashboard = () => {
   const { setCollapsedSideBar } = useAuth();
 
   useEffect(() => {
     setCollapsedSideBar(window.screen.width <= 768 ? false : true);
+
+    Router.push('/painel/cotacoes');
   }, []);
 
   const [qtdCotacoesTotal, setQtdCotacoesTotal] = useState(null);
