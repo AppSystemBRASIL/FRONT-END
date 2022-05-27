@@ -123,15 +123,15 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         created: new Date(),
         tipo: type,
         veiculo: {
-          placa: state.placa,
-          condutor: state.condutor,
-          modelo: state.veiculo
+          placa: state.placa || null,
+          condutor: state.condutor || null,
+          modelo: state.veiculo || null,
         },
         endereco: {
-          cep: state.cep,
-          bairro: state.bairro,
-          cidade: state.cidade,
-          estado: state.estado,
+          cep: state.cep || null,
+          bairro: state.bairro || null,
+          cidade: state.cidade || null,
+          estado: state.estado || null,
         }
       })
     }
