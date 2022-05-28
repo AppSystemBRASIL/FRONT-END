@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { Modal, Row, Col, Select, Input, InputNumber, notification } from 'antd';
+import { Modal, Row, Col, Select, Input, InputNumber, notification, Divider } from 'antd';
 
 import useAuth from 'hooks/useAuth';
 
@@ -14,13 +14,10 @@ import axios from 'axios';
 import { validarCelular, validarPlaca, validateCPF } from 'hooks/validate';
 import generateToken from 'hooks/generateToken';
 
-function juroComposto({ valor, taxa, tempo }) {
-  const capital = Number(valor);
-  const taxaJuros = Number(taxa) / 100;
-  const tempoAplicacao = Number(tempo);
+import jsonComposto from '../../data/jsonComposto.json';
 
-  const total = capital * Math.pow((1 + taxaJuros), tempoAplicacao);
-  return total - capital;
+function juroComposto({ parcela, percentual }) {
+  return jsonComposto[percentual][parcela];
 }
 
 export default function ModalSeguro({ data, visible, setVisible, callback }) {
@@ -77,11 +74,9 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         return '00,00';
       }
 
-      const percentualComissao = 1;
+      const percentualComissaoProdutor = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(corretorSearch[0].comissao);
 
-      const juros = juroComposto({ valor: 0, taxa: percentualComissao, tempo: dataNewSeguro.parcelas });
-
-      return '00,00';
+      return percentualComissaoProdutor;
     }
 
     const comissaoCorretor = Number(getPercentualComissao().split(',').join('.'));
@@ -90,7 +85,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
       setDataNewSeguro(e => ({
         ...e,
         comissaoCorretor: getPercentualComissao(),
-        comissaoCorretora: 100 - comissaoCorretor
+        comissaoCorretora: new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(100 - comissaoCorretor),
       }));
     }else {
       setDataNewSeguro(e => ({
@@ -171,8 +166,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             placa: arrayFirst.veiculo.placa,
             seguradora: arrayFirst.seguradora.uid,
             vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
-            premio: arrayFirst.valores.premio,
-            franquia: arrayFirst.valores.franquia,
+            premio: `${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(Number(String(arrayFirst.valores.premio).slice(0, String(arrayFirst.valores.premio).length - 2)+'.'+String(arrayFirst.valores.premio).slice(String(arrayFirst.valores.premio).length - 2, String(arrayFirst.valores.premio).length)))}`,
+            franquia: `${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(Number(String(arrayFirst.valores.franquia).slice(0, String(arrayFirst.valores.franquia).length - 2)+'.'+String(arrayFirst.valores.franquia).slice(String(arrayFirst.valores.franquia).length - 2, String(arrayFirst.valores.franquia).length)))}`,
             percentual: arrayFirst.valores.percentual,
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
@@ -466,7 +461,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
               </Select.Option>
               {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
                 <Select.Option key={index} value={item.uid}>
-                  {item.nomeCompleto}
+                  {item.nomeCompleto} ({item.comissao}%)
                 </Select.Option>
               ))}
             </Select>
@@ -534,80 +529,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             placeholder='00/00/0000'
           />
         </Col>
-        <Col span={4}>
-          <label>PARCELAS: <span style={{ color: 'red' }}>*</span></label>
-          <InputNumber id='parcelasModal' prefix='R$' autoComplete='off' value={dataNewSeguro.parcelas} style={{ textTransform: 'uppercase', width: '100%' }} onChange={(response) => setDataNewSeguro(e => ({...e, parcelas: !response ? 1 : response}))} max={12} onKeyPress={(e) => {
-            if(e.code === 'Enter') {
-              document.getElementById('premioModal').focus();
-            }
-          }} placeholder='0' />
-        </Col>
-        <Col span={8}>
-          <label>PRÊMIO LÍQUIDO: <span style={{ color: 'red' }}>*</span></label>
-          <Input id='premioModal' prefix='R$' autoComplete='off' value={dataNewSeguro.premio} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, premio: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
-            if(e.code === 'Enter') {
-              document.getElementById('franquiaModal').focus();
-            }
-          }} placeholder='0' />
-        </Col>
-        <Col span={4}>
-          <label>FRANQUIA: <span style={{ color: 'red' }}>*</span></label>
-          <Input id='franquiaModal' prefix='R$' autoComplete='off' value={dataNewSeguro.franquia} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, franquia: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
-            if(e.code === 'Enter') {
-              document.getElementById('percentualModal').focus();
-            }
-          }} placeholder='0' />
-        </Col>
-        <Col span={4}>
-          <label>PERCENTUAL: <span style={{ color: 'red' }}>*</span></label>
-          <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskPercentual(response.target.value)}))} onKeyPress={(e) => {
-            if(e.code === 'Enter') {
-              if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
-                document.getElementById('percentualModalfsdfds').focus(); 
-              }else {
-                document.getElementById('anoAdesao').focus();
-              }
-            }
-          }} placeholder='0' />
-        </Col>
-        <Col span={4}>
-          <label>COMISSÃO:</label>
-          <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : Number(dataNewSeguro.comissao).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
-            if(e.code === 'Enter') {
-              //document.getElementById('placa').focus();
-            }
-          }} placeholder='0' />
-        </Col>
-        {dataNewSeguro.comissao > 0 && (
-          <Col span={24} style={{ background: '#f1f1f1', padding: 10 }}>
-            <Row gutter={[10, 20]}>
-              {dataNewSeguro.corretorUid && (
-                <>
-                  <Col span={4}>
-                    <label>% PRODUTOR: <span style={{ color: 'red' }}>*</span></label>
-                    <Input id='percentualModalfsdfds' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
-                      if(e.code === 'Enter') {
-                        document.getElementById('anoAdesao').focus();
-                      }
-                    }} placeholder='0' />
-                  </Col>
-                  <Col span={8}>
-                    <label>COMISSÃO: <sup style={{ color: 'red' }}>PRODUTOR</sup></label>
-                    <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(dataNewSeguro.comissao) / 100) * Number(Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} placeholder='0' />
-                  </Col>
-                </>
-              )}
-              <Col span={4}>
-                <label>% CORRETORA: <span style={{ color: 'red' }}>*</span></label>
-                <Input readOnly id='percentualCorretoraModal' maxLength={dataNewSeguro.corretorUid ? 5 : 6} prefix='%' autoComplete='off' value={Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} placeholder='0' />
-              </Col>
-              <Col span={8}>
-                <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETORA</sup></label>
-                <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number(Number(Number(Number(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')) / 100) *  Number(String(dataNewSeguro.percentual).split('.').join('').split(',').join('.'))) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.')))).toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretoraValor: !response.target.value ? '' : maskMoney(response.target.value)}))} placeholder='0' />
-              </Col>
-            </Row>
-          </Col>
-        )}
         <Col span={5}>
           <label>ANO DE ADESÃO: <span style={{ color: 'red' }}>*</span></label>
           <Input id='anoAdesao' autoComplete='off' value={dataNewSeguro.anoAdesao} maxLength={4} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, anoAdesao: !response.target.value ? '' : maskYear(response.target.value)}))} onKeyPress={(e) => {
@@ -716,6 +637,110 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             }
           }} placeholder='ESTADO' />
         </Col>
+        <Col span={24}>
+          <Divider style={{ padding: 0, margin: 0 }} />
+        </Col>
+        <Col span={24}>
+          <h3>COMISSÃO</h3>
+        </Col>
+        <Col span={4}>
+          <label>PARCELAS: <span style={{ color: 'red' }}>*</span></label>
+          <InputNumber id='parcelasModal' autoComplete='off' value={dataNewSeguro.parcelas} style={{ textTransform: 'uppercase', width: '100%' }} onChange={(response) => setDataNewSeguro(e => ({...e, parcelas: !response ? 1 : response}))} max={12} onKeyPress={(e) => {
+            if(e.code === 'Enter') {
+              document.getElementById('premioModal').focus();
+            }
+          }} placeholder='0' />
+        </Col>
+        <Col span={8}>
+          <label>PRÊMIO LÍQUIDO: <span style={{ color: 'red' }}>*</span></label>
+          <Input id='premioModal' prefix='R$' autoComplete='off' value={dataNewSeguro.premio} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, premio: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
+            if(e.code === 'Enter') {
+              document.getElementById('franquiaModal').focus();
+            }
+          }} placeholder='0' />
+        </Col>
+        <Col span={4}>
+          <label>FRANQUIA: <span style={{ color: 'red' }}>*</span></label>
+          <Input id='franquiaModal' prefix='R$' autoComplete='off' value={dataNewSeguro.franquia} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, franquia: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
+            if(e.code === 'Enter') {
+              document.getElementById('percentualModal').focus();
+            }
+          }} placeholder='0' />
+        </Col>
+        <Col span={4}>
+          <label>PERCENTUAL: <span style={{ color: 'red' }}>*</span></label>
+          <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskPercentual(response.target.value)}))} onKeyPress={(e) => {
+            if(e.code === 'Enter') {
+              if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
+                document.getElementById('percentualModalfsdfds').focus(); 
+              }else {
+                document.getElementById('anoAdesao').focus();
+              }
+            }
+          }} placeholder='0' />
+        </Col>
+        <Col span={4}>
+          <label>COMISSÃO:</label>
+          <Input id='comissaoModal' readOnly prefix='R$' autoComplete='off' value={!dataNewSeguro.comissao ? '' : Number(dataNewSeguro.comissao).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissao: !response.target.value ? '' : maskMoney(response.target.value)}))} onKeyPress={(e) => {
+            if(e.code === 'Enter') {
+              //document.getElementById('placa').focus();
+            }
+          }} placeholder='0' />
+        </Col>
+        {dataNewSeguro.comissao > 0 && (
+          <Col span={24} style={{ background: '#f1f1f1', padding: 10 }}>
+            <Row gutter={[10, 20]}>
+              {dataNewSeguro.corretorUid && (
+                <>
+                  <Col span={4}>
+                    <label>% PRODUTOR: <span style={{ color: 'red' }}>*</span></label>
+                    <Input id='percentualModalfsdfds' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
+                      if(e.code === 'Enter') {
+                        document.getElementById('anoAdesao').focus();
+                      }
+                    }} placeholder='0' />
+                  </Col>
+                  <Col span={8}>
+                    <label>COMISSÃO: <sup style={{ color: 'red' }}>PRODUTOR</sup></label>
+                    <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number((Number(dataNewSeguro.comissao) / 100) * Number(Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.')))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} placeholder='0' />
+                  </Col>
+                  <Col span={4}>
+                    <label>DESCONTO: <span style={{ color: 'red' }}>*</span></label>
+                    <Input prefix='R$' id='percentualModalfsdfds' maxLength={5} autoComplete='off' value={Number(dataNewSeguro.comissaoCorretorValor - dataNewSeguro.comissaoCorretorValor * juroComposto({
+                      parcela: String(dataNewSeguro.parcelas),
+                      percentual: String(businessInfo.comissao.juros)
+                    }) || 0).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
+                      if(e.code === 'Enter') {
+                        document.getElementById('anoAdesao').focus();
+                      }
+                    }} placeholder='0' />
+                  </Col>
+                  <Col span={8}>
+                    <label>VALOR LÍQUIDO: <sup style={{ color: 'red' }}>PRODUTOR</sup></label>
+                    <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={dataNewSeguro.parcelas <= 4 ? Number(dataNewSeguro.comissaoCorretorValor).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 }) : Number(dataNewSeguro.comissaoCorretorValor * juroComposto({
+                      parcela: String(dataNewSeguro.parcelas),
+                      percentual: String(businessInfo.comissao.juros)
+                    }) || 0).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} placeholder='0' />
+                  </Col>
+                </>
+              )}
+              <Col span={4}>
+                <label>% CORRETORA: <span style={{ color: 'red' }}>*</span></label>
+                <Input readOnly id='percentualCorretoraModal' maxLength={dataNewSeguro.corretorUid ? 5 : 6} prefix='%' autoComplete='off' value={Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split('.').join('').split(',').join('.'))).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} placeholder='0' />
+              </Col>
+              <Col span={8}>
+                <label>COMISSÃO: <sup style={{ color: 'red' }}>CORRETORA</sup></label>
+                <Input readOnly id='comissaoModal' prefix='R$' autoComplete='off' value={Number(Number(Number(Number(Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.')) / 100) *  Number(String(dataNewSeguro.percentual).split('.').join('').split(',').join('.'))) / 100) * Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.')))).toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretoraValor: !response.target.value ? '' : maskMoney(response.target.value)}))} placeholder='0' />
+              </Col>
+              {(dataNewSeguro.corretorUid && dataNewSeguro.parcelas > 4) && (
+                <Col span={4}>
+                  <label>JUROS AO MÊS: <span style={{ color: 'red' }}>*</span></label>
+                  <Input readOnly id='percentualCorretoraModal' max={7} step={0.5} prefix='%' autoComplete='off' value={businessInfo.comissao.juros} placeholder='0' />
+                </Col>
+              )}
+            </Row>
+          </Col>
+        )}
       </Row>
     </Modal>
   )

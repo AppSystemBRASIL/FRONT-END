@@ -132,31 +132,9 @@ const Seguro = () => {
                 }))
               }} />}</h3>
             </Col>
-            <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center' }}>
-              PARCELAS
+            <Col>
+              <InputNumber value={100 - businessInfo.comissao.percentual} style={{ width: '100%' }} />
             </Col>
-            <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center' }}>
-              PERCENTUAL
-            </Col>
-            <Col span={12} />
-            {dataNewSeguro.parcelas?.map((item, index, data) => (
-              <>
-                <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span>{item.parcela} parcelas</span>
-                </Col>
-                <Col span={6} style={{ border: '1px solid #d1d1d1', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <InputNumber value={item.percentual} style={{ width: '40%' }}
-                      max={100}
-                      min={0}
-                      onChange={(value) => {
-                        data[index].percentual = value;
-                        setDataNewSeguro(e => ({...e, parcelas: data }))
-                      }}
-                    /> <span style={{ marginLeft: 10 }}>%</span>
-                </Col>
-                <Col span={12} style={{ textAlign: 'left', display: 'flex', alignItems: 'center'}} />
-              </>
-            ))}
           </Row>
         </Modal>
         <Row
