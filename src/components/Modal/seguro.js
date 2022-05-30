@@ -55,7 +55,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     seguradora: null,
     cpf: null,
     veiculo: null,
-    condutor: null
+    condutor: null,
+    profissao: null,
   };
 
   async function fechar() {
@@ -172,6 +173,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
+            profissao: arrayFirst.segurado.profissao,
             cpf: arrayFirst.segurado.cpf,
             telefone: arrayFirst.segurado.telefone,
             condutor: arrayFirst.veiculo.condutor,
@@ -356,6 +358,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         nome: dataNewSeguro.nome,
         cpf: dataNewSeguro.cpf,
         telefone: dataNewSeguro.telefone,
+        profissao: dataNewSeguro.profissao
       },
       corretor: null,
       corretora: {
@@ -549,7 +552,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
           />
         </Col>
-        <Col span={12}>
+        <Col span={8}>
           <label>SEGURADO: <span style={{ color: 'red' }}>*</span></label>
           <Input autoComplete='off' id='nomeSeguradoText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
             onKeyPress={(e) => {
@@ -561,7 +564,30 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             onChange={(e) => setDataNewSeguro(response => ({...response, nome: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
           />  
         </Col>
-        <Col span={6}>
+        <Col span={5}>
+          <label>PROFISSÃO: <span style={{ color: 'red' }}>*</span></label>
+          <Select
+            value={dataNewSeguro.profissao}
+            onChange={(e) => setDataNewSeguro(x => ({...x, profissao: e}))}
+            style={{
+              width: '100%'
+            }}
+          >
+            <Select.Option value='EMPRESÁRIO'>
+              EMPRESÁRIO
+            </Select.Option>
+            <Select.Option value='SERVIDOR PÚBLICO'>
+              SERVIDOR PÚBLICO
+            </Select.Option>
+            <Select.Option value='APOSENTADO'>
+              APOSENTADO
+            </Select.Option>
+            <Select.Option value='OUTROS'>
+              OUTROS
+            </Select.Option>
+          </Select> 
+        </Col>
+        <Col span={5}>
           <label>CPF: <span style={{ color: 'red' }}>*</span></label>
           <Input autoComplete='off' id='cpfSeguro' placeholder='CPF DO SEGURADO'
             onKeyPress={(e) => {
