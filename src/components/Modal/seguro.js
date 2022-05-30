@@ -582,6 +582,9 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             <Select.Option value='APOSENTADO'>
               APOSENTADO
             </Select.Option>
+            <Select.Option value='AUTÔNOMO'>
+              AUTÔNOMO
+            </Select.Option>
             <Select.Option value='OUTROS'>
               OUTROS
             </Select.Option>
