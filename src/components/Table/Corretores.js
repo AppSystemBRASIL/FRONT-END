@@ -71,13 +71,11 @@ const TableCorretores = ({ setView, setData }) => {
         <Table.Column
           key="nomeCompleto"
           dataIndex="nomeCompleto"
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                NOME
-              </div>
-            ]
-          }
+          title={(
+            <div className={!loadingData && 'skeleton'}>
+              NOME
+            </div>
+          )}
           render={(nome) => (
             <div className={!loadingData && 'skeleton'}>
               {nome}
@@ -129,7 +127,7 @@ const TableCorretores = ({ setView, setData }) => {
           render={(comissao) => (
             <center>
               <div className={!loadingData && 'skeleton'}>
-                {comissao} %
+                {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(comissao)} %
               </div>
             </center>
           )}

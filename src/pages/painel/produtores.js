@@ -167,7 +167,7 @@ const Seguro = () => {
           </Row>
           <Row gutter={[10, 20]}>
             <Col>
-              <InputNumber value={dataNewSeguro.comissao} placeholder='0' style={{ width: '100%' }} max={100} min={0}
+              <InputNumber decimalSeparator=',' value={dataNewSeguro.comissao} placeholder='0' style={{ width: '100%' }} max={100} min={0}
                 onChange={value => setDataNewSeguro(e => ({ ...e, comissao: value ? value : 0 }))}
               />
             </Col>
@@ -198,22 +198,58 @@ const Seguro = () => {
             <Col span={8}>
               <label>AGÊNCIA:</label>
               <Input.Group compact>
-                <Input value={dataNewSeguro.agencia} style={{ width: '80%' }} placeholder='AGÊNCIA' onChange={value => setDataNewSeguro(e => ({...e, agencia: value}))} />
-                <Input value={dataNewSeguro.agencia_d} style={{ width: '20%' }} placeholder='D' onChange={value => setDataNewSeguro(e => ({...e, agencia_d: value}))} />
+                <Input value={dataNewSeguro.agencia} style={{ width: '80%' }} placeholder='AGÊNCIA' onChange={value => setDataNewSeguro(e => ({...e, agencia: value.target.value}))} />
+                <Input value={dataNewSeguro.agencia_d} style={{ width: '20%' }} placeholder='D' onChange={value => setDataNewSeguro(e => ({...e, agencia_d: value.target.value}))} />
               </Input.Group>
             </Col>
             <Col span={8}>
               <label>CONTA:</label>
               <Input.Group compact>
-                <Input value={dataNewSeguro.conta} style={{ width: '80%' }} placeholder='CONTA' onChange={value => setDataNewSeguro(e => ({...e, conta: value}))} />
-                <Input value={dataNewSeguro.conta_d} style={{ width: '20%' }} placeholder='D' onChange={value => setDataNewSeguro(e => ({...e, conta_d: value}))} />
+                <Input value={dataNewSeguro.conta} style={{ width: '80%' }} placeholder='CONTA' onChange={value => setDataNewSeguro(e => ({...e, conta: value.target.value}))} />
+                <Input value={dataNewSeguro.conta_d} style={{ width: '20%' }} placeholder='D' onChange={value => setDataNewSeguro(e => ({...e, conta_d: value.target.value}))} />
               </Input.Group>
             </Col>
             <Col span={24}>
               <label>PIX:</label>
-              <Input value={dataNewSeguro.pix} placeholder='PREENCHA COM O PIX PARA RECEBIMENTO' onChange={value => setDataNewSeguro(e => ({...e, pix: value}))} />
+              <Input value={dataNewSeguro.pix} placeholder='PREENCHA COM O PIX PARA RECEBIMENTO' onChange={value => setDataNewSeguro(e => ({...e, pix: value.target.value}))} />
             </Col>
           </Row>
+          {dataNewSeguro.uid && (
+            <>
+              <br/>
+              <Row>
+                <Col span={24}>
+                  <span style={{
+                    cursor: 'pointer',
+                    color: 'red'
+                  }}
+                    onClick={() => {
+                      Modal.confirm({
+                        title: 'DESEJA REALMENTE EXCLUIR O PRODUTOR?',
+                        content: 'Ao excluir o produtor, essa opção não poderá ser revertida.',
+                        okText: 'EXCLUIR',
+                        cancelText: 'CANCELAR',
+                        okButtonProps: {
+                          style: {
+                            background: theme.colors[businessInfo.layout.theme].primary,
+                            color: '#FFFFFF',
+                            border: 'none',
+                            outline: 'none'
+                          }
+                        },
+                        onOk: async () => {
+                          await firebase.firestore().collection('usuarios').doc(String(dataNewSeguro.uid)).delete()
+                          .then(() => {
+                            setViewNewSeguro(false);
+                          });
+                        } 
+                      })
+                    }}
+                  ><u>Deseja excluir o produtor?</u></span>
+                </Col>
+              </Row>
+            </>
+          )}
         </Modal>
         <Row
           style={{

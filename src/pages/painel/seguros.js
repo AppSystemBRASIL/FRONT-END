@@ -11,8 +11,6 @@ import { FaPlus, FaPrint } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 
-import { format } from 'date-fns';
-import axios from 'axios';
 import printListSeguros from 'components/PDF/ListSeguros';
 
 import ModalSeguro from 'components/Modal/seguro';
