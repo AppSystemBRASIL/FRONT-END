@@ -16,7 +16,7 @@ import { maskPhone } from 'hooks/mask';
 import useAuth from 'hooks/useAuth';
 import { useTheme } from 'styled-components';
 
-const TableCorretores = () => {
+const TableCorretores = ({ setView, setData }) => {
   const { businessInfo } = useAuth();
 
   const theme = useTheme();
@@ -96,7 +96,7 @@ const TableCorretores = () => {
           }
           render={(email) => (
             <div className={!loadingData && 'skeleton'}>
-              {email}
+              {email || '-----------------------------'}
             </div>
           )}
         />
@@ -114,6 +114,24 @@ const TableCorretores = () => {
             <div className={!loadingData && 'skeleton'}>
               {maskPhone(telefone)}
             </div>
+          )}
+        />
+        <Table.Column
+          key="comissao"
+          dataIndex="comissao"
+          title={(
+            <center>
+              <div className={!loadingData && 'skeleton'}>
+                COMISSÃO
+              </div>
+            </center>
+          )}
+          render={(comissao) => (
+            <center>
+              <div className={!loadingData && 'skeleton'}>
+                {comissao} %
+              </div>
+            </center>
           )}
         />
         <Table.Column 
@@ -142,6 +160,25 @@ const TableCorretores = () => {
                       }}
                     >
                       <Button
+                        onClick={async () => {
+                          setData({
+                            uid: dados?.uid,
+                            cpf: dados?.cpf,
+                            telefone: dados?.telefone,
+                            nome: dados?.nomeCompleto,
+                            email: dados?.email,
+                            comissao: dados?.comissao,
+                            banco: dados?.dadosBancarios?.banco,
+                            agencia: dados?.dadosBancarios?.agencia,
+                            agencia_d: dados?.dadosBancarios?.agencia_d,
+                            conta: dados?.dadosBancarios?.conta,
+                            conta_d: dados?.dadosBancarios?.conta_d,
+                            pix: dados?.dadosBancarios?.pix,
+                            status: dados?.status || false
+                          });
+                          
+                          setView(true);
+                        }}
                         style={{
                           border: 'none',
                           outline: 'none',

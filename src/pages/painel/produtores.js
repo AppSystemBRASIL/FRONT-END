@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider, InputNumber } from 'antd';
+import { Row, Col, Input, Modal, DatePicker, Select, notification, Divider, InputNumber, Switch } from 'antd';
 
 import TableCorretores from '../../components/Table/Corretores';
 
@@ -38,60 +38,40 @@ const Seguro = () => {
   const [seguros, setSeguros] = useState([]);
 
   const [dataNewSeguro, setDataNewSeguro] = useState({
+    uid: null,
     cpf: null,
     telefone: null,
     nome: null,
     email: null,
-    bairro: null,
-    cidade: null,
-    estado: null,
-    cep: null,
     comissao: 100 - businessInfo.comissao.percentual,
     banco: null,
     agencia: null,
     agencia_d: null,
     conta: null,
     conta_d: null,
-    pix: null
+    pix: null,
+    status: true
   });
 
   useEffect(() => {
-    setDataNewSeguro({
-      cpf: null,
-      telefone: null,
-      nome: null,
-      email: null,
-      bairro: null,
-      cidade: null,
-      estado: null,
-      cep: null,
-      comissao: 100 - businessInfo.comissao.percentual,
-      banco: null,
-      agencia: null,
-      agencia_d: null,
-      conta: null,
-      conta_d: null,
-      pix: null
-    })
-  }, [viewNewSeguro]);
-
-  useEffect(() => {
-    if(String(dataNewSeguro.cep).length === 9) {
-      axios.get(`https://viacep.com.br/ws/${String(dataNewSeguro.cep).split('-').join('')}/json`, {
-        headers: {
-          'content-type': 'application/json;charset=utf-8',
-        },
-      })
-      .then((response) => {
-        const data = response.data;
-
-        setDataNewSeguro(e => ({...e, bairro: data.bairro, cidade: data.localidade, estado: data.uf}))
-      })
-      .catch((error) => {
-        console.log(error);
+    if(!viewNewSeguro) {
+      setDataNewSeguro({
+        uid: null,
+        cpf: null,
+        telefone: null,
+        nome: null,
+        email: null,
+        comissao: 100 - businessInfo.comissao.percentual,
+        banco: null,
+        agencia: null,
+        agencia_d: null,
+        conta: null,
+        conta_d: null,
+        pix: null,
+        status: true
       })
     }
-  }, [dataNewSeguro.cep]);
+  }, [viewNewSeguro]);
 
   const salvarSeguro = async () => {
     if(!dataNewSeguro.nome || !dataNewSeguro.cpf || !dataNewSeguro.telefone || !dataNewSeguro.comissao) {
@@ -102,7 +82,8 @@ const Seguro = () => {
       return;
     }
 
-    await firebase.firestore().collection('usuarios').add({
+    await firebase.firestore().collection('usuarios').doc(String(dataNewSeguro.cpf).split('.').join('').split('-').join('')).set({
+      uid: String(dataNewSeguro.cpf).split('.').join('').split('-').join(''),
       corretora: {
         uid: corretora.uid,
         verified: true,
@@ -116,7 +97,7 @@ const Seguro = () => {
       telefone: dataNewSeguro.telefone,
       tipo: 'corretor',
       created: new Date(),
-      comissao: dataNewSeguro.parcelas || [],
+      comissao: dataNewSeguro.comissao,
       dadosBancarios: {
         banco: dataNewSeguro.banco || null,
         agencia: dataNewSeguro.agencia || null,
@@ -124,10 +105,10 @@ const Seguro = () => {
         conta: dataNewSeguro.conta || null,
         conta_d: dataNewSeguro.conta_d || null,
         pix: dataNewSeguro.pix || null
-      }
-    })
-    .then((response) => {
-      firebase.firestore().collection('usuarios').doc(response.id).set({ uid: response.id }, { merge: true });
+      },
+      status: dataNewSeguro.status
+    }, { merge: true })
+    .then(() => {
       setViewNewSeguro(false);
     });
   }
@@ -143,7 +124,18 @@ const Seguro = () => {
   return (
     <LayoutAdmin title='PRODUTORES'>
       <CardComponent>
-        <Modal onOk={salvarSeguro} title='NOVO PRODUTOR' cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%' cancelButtonProps={{ style: { border: '1px solid black', outline: 'none', color: 'black' } }} okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
+        <Modal onOk={salvarSeguro} title={(
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}>
+            <span>NOVO PRODUTOR</span>
+            <div style={{ gap: 10, display: 'flex' }}>
+              <labe>status:</labe>
+              <Switch checked={dataNewSeguro.status} onChange={value => setDataNewSeguro(e => ({ ...e, status: value }))} checkedChildren='ativo' unCheckedChildren='desativo' style={{ marginRight: 20, background: dataNewSeguro.status && theme.colors[businessInfo.layout.theme].primary }} />
+            </div>
+          </div>
+        )} cancelText='FECHAR' okText='SALVAR' onCancel={() => setViewNewSeguro(false)} visible={viewNewSeguro} closable={() => setViewNewSeguro(false)} style={{ top: 10 }} width='50%' cancelButtonProps={{ style: { border: '1px solid black', outline: 'none', color: 'black' } }} okButtonProps={{ style: { background: theme.colors[businessInfo.layout.theme].primary, border: 'none' }}}>
           <Row>
             <Col span={24}>
               <h3>DADOS PESSOAIS:</h3>
@@ -156,7 +148,7 @@ const Seguro = () => {
             </Col>
             <Col span={8}>
               <label>CPF: <sup style={{ color: 'red' }}>*</sup></label>
-              <Input type='tel' placeholder='000.000.000-00' value={dataNewSeguro.cpf} onChange={value => setDataNewSeguro(e => ({...e, cpf: maskCPF(value.target.value)}))} />
+              <Input type='tel' disabled={dataNewSeguro.uid} placeholder='000.000.000-00' value={dataNewSeguro.cpf} onChange={value => setDataNewSeguro(e => ({...e, cpf: maskCPF(value.target.value)}))} />
             </Col>
             <Col span={8}>
               <label>CELULAR: <sup style={{ color: 'red' }}>*</sup></label>
@@ -245,8 +237,8 @@ const Seguro = () => {
           corretora={corretora.uid}
           setSeguros={setSeguros}
           seguros={seguros}
-          setViewNewSeguro={setViewNewSeguro}
-          setDataNewSeguro={setDataNewSeguro}
+          setView={setViewNewSeguro}
+          setData={setDataNewSeguro}
           businessInfo={businessInfo}
         />
       </CardComponent>
