@@ -568,7 +568,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <label>PROFISSÃO: <span style={{ color: 'red' }}>*</span></label>
           <Select
             value={dataNewSeguro.profissao}
-            onChange={(e) => setDataNewSeguro(x => ({...x, profissao: e}))}
+            onChange={(e) => setDataNewSeguro(x => ({ ...x, profissao: e }))}
             style={{
               width: '100%'
             }}

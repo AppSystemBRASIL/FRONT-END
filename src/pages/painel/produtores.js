@@ -18,6 +18,10 @@ import { useTheme } from 'styled-components';
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
 
+  if(!businessInfo) {
+    return <></>;
+  }
+
   const theme = useTheme();
 
   useEffect(() => {
@@ -26,8 +30,6 @@ const Seguro = () => {
 
   const [seguradora, setSeguradora] = useState(null);
   const [corretor, setCorretor] = useState(null);
-
-  const [date, setDate] = useState(null);
 
   const [viewNewSeguro, setViewNewSeguro] = useState(false);
 
@@ -42,8 +44,22 @@ const Seguro = () => {
     cidade: null,
     estado: null,
     cep: null,
-    parcelas: Array.from({ length: 12 }).map((item, index) => ({ parcela: (index + 1), percentual: 0 }))
-  })
+    comissao: 100 - businessInfo.comissao.percentual
+  });
+
+  useEffect(() => {
+    setDataNewSeguro({
+      cpf: null,
+      telefone: null,
+      nome: null,
+      email: null,
+      bairro: null,
+      cidade: null,
+      estado: null,
+      cep: null,
+      comissao: 100 - businessInfo.comissao.percentual
+    })
+  }, [viewNewSeguro]);
 
   useEffect(() => {
     if(String(dataNewSeguro.cep).length === 9) {
@@ -119,21 +135,12 @@ const Seguro = () => {
           <br/>
           <Row gutter={[10, 0]}>
             <Col span={24}>
-              <h3>COMISSAO: {dataNewSeguro.parcelas.length <= 4 && <FaPlus cursor='pointer' onClick={() => {
-                if(dataNewSeguro.parcelas.length > 4) {
-                  return
-                }
-
-                setDataNewSeguro(e => ({
-                  ...e,
-                  parcelas: [...e.parcelas, {
-                    min: 0, max: 0, percentual: 0
-                  }]
-                }))
-              }} />}</h3>
+              <h3>COMISSAO:</h3>
             </Col>
             <Col>
-              <InputNumber value={100 - businessInfo.comissao.percentual} style={{ width: '100%' }} />
+              <InputNumber value={dataNewSeguro.comissao} style={{ width: '100%' }} max={100} min={0}
+                onChange={value => setDataNewSeguro(e => ({ ...e, comissao: value }))}
+              />
             </Col>
           </Row>
         </Modal>
