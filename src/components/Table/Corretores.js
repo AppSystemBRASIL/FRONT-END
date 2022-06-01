@@ -53,7 +53,7 @@ const TableCorretores = ({ setView, setData }) => {
   return (
     <>
       <Table
-        dataSource={loadingData ? cotacoes : _.times(listLimitDefault)}
+        dataSource={loadingData ? cotacoes.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)) : _.times(listLimitDefault)}
         pagination={false}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
