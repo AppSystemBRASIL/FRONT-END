@@ -17,7 +17,8 @@ import {
   Col,
   Input,
   notification,
-  Popconfirm
+  Popconfirm,
+  Tooltip
 } from 'antd';
 
 import { FaCog, FaEye, FaFileAlt, FaPlus, FaTimes } from 'react-icons/fa';
@@ -29,6 +30,8 @@ import { v4 as uuid } from 'uuid';
 
 import _ from 'lodash';
 
+import jsonComposto from '../../data/jsonComposto.json';
+
 import { endOfDay, format, formatDistanceStrict, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
 import { maskCEP, maskMoney, maskOnlyNumbers, maskDate, maskOnlyLetters } from 'hooks/mask';
@@ -36,6 +39,10 @@ import axios from 'axios';
 import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
 import ModalSeguro from 'components/Modal/seguro';
+
+function juroComposto({ parcela, percentual }) {
+  return jsonComposto[percentual][parcela];
+}
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   const [state, setState] = useState({
@@ -822,7 +829,8 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       comissaoCorretorValor: dados.corretor ? dados.valores.corretor.valor : null,
       comissaoCorretora: dados.valores.corretora.percentual,
       comissaoCorretoraValor: dados.valores.corretora.valor,
-      profissao: dados.segurado.profissao || 'OUTROS'
+      profissao: dados.segurado.profissao || 'OUTROS',
+      juros: dados.valores?.juros || null
     }));
 
     setVisibleModalSeguro(true);
@@ -975,7 +983,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           title={
             [
               <div className={!loadingData && 'skeleton'}>
-                PRÊMIO LÍQUIDO | COMISSÃO
+                PRÊMIO LÍQUIDO {!corretor && '| COMISSÃO'}
               </div> 
             ]
           }
@@ -986,9 +994,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 <br/>
                 <span style={{ fontSize: '.7rem' }}>comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
               </div>
-              {dados.corretor && (
-                <FaEye color='#999' cursor='pointer' />
-              )}
             </div>
           )}
         />
@@ -1000,19 +1005,95 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             title={
               [
                 <div className={!loadingData && 'skeleton'}>
-                  PRÊMIO LÍQUIDO | COMISSÃO
+                  VALOR LÍQUIDO | COMISSÃO
                 </div> 
               ]
             }
-            render={(valores, dados) => valores && (
+            render={(valores, dados) => valores.corretor && (
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
                 <div>
-                  {Number(valores.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(valores.percentual).toFixed(0)}%
+                  {Number(valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {new Intl.NumberFormat('pt-BR').format(valores.corretor.percentual)}%
                   <br/>
-                  <span style={{ fontSize: '.7rem' }}>comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+                  <span style={{ fontSize: '.7rem' }}>
+                    comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+                  </span>
                 </div>
                 {dados.corretor && (
-                  <FaEye color='#999' cursor='pointer' />
+                  <Tooltip
+                    style={{
+                      width: 300
+                    }}
+                    title={(
+                      <div style={{ width: 200 }}>
+                        <center>
+                          DESCRIÇÃO
+                        </center>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                          -------------------------
+                        </div>
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
+                            <div>COMISSÃO:</div>
+                            <div>
+                              {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format(valores.corretor.valor)}
+                            </div>
+                          </div>
+                          {valores.parcelas && (
+                            <>
+                              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                -------------------------
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
+                                <div>PARCELAS:</div>
+                                <div>
+                                  {valores.parcelas}X
+                                </div>
+                              </div>
+                              {valores.juros && (
+                                <>
+                                  {/*
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
+                                      <div>JUROS:</div>
+                                      <div>
+                                        {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(valores.juros)}%
+                                      </div>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                      -------------------------
+                                    </div>
+                                  */}
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
+                                    <div>DESCONTO:</div>
+                                    <div>
+                                      - {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format(valores.corretor.valor - valores.corretor.valor * juroComposto({
+                                          parcela: String(valores.parcelas),
+                                          percentual: String(valores.juros)
+                                        }))}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          )}
+                          <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            -------------------------
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
+                            <div>TOTAL</div>
+                            <div>
+                              {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format((valores.parcelas && valores.juros) ? valores.corretor.valor * juroComposto({
+                                parcela: String(valores.parcelas),
+                                percentual: String(valores.juros)
+                              }) : valores.corretor.valor)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  >
+                    <FaEye color='#999' cursor='pointer' />
+                  </Tooltip>
+                  
                 )}
               </div>
             )}

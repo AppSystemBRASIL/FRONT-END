@@ -14,7 +14,6 @@ import firebase from '../../auth/AuthConfig';
 import printListSeguros from 'components/PDF/ListSeguros';
 
 import ModalSeguro from 'components/Modal/seguro';
-import { addYears } from 'date-fns';
 
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();

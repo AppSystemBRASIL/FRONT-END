@@ -57,6 +57,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     veiculo: null,
     condutor: null,
     profissao: null,
+    juros: businessInfo.comissao.juros
   };
 
   async function fechar() {
@@ -136,7 +137,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   }, [user]);
 
   useEffect(() => {
-    const dados = data ? {...data, profissao: data?.profissao || 'OUTROS'} : dadaInitial;
+    const dados = data ? {...data, profissao: data?.profissao || 'OUTROS', juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
 
     if(user) {
       if(user.tipo === 'corretor') {
@@ -396,7 +397,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
 
       data.valores = {
         ...data.valores,
-        corretor: comissaoCorretorJSON
+        corretor: comissaoCorretorJSON,
+        juros: dataNewSeguro.juros
       }
     }
 
@@ -741,7 +743,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
                   </Col>
                   <Col span={4}>
                     <label>DESCONTO: <span style={{ color: 'red' }}>*</span></label>
-                    <Input prefix='R$' id='percentualModalfsdfds' maxLength={5} autoComplete='off' value={Number(dataNewSeguro.comissaoCorretorValor - dataNewSeguro.comissaoCorretorValor * juroComposto({
+                    <Input readOnly prefix='R$' id='percentualModalfsdfds' maxLength={5} autoComplete='off' value={Number(dataNewSeguro.comissaoCorretorValor - dataNewSeguro.comissaoCorretorValor * juroComposto({
                       parcela: String(dataNewSeguro.parcelas),
                       percentual: String(businessInfo.comissao.juros)
                     }) || 0).toLocaleString('pt-br', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
@@ -770,7 +772,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
               {(dataNewSeguro.corretorUid && dataNewSeguro.parcelas > 4) && (
                 <Col span={4}>
                   <label>JUROS AO MÊS: <span style={{ color: 'red' }}>*</span></label>
-                  <Input readOnly id='percentualCorretoraModal' max={7} step={0.5} prefix='%' autoComplete='off' value={businessInfo.comissao.juros} placeholder='0' />
+                  <Input disabled readOnly id='percentualCorretoraModal' max={7} step={0.5} prefix='%' autoComplete='off' value={dataNewSeguro.juros} onChange={() => setDataNewSeguro(e => ({...e, juros: Number(e)}))} placeholder='0' />
                 </Col>
               )}
             </Row>
