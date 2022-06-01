@@ -514,7 +514,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             placeholder='00/00/0000'
             onKeyPress={(e) => {
               if(e.code === 'Enter') {
-                document.getElementById('parcelasModal').focus()
+                document.getElementById('anoAdesao').focus()
               }
             }
           } />
@@ -554,7 +554,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <Input autoComplete='off' id='nomeSeguradoText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
             onKeyPress={(e) => {
               if(e.code === 'Enter') {
-                document.getElementById('cpfSeguro').focus()
+                document.getElementById('profissoSegurado').focus()
               }
             }}
             value={dataNewSeguro.nome}
@@ -564,9 +564,17 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         <Col span={5}>
           <label>PROFISSÃO: <span style={{ color: 'red' }}>*</span></label>
           <Select
+            id='profissoSegurado'
             value={dataNewSeguro.profissao}
             placeholder='SELECIONAR PROFISSÃO'
-            onChange={(e) => setDataNewSeguro(x => ({ ...x, profissao: e }))}
+            onChange={(e) => {
+              if(e) {
+                setDataNewSeguro(x => ({ ...x, profissao: e }));
+                document.getElementById('cpfSeguro').focus()
+              }else {
+                setDataNewSeguro(x => ({ ...x, profissao: null }))
+              }
+            }}
             style={{
               width: '100%'
             }}
@@ -593,7 +601,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <Input autoComplete='off' id='cpfSeguro' placeholder='CPF DO SEGURADO'
             onKeyPress={(e) => {
               if(e.code === 'Enter') {
-                if(validateCPF(dataNewSeguro.cpf)) {
+                if(validateCPF(dataNewSeguro.cpf || '')) {
                   document.getElementById('telefoneModal').focus()
                 }else {
                   notification.warn({
@@ -610,7 +618,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <label>TELEFONE: <span style={{ color: 'red' }}>*</span></label>
           <Input id='telefoneModal' autoComplete='off' maxLength={15} value={dataNewSeguro.telefone} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, telefone: !response.target.value ? '' : maskPhone(response.target.value)}))} onKeyPress={(e) => {
             if(e.code === 'Enter') {
-              if(validarCelular(dataNewSeguro.telefone)) {
+              if(validarCelular(dataNewSeguro.telefone || '')) {
                 document.getElementById('condutorText').focus();
               }else {
                 notification.warn({
@@ -660,7 +668,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <label>ESTADO: <span style={{ color: 'red' }}>*</span></label>
           <Input id='estadoModal' autoComplete='off' value={dataNewSeguro.estado} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, estado: !response.target.value ? '' : response.target.value}))} onKeyPress={(e) => {
             if(e.code === 'Enter') {
-              //document.getElementById('telefoneModal').focus();
+              document.getElementById('parcelasModal').focus();
             }
           }} placeholder='ESTADO' />
         </Col>
