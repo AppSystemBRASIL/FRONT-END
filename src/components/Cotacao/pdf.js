@@ -141,7 +141,7 @@ export default async function cotacaoPDF(dados, type) {
       bold: true,
       fontSize: 10,
     }, {
-      text: dados.segurado.estado,
+      text: String(dados.endereco.estado).toUpperCase(),
       fontSize: 10,
     }]);
   }
@@ -152,7 +152,7 @@ export default async function cotacaoPDF(dados, type) {
       bold: true,
       fontSize: 10,
     }, {
-      text: dados.segurado.cidade,
+      text: String(dados.endereco.cidade).toUpperCase(),
       fontSize: 10,
     }]);
   }
@@ -201,7 +201,7 @@ export default async function cotacaoPDF(dados, type) {
             bold: true,
           },
           {
-            text: 'RESPOSTAS',
+            text: null,
             fontSize: 10,
             bold: true
           }
@@ -884,169 +884,158 @@ export default async function cotacaoPDF(dados, type) {
       }
     })
   }
-    
-  details.push({
-    table: {
-      widths: ['100%'],
-      body: [
-        [
-          {
-            text: 'DADOS PARA FECHAMENTO',
-            alignment: 'center',
-            fontSize: 10,
-            bold: true,
-          }
+
+  if(dados.tipo === 'seguro-veicular') {
+    details.push({
+      table: {
+        widths: ['100%'],
+        body: [
+          [
+            {
+              text: 'DADOS PARA FECHAMENTO',
+              alignment: 'center',
+              fontSize: 10,
+              bold: true,
+            }
+          ]
         ]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['100%'],
-      body: [
-        [{
-          text: 'EMAIL:',
-          bold: true,
-          fontSize: 10,
-          border: [true, true, true, false],
-        }]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['100%'],
-      body: [
-        [{
-          text: 'ENDEREÇO:',
-          bold: true,
-          fontSize: 10,
-          border: [true, true, true, true],
-        }]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['33.33%', '33.33%', '33.33%'],
-      body: [
-        [
-          {
-            text: 'RG:',
+      }
+    },
+    {
+      table: {
+        widths: ['100%'],
+        body: [
+          [{
+            text: 'ENDEREÇO:',
             bold: true,
             fontSize: 10,
-            border: [true, false, false, true],
-          },
-          {
-            text: 'EMISSOR:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, false, true],
-          },
-          {
-            text: 'DATA DE EMISSÃO:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, true, true],
-          }
+            border: [true, true, true, true],
+          }]
         ]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['34%', '16%', '16%', '34%'],
-      body: [
-        [
-          {
-            text: 'CPF:',
-            bold: true,
-            fontSize: 10,
-            border: [true, false, false, true],
-          },
-          {
-            text: 'BANCO:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, false, true],
-          },
-          {
-            text: 'AGÊNCIA:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, false, true],
-          },
-          {
-            text: 'DIA DA PARCELA:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, true, true],
-          }
+      }
+    },
+    {
+      table: {
+        widths: ['33.33%', '33.33%', '33.33%'],
+        body: [
+          [
+            {
+              text: 'RG:',
+              bold: true,
+              fontSize: 10,
+              border: [true, false, false, true],
+            },
+            {
+              text: 'EMISSOR:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, false, true],
+            },
+            {
+              text: 'DATA DE EMISSÃO:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, true, true],
+            }
+          ]
         ]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['33.33%', '33.33%', '33.33%'],
-      body: [
-        [
-          {
-            text: 'N CARTÃO:',
-            bold: true,
-            fontSize: 10,
-            border: [true, false, false, true],
-          },
-          {
-            text: 'BANDEIRA:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, false, true],
-          },
-          {
-            text: 'VALIDADE:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, true, true],
-          }
+      }
+    },
+    {
+      table: {
+        widths: ['34%', '16%', '16%', '34%'],
+        body: [
+          [
+            {
+              text: 'CPF:',
+              bold: true,
+              fontSize: 10,
+              border: [true, false, false, true],
+            },
+            {
+              text: 'BANCO:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, false, true],
+            },
+            {
+              text: 'AGÊNCIA:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, false, true],
+            },
+            {
+              text: 'DIA DA PARCELA:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, true, true],
+            }
+          ]
         ]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['100%'],
-      body: [
-        [{
-          text: 'NOME NO CARTÃO:',
-          bold: true,
-          fontSize: 10,
-          border: [true, false, true, true],
-        }]
-      ]
-    }
-  },
-  {
-    table: {
-      widths: ['33%', '67%'],
-      body: [
-        [
-          {
-            text: 'APÓLICE:',
-            bold: true,
-            fontSize: 10,
-            border: [true, false, false, true],
-          },
-          {
-            text: 'C.I:',
-            bold: true,
-            fontSize: 10,
-            border: [false, false, true, true],
-          }
+      }
+    },
+    {
+      table: {
+        widths: ['33.33%', '33.33%', '33.33%'],
+        body: [
+          [
+            {
+              text: 'N CARTÃO:',
+              bold: true,
+              fontSize: 10,
+              border: [true, false, false, true],
+            },
+            {
+              text: 'BANDEIRA:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, false, true],
+            },
+            {
+              text: 'VALIDADE:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, true, true],
+            }
+          ]
         ]
-      ]
-    }
-  })
+      }
+    },
+    {
+      table: {
+        widths: ['100%'],
+        body: [
+          [{
+            text: 'NOME NO CARTÃO:',
+            bold: true,
+            fontSize: 10,
+            border: [true, false, true, true],
+          }]
+        ]
+      }
+    },
+    {
+      table: {
+        widths: ['33%', '67%'],
+        body: [
+          [
+            {
+              text: 'APÓLICE:',
+              bold: true,
+              fontSize: 10,
+              border: [true, false, false, true],
+            },
+            {
+              text: 'C.I:',
+              bold: true,
+              fontSize: 10,
+              border: [false, false, true, true],
+            }
+          ]
+        ]
+      }
+    })
+  }
 
   const docDefinitions = {
     pageSize: 'A4',
