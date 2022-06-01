@@ -13,9 +13,5 @@ export default async function getSeguradoras() {
 
     return array;
   })
-  .catch((error) => {
-    console.log(error);
-
-    return [];
-  });
+  .catch(() => []);
 };

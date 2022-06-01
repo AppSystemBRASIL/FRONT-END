@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
@@ -64,9 +64,6 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         const data = response.data;
 
         setState(e => ({...e, bairro: data.bairro, cidade: data.localidade, estado: data.uf}))
-      })
-      .catch((error) => {
-        console.log(error);
       })
     }
   }, [state.cep]);
@@ -177,7 +174,6 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
       });
     })
     .catch((error) => {
-      console.log(error)
       notification.error({
         message: 'ERRO AO GERAR ENDOSSO!'
       });
@@ -230,9 +226,9 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         <Col span={8}>
           <label>VALOR DO ENDOSSO:</label>
           <Input value={state.valor} type='tel' id='valorModalEndosso' onPressEnter={() => document.getElementById('comissaoModalEndosso').focus()} addonBefore={(
-            <Select value={state.tipoValor} showArrow={false} className="select-after" onChange={(e) => setState(resp => ({...resp, tipoValor: e}))}>
-              <Select.Option value="+">+</Select.Option>
-              <Select.Option value="-">-</Select.Option>
+            <Select value={state.tipoValor} showArrow={false} className='select-after' onChange={(e) => setState(resp => ({...resp, tipoValor: e}))}>
+              <Select.Option value='+'>+</Select.Option>
+              <Select.Option value='-'>-</Select.Option>
             </Select>
           )} autoComplete='off' style={{ textTransform: 'uppercase' }} prefix='R$' placeholder='0' onChange={(e) => setState(resp => ({ ...resp, valor: !e.target.value ? null : maskMoney(maskOnlyNumbers(e.target.value)) }))} />
         </Col>
@@ -243,9 +239,9 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         <Col span={8}>
           <label>COMISSÃO: </label>
           <Input addonBefore={(
-            <Select value={state.tipoValor} showArrow={false} className="select-after">
-              <Select.Option value="+">+</Select.Option>
-              <Select.Option value="-">-</Select.Option>
+            <Select value={state.tipoValor} showArrow={false} className='select-after'>
+              <Select.Option value='+'>+</Select.Option>
+              <Select.Option value='-'>-</Select.Option>
             </Select>
           )} value={!state.comissao ? 0 : Number(state.comissao).toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })} type='tel' readOnly prefix='R$' autoComplete='off' style={{ textTransform: 'uppercase' }} placeholder='0' />
         </Col>
@@ -265,6 +261,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   const [lastData, setLastData] = useState(0);
 
   const [viewButtonMore, setViewButtonMore] = useState(false);
+  const onSnapshot = useRef(null);
 
   const listLimitDefault = 10;
 
@@ -289,6 +286,9 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
   }, []);
 
   const getCotacao = async (init) => {
+    if(onSnapshot.current) {
+      onSnapshot.current();
+    }
     await setLastData(0);
     if(init) {
       await setSeguros([]); 
@@ -334,7 +334,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.startAfter(lastData);
     }
 
-    ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)) ? 10000 : limit || listLimitDefault)
+    const unsubscribe = ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)  || (date && (date[0] && date[1]))) ? 10000 : limit || listLimitDefault)
     .onSnapshot((snap) => {
       setViewButtonMore(false);
 
@@ -369,6 +369,8 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         }
       }
     });
+
+    onSnapshot.current = unsubscribe;
 
     setLoadingData(true);
   }
@@ -867,8 +869,8 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       >
         <Table.Column
           width={300}
-          key="segurado"
-          dataIndex="segurado"
+          key='segurado'
+          dataIndex='segurado'
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -884,16 +886,16 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-                {segurado ? String(segurado.nome) : '000000000'}
+                {segurado ? String(segurado.nome.split(' ')[0]+' '+segurado.nome.split(' ')[String(segurado.nome).split(' ').length - 1]) : '000000000'}
               </div>
             </>
           )}
         />
-        {user.tipo === 'administrador' && (
+        {(user.tipo === 'administrador' && !corretor) && (
           <Table.Column
             width={200}
-            key="corretor"
-            dataIndex="corretor"
+            key='corretor'
+            dataIndex='corretor'
             title={
               [
                 <div className={!loadingData && 'skeleton'}>
@@ -901,7 +903,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 </div>
               ]
             }
-            render={(corretor, dados) => (
+            render={(corretor) => (
               <>
                 <div className={!loadingData && 'skeleton'}>
                   {corretor ? String(corretor.nome) : `-------------`}
@@ -910,43 +912,47 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             )}
           />
         )}
-        <Table.Column
-          key="veiculo"
-          width={120}
-          dataIndex="veiculo"
-          title={
-            [
+        {!corretor && (
+          <Table.Column
+            key='veiculo'
+            width={120}
+            dataIndex='veiculo'
+            title={
+              [
+                <div className={!loadingData && 'skeleton'}>
+                  PLACA
+                </div>
+              ]
+            }
+            render={(veiculo) => (
               <div className={!loadingData && 'skeleton'}>
-                PLACA
+                {veiculo ? String(veiculo.placa).slice(0, 3)+'-'+String(veiculo.placa).slice(3, 10) : 'A AVISAR'}
               </div>
-            ]
-          }
-          render={(veiculo) => (
-            <div className={!loadingData && 'skeleton'}>
-              {veiculo ? String(veiculo.placa).slice(0, 3)+'-'+String(veiculo.placa).slice(3, 10) : 'A AVISAR'}
-            </div>
-          )}
-        />
-        <Table.Column
-          key="seguradora"
-          dataIndex="seguradora"
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                SEGURADORA
+            )}
+          />
+        )}
+        {!corretor && (
+          <Table.Column
+            key='seguradora'
+            dataIndex='seguradora'
+            title={
+              [
+                <div className={!loadingData && 'skeleton'}>
+                  SEGURADORA
+                </div>
+              ]
+            }
+            render={(seguradora) => (
+              <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
+                {seguradora ? seguradora.razao_social : '00000000000'}
               </div>
-            ]
-          }
-          render={(seguradora) => (
-            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-              {seguradora ? seguradora.razao_social : '00000000000'}
-            </div>
-          )}
-        />
+            )}
+          />
+        )}
         <Table.Column
           width={220}
-          key="seguro"
-          dataIndex="seguro"
+          key='seguro'
+          dataIndex='seguro'
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -964,8 +970,8 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         />
         <Table.Column
           width={300}
-          key="valores"
-          dataIndex="valores"
+          key='valores'
+          dataIndex='valores'
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -986,10 +992,36 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             </div>
           )}
         />
+        {corretor && (
+          <Table.Column
+            width={300}
+            key='valores'
+            dataIndex='valores'
+            title={
+              [
+                <div className={!loadingData && 'skeleton'}>
+                  PRÊMIO LÍQUIDO | COMISSÃO
+                </div> 
+              ]
+            }
+            render={(valores, dados) => valores && (
+              <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
+                <div>
+                  {Number(valores.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(valores.percentual).toFixed(0)}%
+                  <br/>
+                  <span style={{ fontSize: '.7rem' }}>comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+                </div>
+                {dados.corretor && (
+                  <FaEye color='#999' cursor='pointer' />
+                )}
+              </div>
+            )}
+          />
+        )}
         <Table.Column
           width={200}
-          key="uid"
-          dataIndex="uid"
+          key='uid'
+          dataIndex='uid'
           title={
             [
               <div style={{width: !loadingData && 70, height: !loadingData && 23}} className={!loadingData && 'skeleton'}>

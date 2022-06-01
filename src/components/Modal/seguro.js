@@ -67,8 +67,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
 
   const [dataNewSeguro, setDataNewSeguro] = useState(data || dadaInitial);
 
-  console.log(dataNewSeguro)
-
   useEffect(() => {
     const getPercentualComissao = () => {
       const corretorSearch = corretores.filter(e => e.uid === dataNewSeguro.corretorUid);
@@ -270,9 +268,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         const data = response.data;
 
         setDataNewSeguro(e => ({...e, bairro: data.bairro, cidade: data.localidade, estado: data.uf}))
-      })
-      .catch((error) => {
-        console.log(error);
       })
     }
   }, [dataNewSeguro.cep]);
