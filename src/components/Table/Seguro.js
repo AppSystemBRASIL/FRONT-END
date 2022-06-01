@@ -820,6 +820,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       comissaoCorretorValor: dados.corretor ? dados.valores.corretor.valor : null,
       comissaoCorretora: dados.valores.corretora.percentual,
       comissaoCorretoraValor: dados.valores.corretora.valor,
+      profissao: dados.segurado.profissao || 'OUTROS'
     }));
 
     setVisibleModalSeguro(true);

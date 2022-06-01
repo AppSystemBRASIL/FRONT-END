@@ -178,7 +178,8 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
       cpf: dados.segurado.cpf,
       condutor: dados.veiculo.condutor,
       cep: dados.veiculo.cep,
-      condutor: dados.condutor.nome
+      condutor: dados.condutor.nome,
+      profissao: dados.segurado.profissao || 'OUTROS'
     }));
 
     setVisible(true);

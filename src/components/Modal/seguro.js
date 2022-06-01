@@ -65,7 +65,9 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     await setDataNewSeguro(dadaInitial);
   }
 
-  const [dataNewSeguro, setDataNewSeguro] = useState(data ? data : dadaInitial);
+  const [dataNewSeguro, setDataNewSeguro] = useState(data || dadaInitial);
+
+  console.log(dataNewSeguro)
 
   useEffect(() => {
     const getPercentualComissao = () => {
@@ -136,7 +138,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   }, [user]);
 
   useEffect(() => {
-    const dados = data ? {...data} : {...dadaInitial};
+    const dados = data ? {...data, profissao: data?.profissao || 'OUTROS'} : dadaInitial;
 
     if(user) {
       if(user.tipo === 'corretor') {
@@ -173,7 +175,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
-            profissao: arrayFirst.segurado.profissao,
+            profissao: arrayFirst.segurado.profissao || 'OUTROS',
             cpf: arrayFirst.segurado.cpf,
             telefone: arrayFirst.segurado.telefone,
             condutor: arrayFirst.veiculo.condutor,
@@ -567,7 +569,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         <Col span={5}>
           <label>PROFISSÃO: <span style={{ color: 'red' }}>*</span></label>
           <Select
-            value={dataNewSeguro?.segurado?.profissao}
+            value={dataNewSeguro.profissao}
+            placeholder='SELECIONAR PROFISSÃO'
             onChange={(e) => setDataNewSeguro(x => ({ ...x, profissao: e }))}
             style={{
               width: '100%'
