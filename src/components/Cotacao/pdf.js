@@ -846,7 +846,7 @@ export default async function cotacaoPDF(dados, type) {
 
     for(let i = 0; i < [...dados.beneficiarios.nascimento || []].length || 0; i++) {
       bodyBeneficiarios.push([{
-        text: 'NASCIMENTO',
+        text: `${i+1} - NASCIMENTO`,
         bold: true,
         fontSize: 10,
       },
