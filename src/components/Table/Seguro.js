@@ -890,7 +890,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             <>
               {loadingData && (
                 <span style={{ fontSize: '.6rem', position: 'absolute', bottom: 5, left: 16 }}>
-                  desde {segurado.anoAdesao}
+                  DESDE {segurado.anoAdesao}
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
@@ -972,7 +972,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
               {format(seguro.vigencia.toDate(), 'dd/MM/yyyy')}
               <br/>
-              <span style={{ fontSize: '.7rem' }}>até: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
+              <span style={{ fontSize: '.7rem' }}>ATÉ: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
             </div>
           )}
         />
@@ -992,7 +992,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               <div>
                 {Number(valores.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(valores.percentual).toFixed(0)}%
                 <br/>
-                <span style={{ fontSize: '.7rem' }}>comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+                <span style={{ fontSize: '.7rem' }}>COMISSÃO: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
               </div>
             </div>
           )}
@@ -1012,10 +1012,23 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             render={(valores, dados) => valores.corretor && (
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
                 <div>
-                  {Number(valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {new Intl.NumberFormat('pt-BR').format(valores.corretor.percentual)}%
+                  {Number(valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+                  {valores.juros && (
+                    <sup
+                      style={{ color: 'red' }}
+                    >
+                      - R$ {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(Number(valores.corretor.valor - valores.corretor.valor * juroComposto({
+                        parcela: String(valores.parcelas),
+                        percentual: String(valores.juros)
+                      })))}
+                    </sup>
+                  )}
                   <br/>
                   <span style={{ fontSize: '.7rem' }}>
-                    comissão: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+                    TOTAL: {Number(valores.juros ? Number(valores.corretor.valor * juroComposto({
+                      parcela: String(valores.parcelas),
+                      percentual: String(valores.juros)
+                    })) : valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
                   </span>
                 </div>
                 {dados.corretor && (
