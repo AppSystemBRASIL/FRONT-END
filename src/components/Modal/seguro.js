@@ -722,7 +722,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
               if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
                 document.getElementById('percentualModalfsdfds').focus(); 
               }else {
-                document.getElementById('anoAdesao').focus();
+                salvarSeguro()
               }
             }
           }} placeholder='0' />
