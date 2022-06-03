@@ -421,31 +421,46 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
       data.created = new Date();
     }
 
-    await firebase.firestore().collection('seguros').doc(data.uid).set({
-      ...data
-    }, { merge: true })
-    .then(async () => {
-      axios.get('/api/verificarSegurosAtivos', {
-        params: {
-          corretora: user.corretora.uid
+    Modal.confirm({
+      title: 'DESEJA REALMENTE SALVAR?',
+      type: 'info',
+      content: '',
+      okText: 'SALVAR',
+      cancelText: 'CANCELAR',
+      okButtonProps: {
+        style: {
+          background: theme.colors[businessInfo.layout.theme].primary,
+          color: '#FFFFFF',
+          border: 'none',
+          outline: 'none'
         }
-      });
+      },
+      onOk: async () => await firebase.firestore().collection('seguros').doc(data.uid).set({
+          ...data
+        }, { merge: true })
+        .then(async () => {
+          axios.get('/api/verificarSegurosAtivos', {
+            params: {
+              corretora: user.corretora.uid
+            }
+          });
 
-      if(callback) {
-        callback();
-      }else {
-        notification.success({
-          message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
-        });
-      }
+          if(callback) {
+            callback();
+          }else {
+            notification.success({
+              message: `SEGURO ${dataNewSeguro.search ? 'ALTERADO' : 'CADASTRADO'} COM SUCESSO!`,
+            });
+          }
 
-      await fechar();
+          await fechar();
+        })
+        .catch(() => {
+          notification.error({
+            message: 'OCORREU UM ERRO AO CADASTRAR!'
+          })
+        })
     })
-    .catch(() => {
-      notification.error({
-        message: 'OCORREU UM ERRO AO CADASTRAR!'
-      })
-    });
   }
 
   return (
