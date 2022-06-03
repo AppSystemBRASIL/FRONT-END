@@ -58,6 +58,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
     bairro: data.endereco.bairro,
     cidade: data.endereco.cidade,
     estado: data.endereco.estado,
+    franquia: maskMoney(String(data.valores.franquia))
   });
 
   useEffect(() => {
@@ -113,6 +114,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
 
     const dados = {
       valores: {
+        franquia: Number(String(state.franquia).split('.').join('').split(',').join('.')),
         premio: firebase.firestore.FieldValue.increment(valorEndosso),
         comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
       },
@@ -180,7 +182,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         message: 'ENDOSSO GERADO COM SUCESSO!'
       });
     })
-    .catch((error) => {
+    .catch(() => {
       notification.error({
         message: 'ERRO AO GERAR ENDOSSO!'
       });
@@ -200,9 +202,13 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
               <label>PLACA:</label>
               <Input id='placaModalEndosso' onPressEnter={() => document.getElementById('veiculoModalEndosso').focus()} value={state.placa} maxLength={7} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='AAA0000' onChange={(e) => setState(resp => ({ ...resp, placa: String(e.target.value).toUpperCase() }))} />
             </Col>
-            <Col span={16}>
+            <Col span={8}>
               <label>VEÍCULO:</label>
               <Input id='veiculoModalEndosso' onPressEnter={() => document.getElementById('condutorModalEndosso').focus()} value={state.veiculo} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO VEÍCULO' onChange={(e) => setState(resp => ({ ...resp, veiculo: String(e.target.value).toUpperCase() }))} />
+            </Col>
+            <Col span={8}>
+              <label>FRANQUIA:</label>
+              <Input value={state.franquia} prefix='R$' style={{ textTransform: 'uppercase' }} onChange={(e) => setState(resp => ({ ...resp, franquia: !e.target.value ? null : maskMoney(e.target.value) }))} />
             </Col>
             <Col span={24}>
               <label>CONDUTOR:</label>

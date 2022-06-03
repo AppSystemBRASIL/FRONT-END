@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { Modal, Row, Col, Select, Input, InputNumber, notification, Divider } from 'antd';
 
@@ -22,6 +22,17 @@ function juroComposto({ parcela, percentual }) {
 
 export default function ModalSeguro({ data, visible, setVisible, callback }) {
   const { user, corretora, businessInfo } = useAuth();
+
+  const placaRef = useRef();
+
+  useEffect(() => {
+    if(visible) {
+      setTimeout(() => {
+        document.getElementById('placaModal').focus();
+      placaRef.current.focus();
+      }, 100);
+    }
+  }, [visible]);
 
   const theme = useTheme();
 
@@ -471,7 +482,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         )}
         <Col span={5}>
           <label>PLACA: <span style={{ color: 'red' }}>*</span></label>
-          <Input id='placaModal' autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: maskPlaca(String(response.target.value)).toUpperCase()}))} onKeyPress={(e) => {
+          <Input ref={placaRef} id='placaModal' autoFocus={true} autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: maskPlaca(String(response.target.value)).toUpperCase()}))} onKeyPress={(e) => {
             if(e.code === 'Enter') {
               if(validarPlaca(dataNewSeguro.placa)) {
                 document.getElementById('seguradora').focus()

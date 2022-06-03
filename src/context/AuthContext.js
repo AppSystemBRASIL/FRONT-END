@@ -2,14 +2,16 @@ import { createContext, useEffect, useState } from 'react';
 import firebase from '../auth/AuthConfig';
 
 import verifyCode from '../auth/errors';
-import { notification, Modal, Input } from 'antd';
+import { notification, Modal, Input, ConfigProvider } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import Router from 'next/router';
-import colors from 'utils/colors';
+import { useTheme } from 'styled-components';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const theme = useTheme();
+
   const [businessInfo, setBusinessInfo] = useState(null)
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,16 @@ export const AuthProvider = ({ children }) => {
       firebase.firestore().collection('usuarios').doc(user.uid).set(user, { merge: true });
     }
   }, [user]);
+
+  useEffect(() => {
+    if(businessInfo) {
+      ConfigProvider.config({
+        theme: {
+          primaryColor: theme.colors[businessInfo.layout.theme].primary
+        }
+      });
+    }
+  }, [businessInfo]);
 
   useEffect(() => {
     try {

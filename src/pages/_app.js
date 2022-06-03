@@ -32,10 +32,11 @@ const theme = {
   }
 };
 
+
 function MyApp({ Component, pageProps }) {
   return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
         <ConfigProvider locale={pt_BR}>
           <Head>
             <link rel="shortcut icon" href="/logo.jpeg" />
@@ -43,8 +44,8 @@ function MyApp({ Component, pageProps }) {
           </Head>
           <Component {...pageProps} />
         </ConfigProvider>
-      </ThemeProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
