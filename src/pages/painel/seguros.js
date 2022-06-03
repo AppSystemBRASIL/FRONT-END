@@ -14,6 +14,7 @@ import firebase from '../../auth/AuthConfig';
 import printListSeguros from 'components/PDF/ListSeguros';
 
 import ModalSeguro from 'components/Modal/seguro';
+import generateToken from 'hooks/generateToken';
 
 const Seguro = () => {
   const { user, corretora, setCollapsedSideBar, businessInfo } = useAuth();
@@ -96,7 +97,7 @@ const Seguro = () => {
     }
   }, [user]);
 
-  const printSeguros = async () => await printListSeguros(seguros, corretora, {
+  const printSeguros = async () => await printListSeguros(seguros?.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal), corretora, {
     date,
     corretor: !corretor ? null : corretor === 'null' ? corretora.razao_social : corretores.filter(e => e.uid === corretor)[0].displayName,
     seguradora: !seguradora ? null : seguradoras.filter(e => e.uid === seguradora)[0].razao_social.split(' ')[0],

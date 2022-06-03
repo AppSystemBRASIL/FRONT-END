@@ -5,7 +5,7 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 export default async function printListSeguros(seguros, corretora, filtros) {
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-  const widthTable = [15, 55, 25, '*', 65, 20];
+  const widthTable = [55, 25, '*', 100, 65, 20];
 
   const content = [
     {
@@ -66,9 +66,6 @@ export default async function printListSeguros(seguros, corretora, filtros) {
 				body: [
 					[
             {
-              text: null,
-            },
-            {
               text: 'VIGÊNCIA',
               fontSize: 10,
             },
@@ -78,6 +75,10 @@ export default async function printListSeguros(seguros, corretora, filtros) {
             },
             {
               text: 'SEGURADO',
+              fontSize: 10,
+            },
+            {
+              text: 'PRODUTOR',
               fontSize: 10,
             },
             {
@@ -98,12 +99,6 @@ export default async function printListSeguros(seguros, corretora, filtros) {
         widths: widthTable,
 				body: [...seguros].map((item) => [
           {
-            text: item.corretor && `${item.corretor.nome.split(' ')[0].slice(0, 1)}${item.corretor.nome.split(' ')[1].slice(0, 1)}`,
-            fontSize: 10,
-            bold: true,
-            alignment: 'center'
-          },
-          {
             text: format(item.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
             fontSize: 10
           },
@@ -113,6 +108,10 @@ export default async function printListSeguros(seguros, corretora, filtros) {
           },
           {
             text: item.segurado.nome,
+            fontSize: 10
+          },
+          {
+            text: item.corretor && item.corretor.nome.split(' ').slice(0, 2).join(' '),
             fontSize: 10
           },
           {
