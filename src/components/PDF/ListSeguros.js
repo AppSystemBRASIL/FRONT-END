@@ -5,7 +5,81 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 export default async function printListSeguros(seguros, corretora, filtros) {
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-  const widthTable = [55, 25, '*', 100, 65, 20];
+  function getTableListHeaderWidth() {
+    const array = [];
+    array.push(55);
+    array.push(25);
+    array.push('*');
+    if(!filtros.corretor) {
+      array.push(100);
+    }
+    array.push(65);
+    array.push(20);
+    return array;
+  }
+
+  function getTableListHeader() {
+    const array = [];
+    array.push({
+      text: 'VIGÊNCIA',
+      fontSize: 10,
+    });
+    array.push({
+      text: 'ANO',
+      fontSize: 10,
+    });
+    array.push({
+      text: 'SEGURADO',
+      fontSize: 10,
+    });
+    if(!filtros.corretor) {
+      array.push({
+        text: 'PRODUTOR',
+        fontSize: 10,
+      });
+    }
+    array.push({
+      text: 'SEGURADORA',
+      fontSize: 10,
+    });
+    array.push({
+      text: '%',
+      fontSize: 10,
+      alignment: 'center'
+    });
+    return array;
+  }
+
+  function getTableList(item) {
+    const array = [];
+    array.push({
+      text: format(item.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
+      fontSize: 10
+    });
+    array.push({
+      text: item.segurado.anoAdesao,
+      fontSize: 10,
+    });
+    array.push({
+      text: item.segurado.nome,
+      fontSize: 10
+    });
+    if(!filtros.corretor) {
+      array.push({
+        text: item.corretor && item.corretor.nome.split(' ').slice(0, 2).join(' '),
+        fontSize: 10
+      });
+    }
+    array.push({
+      text: item.seguradora.razao_social.split(' ')[0],
+      fontSize: 10
+    });
+    array.push({
+      text: item.valores.percentual,
+      fontSize: 10
+    });
+    return array;
+  }
 
   const content = [
     {
@@ -31,22 +105,22 @@ export default async function printListSeguros(seguros, corretora, filtros) {
             ],
             [
               {
-                text: filtros.date && `Período:\n${format(filtros.date[0].toDate(), 'dd/MM/yyyy')} - ${format(filtros.date[1].toDate(), 'dd/MM/yyyy')}`,
+                text: filtros.date && `PERÍODO:\n${format(filtros.date[0].toDate(), 'dd/MM/yyyy')} - ${format(filtros.date[1].toDate(), 'dd/MM/yyyy')}`,
                 bold: true,
                 fontSize: 10,
               },
               {
-                text: filtros.corretor && `Produtor:\n${filtros.corretor}`,
+                text: filtros.corretor && `PRODUTOR:\n${filtros.corretor}`,
                 bold: true,
                 fontSize: 10,
               },
               {
-                text: filtros.seguradora && `Seguradora:\n${filtros.seguradora}`,
+                text: filtros.seguradora && `SEGURADORA:\n${filtros.seguradora}`,
                 bold: true,
                 fontSize: 10,
               },
               {
-                text: filtros.placa && `Placa: ${filtros.placa}`,
+                text: filtros.placa && `PLACA: ${filtros.placa}`,
                 bold: true,
                 fontSize: 10,
               },
@@ -62,67 +136,44 @@ export default async function printListSeguros(seguros, corretora, filtros) {
 		},
     {
 			table: {
-        widths: widthTable,
+        widths: getTableListHeaderWidth(),
 				body: [
-					[
+					getTableListHeader(),
+				]
+			}
+		},
+    {
+			table: {
+        widths: getTableListHeaderWidth(),
+				body: [...seguros].map((item) => getTableList(item))
+			}
+		},
+    {
+			table: {
+        widths: '*',
+        border: null,
+				body: [
+          [ 
             {
-              text: 'VIGÊNCIA',
-              fontSize: 10,
-            },
-            {
-              text: 'ANO',
-              fontSize: 10,
-            },
-            {
-              text: 'SEGURADO',
-              fontSize: 10,
-            },
-            {
-              text: 'PRODUTOR',
-              fontSize: 10,
-            },
-            {
-              text: 'SEGURADORA',
-              fontSize: 10,
-            },
-            {
-              text: '%',
-              fontSize: 10,
-              alignment: 'center'
-            },
+              text: '',
+              alignment: 'left',
+              bold: true,
+            }
           ],
 				]
 			}
 		},
     {
 			table: {
-        widths: widthTable,
-				body: [...seguros].map((item) => [
-          {
-            text: format(item.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
-            fontSize: 10
-          },
-          {
-            text: item.segurado.anoAdesao,
-            fontSize: 10,
-          },
-          {
-            text: item.segurado.nome,
-            fontSize: 10
-          },
-          {
-            text: item.corretor && item.corretor.nome.split(' ').slice(0, 2).join(' '),
-            fontSize: 10
-          },
-          {
-            text: item.seguradora.razao_social.split(' ')[0],
-            fontSize: 10
-          },
-          {
-            text: item.valores.percentual,
-            fontSize: 10
-          },
-        ])
+        widths: '*',
+				body: [
+          [ 
+            {
+              text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
+              alignment: 'left',
+            }
+          ],
+				]
 			}
 		}
   ];
