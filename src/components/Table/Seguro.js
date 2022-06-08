@@ -900,7 +900,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-                {segurado ? String(segurado.nome.split(' ')[0]+' '+segurado.nome.split(' ')[String(segurado.nome).split(' ').length - 1]) : '000000000'}
+                {segurado ? String(segurado.nome).split(' ').slice(0, 3).join(' ') : '000000000'}
               </div>
             </>
           )}
