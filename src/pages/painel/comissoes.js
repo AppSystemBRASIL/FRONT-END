@@ -116,7 +116,7 @@ const Seguro = () => {
   }
 
   return (
-    <LayoutAdmin title='SEGUROS'>
+    <LayoutAdmin title='COMISSÕES'>
       <CardComponent>
         <ModalSeguro visible={viewNewSeguro} setVisible={setViewNewSeguro} />
         <Row

@@ -58,7 +58,7 @@ const router = [
       },
       {
         title: 'CLIENTES',
-        patchname: '/painel/cliente',
+        patchname: '/painel/clientes',
         icon: 'bx bxs-school',
       }
     ],

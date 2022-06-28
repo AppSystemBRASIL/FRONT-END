@@ -450,7 +450,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             nome: data.segurado.nome,
             anoAdesao: Number(data.segurado.anoAdesao),
             telefone: data.segurado.telefone,
-            profissao: data.segurado.profissao
+            profissao: data.segurado.profissao,
+            corretora: corretora.uid
           }, { merge: true });
 
           if(callback) {
