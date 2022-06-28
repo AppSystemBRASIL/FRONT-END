@@ -7,9 +7,10 @@ import {
   Button,
   Empty,
   Badge,
+  Modal,
 } from 'antd';
 
-import { FaPlus } from 'react-icons/fa';
+import { FaPhoneAlt, FaPlus } from 'react-icons/fa';
 
 import { format } from 'date-fns';
 
@@ -43,7 +44,10 @@ const TableMensagem = ({ infiniteData, limit, corretora }) => {
 
       if(!snap.empty) {
         snap.forEach((item) => {
-          array.push(item.data());
+          array.push({
+            ...item.data(),
+            uid: item.id
+          });
         });
       }
 
@@ -84,6 +88,63 @@ const TableMensagem = ({ infiniteData, limit, corretora }) => {
         }}
       >
         <Table.Column
+          key="nome"
+          dataIndex="nome"
+          title={
+            [
+              <div className={!loadingData && 'skeleton'}>
+                NOME
+              </div>
+            ]
+          }
+          render={(nome, dados) => (
+            <>
+              {!dados.lida && (
+                <span
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    Modal.confirm({
+                      title: 'CONFIRMAR LEITURA?',
+                      content: 'Deseja confirmar a leitura da mensagem?',
+                      onOk: () => {
+                        firebase.firestore().collection('feedback').doc(dados.uid).set({
+                          lida: true,
+                        }, { merge: true })
+                      },
+                      cancelText: 'FECHAR',
+                      okText: 'CONFIRMAR'
+                    })
+                  }}
+                >
+                  <Badge count={'NÃO LIDO'} style={{ position: 'absolute', top: -30, left: -10, width: 70, fontSize: 10, margin: 0, padding: 0 }} />
+                </span>
+              )}
+              {nome}
+            </>
+          )}
+        />
+        <Table.Column
+          key="telefone"
+          dataIndex="telefone"
+          title={
+            [
+              <div className={!loadingData && 'skeleton'}>
+                TELEFONE
+              </div>
+            ]
+          }
+          render={telefone => {
+            const link = `https://wa.me/55${String(telefone).split('(').join('').split(')').join('').split(' ').join('').split('-').join('')}`;
+            return !telefone ? '------------' : (
+              <span style={{
+                cursor: 'pointer'
+              }} onClick={() => window.open(link)}>
+                <FaPhoneAlt /> {telefone}
+              </span>
+            );
+          }}
+        />
+        <Table.Column
           key="mensagem"
           dataIndex="mensagem"
           title={
@@ -93,14 +154,6 @@ const TableMensagem = ({ infiniteData, limit, corretora }) => {
               </div>
             ]
           }
-          render={(mensagem, dados) => (
-            <>
-              {!dados.lida && (
-                <Badge count={'NÃO LIDO'} style={{ position: 'absolute', top: -30, left: -10, width: 70, fontSize: 10, margin: 0, padding: 0 }} />
-              )}
-              {mensagem}
-            </>
-          )}
         />
         <Table.Column
           width={100}
