@@ -1019,7 +1019,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
                 <div>
                   {Number(valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
-                  {valores.juros && (
+                  {valores.parcelas > 3 && (
                     <sup
                       style={{ color: 'red' }}
                     >
@@ -1031,7 +1031,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                   )}
                   <br/>
                   <span style={{ fontSize: '.7rem' }}>
-                    TOTAL: {Number(valores.juros ? Number(valores.corretor.valor * juroComposto({
+                    TOTAL: {Number(valores.parcelas > 3 ? Number(valores.corretor.valor * juroComposto({
                       parcela: String(valores.parcelas),
                       percentual: String(valores.juros)
                     })) : valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
@@ -1068,7 +1068,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                                   {valores.parcelas}X
                                 </div>
                               </div>
-                              {valores.juros && (
+                              {valores.parcelas > 3 && (
                                 <>
                                   {/*
                                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
@@ -1100,7 +1100,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                           <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 7, paddingRight: 7 }}>
                             <div>TOTAL</div>
                             <div>
-                              {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format((valores.parcelas && valores.juros) ? valores.corretor.valor * juroComposto({
+                              {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format(valores.parcelas > 3 ? valores.corretor.valor * juroComposto({
                                 parcela: String(valores.parcelas),
                                 percentual: String(valores.juros)
                               }) : valores.corretor.valor)}
