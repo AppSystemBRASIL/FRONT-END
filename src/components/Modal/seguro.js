@@ -445,6 +445,14 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             }
           });
 
+          firebase.firestore('clientes').doc(String(data.segurado.cpf).split('.').join('').split('-').join('')).set({
+            cpf: String(data.segurado.cpf).split('.').join('').split('-').join(''),
+            nome: data.segurado.nome,
+            anoAdesao: Number(data.segurado.anoAdesao),
+            telefone: data.segurado.telefone,
+            profissao: data.segurado.profissao
+          }, { merge: true });
+
           if(callback) {
             callback();
           }else {
