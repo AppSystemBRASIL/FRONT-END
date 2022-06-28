@@ -41,7 +41,7 @@ export default function  App({ corretora }) {
       <meta property='og:type' content='article' />
       <meta property='og:image' itemprop='image' content={corretora.icon} />
       <meta property='og:title' content={corretora.razao_social} />
-      <meta property='og:description' content='Seguros custam menos que você imagina' />
+      <meta property='og:description' content='SEGUROS CUSTAM MENOS QUE VOCÊ IMAGINA' />
       <meta property='og:url' content={corretora.site} />
     </Head>
   );

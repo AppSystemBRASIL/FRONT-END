@@ -20,7 +20,7 @@ const router = [
         title: 'SEGUROS',
         patchname: '/painel/seguros',
         icon: 'bx bx-file',
-      }
+      },
     ],
     roles: ['administrador', 'corretor', 'gestor']
   },
@@ -45,6 +45,23 @@ const router = [
     title: 'PRODUTORES',
     patchname: '/painel/produtores',
     icon: 'bx bx-user',
+    roles: ['administrador', 'gestor']
+  },
+  {
+    title: 'RELATÓRIO',
+    icon: 'bx bxs-dashboard',
+    pages: [
+      {
+        title: 'COMISSÃO',
+        patchname: '/painel/comissoes',
+        icon: 'bx bxs-school',
+      },
+      {
+        title: 'CLIENTES',
+        patchname: '/painel/cliente',
+        icon: 'bx bxs-school',
+      }
+    ],
     roles: ['administrador', 'gestor']
   },
 ]
