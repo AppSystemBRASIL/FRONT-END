@@ -1,65 +1,141 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
 import {
   Table,
-  Button,
   Empty,
   Badge,
   Modal,
+  Input,
+  Space,
+  Button
 } from 'antd';
 
-import { FaPhoneAlt, FaPlus } from 'react-icons/fa';
+import { SearchOutlined } from '@ant-design/icons';
 
-import { format } from 'date-fns';
+import Highlighter from 'react-highlight-words';
+
+import { FaPhoneAlt } from 'react-icons/fa';
 
 import _ from 'lodash';
+import { maskCPF } from 'hooks/mask';
 
-const ClientesTable = ({ infiniteData, limit, corretora }) => {
+const ClientesTable = ({ limit, corretora }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [seguradoras, setSeguradoras] = useState([]);
 
-  const [lastData, setLastData] = useState(0);
-
   const [viewButtonMore, setViewButtonMore] = useState(false);
 
-  const listLimitDefault = 10;
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef(null);
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText('');
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Pesquisar por ${dataIndex}`}
+          value={dataIndex === 'cpf' ? maskCPF(selectedKeys[0] || '') : selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: 'block',
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size='small'
+            style={{
+              width: 90,
+            }}
+          >
+            Buscar
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Limpar
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? '#1890ff' : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownVisibleChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{
+            backgroundColor: '#ffc069',
+            padding: 0,
+          }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
 
   const getCotacao = async () => {
     let ref = firebase.firestore()
     .collection('clientes')
     .where('corretora', '==', corretora)
-    .orderBy('created');
+    .orderBy('anoAdesao', 'desc');
 
-    if((lastData !== 0)) {
-      ref = ref.startAfter(lastData);
-    }
-
-    ref.limit(listLimitDefault)
-    .onSnapshot((snap) => {
+    ref.onSnapshot((snap) => {
       setViewButtonMore(false);
-
+      
       const array = [];
 
       if(!snap.empty) {
         snap.forEach((item) => {
           array.push({
             ...item.data(),
+            cpf: maskCPF(item.data().cpf || ''),
             uid: item.id
           });
         });
       }
 
-      if(snap.docs[snap.docs.length-1]) {
-        setLastData(snap.docs[snap.docs.length-1]);
-      }
-
       setSeguradoras(array);
-
-      if(array.length === (limit || listLimitDefault)) {
-        setViewButtonMore(true);
-      }
     });
     
     setLoadingData(true);
@@ -72,8 +148,8 @@ const ClientesTable = ({ infiniteData, limit, corretora }) => {
   return (
     <>
       <Table
-        dataSource={loadingData ? seguradoras.sort((a, b) => a.created + b.created) : _.times(listLimitDefault)}
-        pagination={false}
+        dataSource={loadingData ? seguradoras.sort((a, b) => a.anoAdesao + b.anoAdesao) : _.times(10)}
+        pagination={true}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
           emptyText: [
@@ -90,6 +166,7 @@ const ClientesTable = ({ infiniteData, limit, corretora }) => {
         <Table.Column
           key="nome"
           dataIndex="nome"
+          {...getColumnSearchProps('nome')}
           title={
             [
               <div className={!loadingData && 'skeleton'}>
@@ -97,31 +174,20 @@ const ClientesTable = ({ infiniteData, limit, corretora }) => {
               </div>
             ]
           }
-          render={(nome, dados) => (
-            <>
-              {!dados.lida && (
-                <span
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    Modal.confirm({
-                      title: 'CONFIRMAR LEITURA?',
-                      content: 'Deseja confirmar a leitura da mensagem?',
-                      onOk: () => {
-                        firebase.firestore().collection('feedback').doc(dados.uid).set({
-                          lida: true,
-                        }, { merge: true })
-                      },
-                      cancelText: 'FECHAR',
-                      okText: 'CONFIRMAR'
-                    })
-                  }}
-                >
-                  <Badge count={'NÃO LIDO'} style={{ position: 'absolute', top: -30, left: -10, width: 70, fontSize: 10, margin: 0, padding: 0 }} />
-                </span>
-              )}
-              {nome}
-            </>
-          )}
+          width={400}
+        />
+        <Table.Column
+          {...getColumnSearchProps('cpf')}
+          key="cpf"
+          dataIndex="cpf"
+          title={
+            [
+              <div className={!loadingData && 'skeleton'}>
+                CPF
+              </div>
+            ]
+          }
+          render={cpf => maskCPF(cpf || '')}
         />
         <Table.Column
           key="telefone"
@@ -145,46 +211,25 @@ const ClientesTable = ({ infiniteData, limit, corretora }) => {
           }}
         />
         <Table.Column
-          key="mensagem"
-          dataIndex="mensagem"
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                MENSAGEM
-              </div>
-            ]
-          }
-        />
-        <Table.Column
-          width={100}
-          key="created"
-          dataIndex="created"
+          width={200}
+          key="anoAdesao"
+          dataIndex="anoAdesao"
+          align='center'
+          defaultSortOrder='descend'
+          sorter={(a, b) => a.anoAdesao - b.anoAdesao}
           title={
             [
               <div style={{width: !loadingData && 70, height: !loadingData && 23}} className={!loadingData && 'skeleton'}>
                 {loadingData && (
                   <center>
-                    ENVIADO
+                    ANO DE ADESÃO
                   </center>
                 )}
               </div>
             ]
           }
-          render={(created) => created && format(new Date(created.toDate()), 'dd/MM/yyyy')}
         />
       </Table>
-      {(infiniteData === true && viewButtonMore === true) && (
-        <center>
-          <Button type='primary' onClick={() => getCotacao()} style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: 10,
-            fontWeight: 'bold'
-          }}>
-            MAIS SEGURADORAS <FaPlus style={{ marginLeft: 5 }} />
-          </Button>
-        </center>
-      )}
     </>
   )
 }
