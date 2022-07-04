@@ -41,8 +41,6 @@ import { useTheme } from 'styled-components';
 import ModalSeguro from 'components/Modal/seguro';
 
 function juroComposto({ parcela, percentual }) {
-  console.log(percentual);
-  console.log(parcela);
   return jsonComposto[percentual][parcela];
 }
 

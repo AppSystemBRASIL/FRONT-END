@@ -442,19 +442,19 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           const premioValor = Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'));
           const comissaoValor = dataNewSeguro.comissao;
 
-          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
+          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(String(dataNewSeguro.corretorUid)).set({
             total: firebase.firestore.FieldValue.increment(1),
             valores: {
-              premio: premioValor,
-              comissao: comissaoValor,
+              premio: firebase.firestore.FieldValue.increment(premioValor),
+              comissao: firebase.firestore.FieldValue.increment(comissaoValor),
             }
           }, { merge: true });
 
-          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
+          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(String(corretora.uid)).set({
             total: firebase.firestore.FieldValue.increment(1),
             valores: {
-              premio: premioValor,
-              comissao: comissaoValor,
+              premio: firebase.firestore.FieldValue.increment(premioValor),
+              comissao: firebase.firestore.FieldValue.increment(comissaoValor),
             }
           }, { merge: true });
 
