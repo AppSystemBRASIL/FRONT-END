@@ -439,11 +439,24 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           ...data
         }, { merge: true })
         .then(async () => {
-          axios.get('/api/verificarSegurosAtivos', {
-            params: {
-              corretora: user.corretora.uid
+          const premioValor = Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'));
+          const comissaoValor = dataNewSeguro.comissao;
+
+          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
+            total: firebase.firestore.FieldValue.increment(1),
+            valores: {
+              premio: premioValor,
+              comissao: comissaoValor,
             }
-          });
+          }, { merge: true });
+
+          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
+            total: firebase.firestore.FieldValue.increment(1),
+            valores: {
+              premio: premioValor,
+              comissao: comissaoValor,
+            }
+          }, { merge: true });
 
           firebase.firestore().collection('clientes').doc(String(data.segurado.cpf).split('.').join('').split('-').join('')).set({
             cpf: String(data.segurado.cpf).split('.').join('').split('-').join(''),
