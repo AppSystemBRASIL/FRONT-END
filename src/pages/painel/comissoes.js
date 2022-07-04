@@ -190,9 +190,9 @@ const Seguro = () => {
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
-            <div>
+            <div style={{ width: '50%' }}>
               <div style={{ width: '100%' }}>PRODUTOR:</div>
-              <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: 200 }} onChange={e => {
+              <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: '100%' }} onChange={e => {
                 setCorretor(e ? e : null);
               }}
               autoFocus={true}
@@ -216,60 +216,65 @@ const Seguro = () => {
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
-            <div style={{ width: 350 }}>
+            <div style={{ width: '50%' }}>
               <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
               <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => setDate(e)} />
             </div>
+            {/*
+              <div
+                style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+              />
+              <div>
+                <div style={{ width: '100%' }}>SEGURADORA:</div>
+                <Select allowClear placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={e => {
+                  setSeguradora(e ? e : null);
+                }}
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                filterSort={(optionA, optionB) =>
+                  optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                }
+                value={seguradora}
+                >
+                  {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
+                    <Select.Option key={index} value={item.uid}>
+                      {item.razao_social}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+              <div
+                style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+              />
+              {cpf.length === 0 && (
+                <>
+                  <div>
+                    <div style={{ width: '100%' }}>PLACA:</div>
+                    <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
+                  </div>
+                  <div
+                    style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                  />
+                </>
+              )}
+              {placa.length === 0 && (
+                <>
+                  <div>
+                    <div style={{ width: '100%' }}>CPF:</div>
+                    <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
+                  </div>
+                  <div
+                    style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                  />
+                </>
+              )}
+            */}
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
-            <div>
-              <div style={{ width: '100%' }}>SEGURADORA:</div>
-              <Select allowClear placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={e => {
-                setSeguradora(e ? e : null);
-              }}
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              filterSort={(optionA, optionB) =>
-                optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-              }
-              value={seguradora}
-              >
-                {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
-                  <Select.Option key={index} value={item.uid}>
-                    {item.razao_social}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            {cpf.length === 0 && (
-              <>
-                <div>
-                  <div style={{ width: '100%' }}>PLACA:</div>
-                  <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
-                </div>
-                <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-                />
-              </>
-            )}
-            {placa.length === 0 && (
-              <>
-                <div>
-                  <div style={{ width: '100%' }}>CPF:</div>
-                  <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
-                </div>
-                <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-                />
-              </>
-            )}
           </Col>
         </Row>
         {corretor && (
