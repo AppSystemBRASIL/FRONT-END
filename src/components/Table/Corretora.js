@@ -322,8 +322,8 @@ const TableCotacao = ({ infiniteData, limit, status, cnpj }) => {
                                 <Col span={12}>
                                   <label>LAYOUT:</label>
                                   <Select readOnly disabled value={dados.layout.theme} style={{ width: '100%' }}>
-                                    {['blue', 'red', 'green', 'yellow', 'purple'].map((item) => (
-                                      <Select.Option value={item}>
+                                    {['blue', 'red', 'green', 'yellow', 'purple'].map((item, index) => (
+                                      <Select.Option value={item} key={index}>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
                                           <div style={{ width: 10, height: 10, borderRadius: 100, background: item, marginRight: 5 }} /> {item.toUpperCase()}
                                         </div>

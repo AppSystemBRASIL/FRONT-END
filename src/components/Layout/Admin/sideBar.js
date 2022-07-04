@@ -40,7 +40,7 @@ const SideBar = ({ collapsed, responsive }) => {
     >
       <div className="logo-details" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10 }}>
         {businessInfo.icon ? (
-          <img width={50} preview={false} style={{ marginRight: 10 }} src={businessInfo.icon} />
+          <img width={50} style={{ marginRight: 10 }} src={businessInfo.icon} />
         ) : (
           <i style={{fontSize: 45}} className='bx bx-car' />
         )}

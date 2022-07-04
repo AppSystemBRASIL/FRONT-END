@@ -16,12 +16,14 @@ import { SearchOutlined } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
 
-import { FaPhoneAlt } from 'react-icons/fa';
+import { FaPhoneAlt, FaPrint } from 'react-icons/fa';
 
 import _ from 'lodash';
 import { maskCPF } from 'hooks/mask';
 
-const ClientesTable = ({ limit, corretora }) => {
+import printListSeguros from 'components/PDF/Clientes';
+
+const ClientesTable = ({ corretora }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [seguradoras, setSeguradoras] = useState([]);
 
@@ -30,6 +32,8 @@ const ClientesTable = ({ limit, corretora }) => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
+
+  const [qtdCliente, setQtdCliente] = useState([]);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -91,8 +95,7 @@ const ClientesTable = ({ limit, corretora }) => {
         }}
       />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
     onFilterDropdownVisibleChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -102,16 +105,14 @@ const ClientesTable = ({ limit, corretora }) => {
       searchedColumn === dataIndex ? (
         <Highlighter
           highlightStyle={{
-            backgroundColor: '#ffc069',
+            backgroundColor: '#FFC069',
             padding: 0,
           }}
           searchWords={[searchText]}
           autoEscape
           textToHighlight={text ? text.toString() : ''}
         />
-      ) : (
-        text
-      ),
+      ) : text,
   });
 
   const getCotacao = async () => {
@@ -135,6 +136,7 @@ const ClientesTable = ({ limit, corretora }) => {
         });
       }
 
+      setQtdCliente(array);
       setSeguradoras(array);
     });
     
@@ -144,12 +146,44 @@ const ClientesTable = ({ limit, corretora }) => {
   useEffect(() => {
     getCotacao();
   }, []);
-  
+
+  if(!loadingData) {
+    return <></>;
+  }
+
   return (
     <>
       <Table
+        onChange={(e, f, faaa, data) => {
+          const dados = data.currentDataSource;
+
+          setQtdCliente(dados);
+        }}
         dataSource={loadingData ? seguradoras.sort((a, b) => a.anoAdesao + b.anoAdesao) : _.times(10)}
-        pagination={true}
+        pagination={{
+          style: {
+            marginRight: 15
+          }
+        }}
+        title={() => (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}
+          >
+            <h3>TOTAL: {String(qtdCliente.length).padStart(2, '0')}</h3>
+            <Button
+              style={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
+              onClick={() => printListSeguros({ clientes: qtdCliente })}
+            >
+              <FaPrint style={{ marginRight: 10 }} /> Imprimir
+            </Button>
+          </div>
+        )}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
           emptyText: [

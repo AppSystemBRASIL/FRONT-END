@@ -172,7 +172,7 @@ const TableSeguradora = ({ infiniteData, limit, cnpj }) => {
                                   <br/>
                                   <Row gutter={[10, 20]}>
                                     {dados.contatos.length > 0 ? dados.contatos.map((item, index) => (
-                                      <Col span={24} style={{ border: '1px solid #d9d9d9', padding: '20px 10px' }}>
+                                      <Col key={index} span={24} style={{ border: '1px solid #d9d9d9', padding: '20px 10px' }}>
                                         <div>
                                           <label>SETOR:</label>
                                           <Input readOnly value={item.setor} style={{ padding: 0, outline: 'none', borderRadius: 0, border: 'none', borderBottom: '1px solid #d9d9d9' }} />
