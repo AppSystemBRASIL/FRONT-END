@@ -41,6 +41,8 @@ import { useTheme } from 'styled-components';
 import ModalSeguro from 'components/Modal/seguro';
 
 function juroComposto({ parcela, percentual }) {
+  console.log(percentual);
+  console.log(parcela);
   return jsonComposto[percentual][parcela];
 }
 
@@ -1025,7 +1027,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     >
                       - R$ {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(Number(valores.corretor.valor - valores.corretor.valor * juroComposto({
                         parcela: String(valores.parcelas),
-                        percentual: String(valores.juros)
+                        percentual: String(valores.juros || 0)
                       })))}
                     </sup>
                   )}
@@ -1033,7 +1035,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                   <span style={{ fontSize: '.7rem' }}>
                     TOTAL: {Number(valores.parcelas > 4 ? Number(valores.corretor.valor * juroComposto({
                       parcela: String(valores.parcelas),
-                      percentual: String(valores.juros)
+                      percentual: String(valores.juros || 0)
                     })) : valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
                   </span>
                 </div>
@@ -1086,7 +1088,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                                     <div>
                                       - {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format(valores.corretor.valor - valores.corretor.valor * juroComposto({
                                           parcela: String(valores.parcelas),
-                                          percentual: String(valores.juros)
+                                          percentual: String(valores.juros || 0)
                                         }))}
                                     </div>
                                   </div>
@@ -1102,7 +1104,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                             <div>
                               {new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, currency: 'BRL', style: 'currency' }).format(valores.parcelas > 4 ? valores.corretor.valor * juroComposto({
                                 parcela: String(valores.parcelas),
-                                percentual: String(valores.juros)
+                                percentual: String(valores.juros || 0)
                               }) : valores.corretor.valor)}
                             </div>
                           </div>
@@ -1112,7 +1114,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                   >
                     <FaEye color='#999' cursor='pointer' />
                   </Tooltip>
-                  
                 )}
               </div>
             )}
@@ -1191,7 +1192,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           )}
         />
       </Table>
-      {(infiniteData === true && viewButtonMore === true) && (
+      {(infiniteData === false && viewButtonMore === true) && (
         <center>
           <Button type='primary' onClick={() => getCotacao()} style={{
             display: 'flex',

@@ -445,7 +445,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             }
           });
 
-          firebase.firestore('clientes').doc(String(data.segurado.cpf).split('.').join('').split('-').join('')).set({
+          firebase.firestore().collection('clientes').doc(String(data.segurado.cpf).split('.').join('').split('-').join('')).set({
             cpf: String(data.segurado.cpf).split('.').join('').split('-').join(''),
             nome: data.segurado.nome,
             anoAdesao: Number(data.segurado.anoAdesao),
@@ -464,7 +464,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
 
           await fechar();
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log(error)
           notification.error({
             message: 'OCORREU UM ERRO AO CADASTRAR!'
           })

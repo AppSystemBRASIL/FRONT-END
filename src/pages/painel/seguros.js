@@ -283,7 +283,7 @@ const Seguro = () => {
           cpf={cpf}
           placa={placa}
           user={user}
-          infiniteData={true}
+          infiniteData={false}
           corretora={corretora.uid}
           setSeguros={setSeguros}
           seguros={seguros}
