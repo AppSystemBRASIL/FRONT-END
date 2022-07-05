@@ -370,6 +370,55 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
             ],
           ]
         }
+      },
+      {
+        table: {
+          widths: '*',
+          body: [
+            [ 
+              {
+                text: [
+                  {
+                    text: 'COMISSÃO GERADA:\n',
+                  },
+                  {
+                    text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => b.valores.comissao + a, 0)),
+                    bold: true,
+                    fontSize: 15,
+                    color: '#000000'
+                  }
+                ],
+                alignment: 'left',
+              },
+            ],
+          ]
+        }
+      },
+      {
+        table: {
+          widths: '*',
+          body: [
+            [ 
+              {
+                text: [
+                  {
+                    text: 'COMISSÃO A PAGAR: \n',
+                  },
+                  {
+                    text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => Number(b.valores.parcelas > 4 ? Number(b.valores.corretor.valor * juroComposto({
+                      parcela: String(b.valores.parcelas),
+                      percentual: String(b.valores.juros || 0)
+                    })) : b.valores.corretor.valor) + a, 0)),
+                    bold: true,
+                    fontSize: 15,
+                    color: '#000000'
+                  }
+                ],
+                alignment: 'left',
+              }
+            ],
+          ]
+        }
       }
     ];
   }
