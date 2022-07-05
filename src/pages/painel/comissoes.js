@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Input, DatePicker, Select, Divider } from 'antd';
+import { Row, Col, Input, DatePicker, Select, Divider, Button } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
@@ -103,7 +103,7 @@ const Seguro = () => {
     seguradora: !seguradora ? null : seguradoras.filter(e => e.uid === seguradora)[0].razao_social.split(' ')[0],
     placa,
     cpf
-  });
+  }, true);
 
   const verifyFilter = !date && !corretor && !seguradora && (!placa && !cpf);
 
@@ -129,7 +129,7 @@ const Seguro = () => {
             position: 'relative'
           }}
         >
-          {(date && seguros.length > 0) && (
+          {(date && seguros.length > 0 && corretor) && (
             <span
               style={{
                 position: 'absolute',

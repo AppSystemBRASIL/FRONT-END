@@ -30,7 +30,6 @@ import { v4 as uuid } from 'uuid';
 
 import _ from 'lodash';
 
-import jsonComposto from '../../data/jsonComposto.json';
 
 import { endOfDay, format, formatDistanceStrict, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
@@ -40,6 +39,7 @@ import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
 import ModalSeguro from 'components/Modal/seguro';
 
+import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
@@ -268,7 +268,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo }) => {
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -880,6 +880,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             </>
           )
         }}
+        title={header}
       >
         <Table.Column
           width={300}
@@ -900,7 +901,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-                {segurado ? String(segurado.nome).split(' ').slice(0, 3).join(' ') : '000000000'}
+                {segurado ? String(segurado.nome).split(' ').slice(0, nameFirst ? 1 : 3).join(' ') : '000000000'}
               </div>
             </>
           )}
