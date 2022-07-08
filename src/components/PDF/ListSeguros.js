@@ -190,10 +190,12 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       const array = [];
 
       array.push(70);
-      array.push('*');
+      array.push(90);
       array.push(50);
       array.push(100);
-      array.push(100);
+      array.push(75);
+      array.push('*');
+      array.push('*');
 
       return array;
     }
@@ -202,7 +204,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       const array = [];
 
       array.push({
-        text: 'VIGÊNCIA',
+        text: 'PERÍODO DE VIGÊNCIA',
         fontSize: 10,
         alignment: 'center'
       });
@@ -222,6 +224,16 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       });
       array.push({
         text: 'VALOR LÍQUIDO\nCOMISSÃO',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: 'DESCONTO FINANCEIRO',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: 'TOTAL A RECEBER',
         fontSize: 10,
         alignment: 'center'
       });
@@ -245,7 +257,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         alignment: 'center'
       });
       array.push({
-        text: item.segurado.nome,
+        text: comissao ? item.segurado.nome.split(' ').slice(0, 2).join(' ') : item.segurado.nome,
         fontSize: 10
       });
       array.push({
@@ -269,23 +281,30 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       array.push({
         text: [
           {
-            text: `${Number(item.valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} `,
+            text: `${new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(item.valores.comissao)} | ${Number(item.valores.corretor.percentual).toFixed(0)}% \n`,
             fontSize: 10
           },
           {
-            text: item.valores.parcelas <= 4 ? '\n' : `- ${Number(item.valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} \n`,
-            fontSize: 7,
-            color: 'red',
-            marginTop: -20
-          },
-          {
-            text: `TOTAL: ${Number(item.valores.parcelas > 4 ? Number(item.valores.corretor.valor * juroComposto({
-              parcela: String(item.valores.parcelas),
-              percentual: String(item.valores.juros || 0)
-            })) : item.valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}`,
+            text: `COMISSÃO: ${new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format((item.valores.corretor.percentual / 100) * item.valores.comissao)}`,
             fontSize: 7
           }
         ],
+        alignment: 'center'
+      });
+      array.push({
+        text: `${item.valores.parcelas > 4 ? new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(Number(item.valores.corretor.valor * juroComposto({
+          parcela: String(item.valores.parcelas),
+          percentual: String(item.valores.juros || 0)
+        })) -  item.valores.corretor.valor) : '--------'}`,
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: `${item.valores.parcelas > 4 ? new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(Number(item.valores.corretor.valor * juroComposto({
+          parcela: String(item.valores.parcelas),
+          percentual: String(item.valores.juros || 0)
+        }))) : new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format((item.valores.corretor.percentual / 100) * item.valores.comissao)}`,
+        fontSize: 10,
         alignment: 'center'
       });
       return array;
@@ -315,7 +334,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
               ],
               [
                 {
-                  text: filtros.date && `PERÍODO:\n${format(filtros.date[0].toDate(), 'dd/MM/yyyy')} - ${format(filtros.date[1].toDate(), 'dd/MM/yyyy')}`,
+                  text: filtros.date && `PERÍODO:\n${format(filtros.date[2] ? filtros.date[0] : filtros.date[0].toDate(), 'dd/MM/yyyy')} - ${format(filtros.date[2] ? filtros.date[1] : filtros.date[1].toDate(), 'dd/MM/yyyy')}`,
                   bold: true,
                   fontSize: 10,
                 },
@@ -429,5 +448,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
     content
   }
 
-  pdfMake.createPdf(docDefinitions).print();
+  const print = pdfMake.createPdf(docDefinitions);
+
+  return print.print();
 }

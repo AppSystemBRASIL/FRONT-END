@@ -4,10 +4,8 @@ import { Row, Col, Input, DatePicker, Select, Divider, Button } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCPF } from '../../hooks/mask';
-
 import useAuth from '../../hooks/useAuth';
-import { FaPlus, FaPrint } from 'react-icons/fa';
+import { FaCoins, FaPaperPlane, FaPrint } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 
@@ -88,7 +86,10 @@ const Seguro = () => {
 
         if(!response.empty) {
           response.forEach(item => {
-            array.push(item.data());
+            array.push({
+              ...item.data(),
+              uid: item.id
+            });
           })
         }
 
@@ -106,6 +107,13 @@ const Seguro = () => {
   }, true);
 
   const verifyFilter = !date && !corretor && !seguradora && (!placa && !cpf);
+
+  const sendPrint = () => {
+    const { telefone, uid } = corretores.filter(e => e.uid === corretor)[0];
+    const url = `${window.location.origin}/relatorio/comissoes?data=${corretora.uid}|${uid}|${date[0].toDate().getTime()}|${date[1].toDate().getTime()}`;
+
+    window.open(`https://wa.me/55${telefone.split('(').join('').split(')').join('').split(' ').join('').split('-').join('')}?text=Segue a baixo o relatório de comissão:%0a%0a${window.encodeURI(url)}`);
+  }
 
   if(!user && !corretora) {
     return <></>;
@@ -134,7 +142,7 @@ const Seguro = () => {
               style={{
                 position: 'absolute',
                 top: 15,
-                right: 15,
+                right: 150,
                 fontSize: '1.2rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -145,6 +153,24 @@ const Seguro = () => {
               onClick={printSeguros}
             >
               <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
+            </span>
+          )}
+          {(date && seguros.length > 0 && corretor) && (
+            <span
+              style={{
+                position: 'absolute',
+                top: 15,
+                right: 15,
+                fontSize: '1.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                zIndex: 1
+              }}
+              onClick={sendPrint}
+            >
+              <FaPaperPlane style={{ marginRight: 5 }} /> ENVIAR
             </span>
           )}
           <Col span={24}>
