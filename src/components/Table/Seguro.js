@@ -837,6 +837,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       comissaoCorretoraValor: dados.valores.corretora.valor,
       profissao: dados.segurado.profissao || 'OUTROS',
       usoVeiculo: dados.riscos?.usoVeiculo || 'OUTROS',
+      modelo: dados.veiculo.modelo || null,
       juros: dados.valores?.juros || null
     }));
 

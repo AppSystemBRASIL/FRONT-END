@@ -181,6 +181,7 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
       condutor: dados.condutor.nome,
       profissao: dados.segurado.profissao || 'OUTROS',
       usoVeiculo: dados.riscos.usoVeiculo || 'OUTROS',
+      modelo: dados.veiculo.modelo || null,
       juros: dados.valores?.juros || null
     }));
 

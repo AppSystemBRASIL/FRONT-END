@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import { Modal, Row, Col, Select, Input, InputNumber, notification, Divider } from 'antd';
+import { Modal, Row, Col, Select, Input, InputNumber, notification, Divider, Alert } from 'antd';
 
 import useAuth from 'hooks/useAuth';
 
@@ -21,6 +21,7 @@ function juroComposto({ parcela, percentual }) {
 }
 
 export default function ModalSeguro({ data, visible, setVisible, callback }) {
+  const dataInitial = data;
   const { user, corretora, businessInfo } = useAuth();
 
   const placaRef = useRef();
@@ -68,6 +69,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     veiculo: null,
     condutor: null,
     profissao: null,
+    modelo: null,
     juros: businessInfo.comissao.juros
   };
 
@@ -148,7 +150,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   }, [user]);
 
   useEffect(() => {
-    const dados = data ? {...data, profissao: data?.usoVeiculo || 'OUTROS', juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
+    const dados = data ? {...data, usoVeiculo: data?.usoVeiculo || 'OUTROS', modelo: data?.modelo || null, juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
 
     if(user) {
       if(user.tipo === 'corretor') {
@@ -351,6 +353,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         condutor: dataNewSeguro.condutor,
         veiculo: dataNewSeguro.veiculo,
         placa: dataNewSeguro.placa,
+        modelo: dataNewSeguro.modelo
       },
       endereco: {
         cep: dataNewSeguro.cep,
@@ -443,20 +446,20 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         .then(async () => {
           const premioValor = Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'));
           const comissaoValor = dataNewSeguro.comissao;
-
+  
           await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(String(dataNewSeguro.corretorUid)).set({
-            total: firebase.firestore.FieldValue.increment(1),
+            total: firebase.firestore.FieldValue.increment(dataNewSeguro.search ? 0 : 1),
             valores: {
-              premio: firebase.firestore.FieldValue.increment(premioValor),
-              comissao: firebase.firestore.FieldValue.increment(comissaoValor),
+              premio: firebase.firestore.FieldValue.increment((dataInitial.premio === dataNewSeguro.premio) ? 0 : premioValor),
+              comissao: firebase.firestore.FieldValue.increment((dataInitial.comissao === dataNewSeguro.comissao) ? 0 : comissaoValor),
             }
           }, { merge: true });
 
           await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(String(corretora.uid)).set({
-            total: firebase.firestore.FieldValue.increment(1),
+            total: firebase.firestore.FieldValue.increment(dataNewSeguro.search ? 0 : 1),
             valores: {
-              premio: firebase.firestore.FieldValue.increment(premioValor),
-              comissao: firebase.firestore.FieldValue.increment(comissaoValor),
+              premio: firebase.firestore.FieldValue.increment((dataInitial.premio === dataNewSeguro.premio) ? 0 : premioValor),
+              comissao: firebase.firestore.FieldValue.increment((dataInitial.comissao === dataNewSeguro.comissao) ? 0 : comissaoValor),
             }
           }, { merge: true });
 
@@ -589,16 +592,28 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             }
           }} placeholder='ANO DE ADESÃO' />
         </Col>
-        <Col span={13}>
+        <Col span={8}>
           <label>VEÍCULO: <span style={{ color: 'red' }}>*</span></label>
           <Input autoComplete='off' id='veiculoSeguro' placeholder='VEÍCULO'
+            onKeyPress={(e) => {
+              if(e.code === 'Enter') {
+                document.getElementById('modeloVeiculoSeguro').focus();
+              }
+            }}
+            value={dataNewSeguro.veiculo}
+            onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
+          />
+        </Col>
+        <Col span={5}>
+          <label>ANO DO MODELO: <span style={{ color: 'red' }}>*</span></label>
+          <Input autoComplete='off' id='modeloVeiculoSeguro' placeholder='0000'
             onKeyPress={(e) => {
               if(e.code === 'Enter') {
                 document.getElementById('usoVeiculoSeguro').focus();
               }
             }}
-            value={dataNewSeguro.veiculo}
-            onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
+            value={dataNewSeguro.modelo}
+            onChange={(e) => setDataNewSeguro(response => ({...response, modelo: String(e.target.value).toUpperCase()}))}  
           />
         </Col>
         <Col span={6}>
@@ -632,7 +647,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <Input autoComplete='off' id='nomeSeguradoText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
             onKeyPress={(e) => {
               if(e.code === 'Enter') {
-                document.getElementById('profissoSegurado').focus()
+                document.getElementById('cpfSeguro').focus()
               }
             }}
             value={dataNewSeguro.nome}
