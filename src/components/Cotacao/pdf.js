@@ -716,7 +716,7 @@ export default async function cotacaoPDF(dados, type) {
 
   if(dados.riscos.condutorResideMenor) {
     bodyRisco.push([{
-      text: 'DEPENDENTES MENORES',
+      text: 'COBERTURA 18/26 ANOS',
       bold: true,
       fontSize: 10,
     },
@@ -1020,13 +1020,13 @@ export default async function cotacaoPDF(dados, type) {
         body: [
           [
             {
-              text: 'APÓLICE:',
+              text: `APÓLICE: ${dados?.seguro?.apolice || ''}`,
               bold: true,
               fontSize: 10,
               border: [true, false, false, true],
             },
             {
-              text: 'C.I:',
+              text: `C.I: ${dados?.seguro?.ci || ''}`,
               bold: true,
               fontSize: 10,
               border: [false, false, true, true],
