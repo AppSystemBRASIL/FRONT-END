@@ -180,6 +180,7 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
       cep: dados.veiculo.cep,
       condutor: dados.condutor.nome,
       profissao: dados.segurado.profissao || 'OUTROS',
+      usoVeiculo: dados.riscos.usoVeiculo || 'OUTROS',
       juros: dados.valores?.juros || null
     }));
 
