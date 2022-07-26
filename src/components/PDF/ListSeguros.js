@@ -366,9 +366,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       {
         table: {
           widths: getTableListHeaderWidth(),
-          body: [
-            getTableListHeader(),
-          ]
+          body: [getTableListHeader()]
         }
       },
       {

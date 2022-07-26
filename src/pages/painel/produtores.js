@@ -49,6 +49,7 @@ const Seguro = () => {
     agencia_d: null,
     conta: null,
     conta_d: null,
+    conta_o: null,
     pix: null,
     status: true
   });
@@ -67,6 +68,7 @@ const Seguro = () => {
         agencia_d: null,
         conta: null,
         conta_d: null,
+        conta_o: null,
         pix: null,
         status: true
       })
@@ -104,6 +106,7 @@ const Seguro = () => {
         agencia_d: dataNewSeguro.agencia_d || null,
         conta: dataNewSeguro.conta || null,
         conta_d: dataNewSeguro.conta_d || null,
+        conta_o: dataNewSeguro.conta_o || null,
         pix: dataNewSeguro.pix || null
       },
       status: dataNewSeguro.status
@@ -198,15 +201,16 @@ const Seguro = () => {
             <Col span={8}>
               <label>AGÊNCIA:</label>
               <Input.Group compact>
-                <Input value={dataNewSeguro.agencia} style={{ width: '80%' }} placeholder='AGÊNCIA' onChange={value => setDataNewSeguro(e => ({...e, agencia: value.target.value}))} />
-                <Input value={dataNewSeguro.agencia_d} style={{ width: '20%' }} placeholder='D' onChange={value => setDataNewSeguro(e => ({...e, agencia_d: value.target.value}))} />
+                <Input value={dataNewSeguro.agencia} style={{ width: '60%' }} placeholder='AGÊNCIA' onChange={value => setDataNewSeguro(e => ({...e, agencia: value.target.value}))} />
+                <Input value={dataNewSeguro.agencia_d} style={{ width: '40%' }} placeholder='DIGÍTO' onChange={value => setDataNewSeguro(e => ({...e, agencia_d: value.target.value}))} />
               </Input.Group>
             </Col>
             <Col span={8}>
               <label>CONTA:</label>
               <Input.Group compact>
-                <Input value={dataNewSeguro.conta} style={{ width: '80%' }} placeholder='CONTA' onChange={value => setDataNewSeguro(e => ({...e, conta: value.target.value}))} />
-                <Input value={dataNewSeguro.conta_d} style={{ width: '20%' }} placeholder='D' onChange={value => setDataNewSeguro(e => ({...e, conta_d: value.target.value}))} />
+                <Input value={dataNewSeguro.conta} style={{ width: '50%' }} placeholder='CONTA' onChange={value => setDataNewSeguro(e => ({...e, conta: value.target.value}))} />
+                <Input value={dataNewSeguro.conta_d} style={{ width: '25%' }} placeholder='DIGÍTO' onChange={value => setDataNewSeguro(e => ({...e, conta_d: value.target.value}))} />
+                <Input value={dataNewSeguro.conta_o} style={{ width: '25%' }} placeholder='OPERAÇÃO' onChange={value => setDataNewSeguro(e => ({...e, conta_o: value.target.value}))} />
               </Input.Group>
             </Col>
             <Col span={24}>
@@ -262,7 +266,7 @@ const Seguro = () => {
           }}
         >
           <Col span={24}>
-            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center'}}>CORRETORES <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
+            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center'}}>PRODUTORES <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
         </Row>
         <TableCorretores

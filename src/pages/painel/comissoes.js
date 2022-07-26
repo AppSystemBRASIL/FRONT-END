@@ -5,7 +5,7 @@ import { Row, Col, Input, DatePicker, Select, Divider, Button } from 'antd';
 import TableSeguro from '../../components/Table/Seguro';
 
 import useAuth from '../../hooks/useAuth';
-import { FaCoins, FaPaperPlane, FaPrint } from 'react-icons/fa';
+import { FaPaperPlane, FaPrint } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 
