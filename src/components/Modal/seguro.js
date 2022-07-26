@@ -148,7 +148,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   }, [user]);
 
   useEffect(() => {
-    const dados = data ? {...data, profissao: data?.profissao || 'OUTROS', juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
+    const dados = data ? {...data, profissao: data?.usoVeiculo || 'OUTROS', juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
 
     if(user) {
       if(user.tipo === 'corretor') {
@@ -185,7 +185,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
-            profissao: arrayFirst.segurado.profissao || 'OUTROS',
+            usoVeiculo: arrayFirst.riscos.usoVeiculo || 'OUTROS',
             cpf: arrayFirst.segurado.cpf,
             telefone: arrayFirst.segurado.telefone,
             condutor: arrayFirst.veiculo.condutor,
@@ -367,7 +367,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         nome: dataNewSeguro.nome,
         cpf: dataNewSeguro.cpf,
         telefone: dataNewSeguro.telefone,
-        profissao: dataNewSeguro.profissao
       },
       corretor: null,
       corretora: {
@@ -377,6 +376,9 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           percentual: Number(100 - Number(String(dataNewSeguro.comissaoCorretor).split(',').join('.'))),
           valor: dataNewSeguro.comissaoCorretoraValor
         }
+      },
+      riscos: {
+        usoVeiculo: dataNewSeguro.usoVeiculo,
       },
       valores: {
         parcelas: dataNewSeguro.parcelas,
@@ -463,7 +465,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             nome: data.segurado.nome,
             anoAdesao: Number(data.segurado.anoAdesao),
             telefone: data.segurado.telefone,
-            profissao: data.segurado.profissao,
             corretora: corretora.uid
           }, { merge: true });
 
@@ -588,19 +589,45 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             }
           }} placeholder='ANO DE ADESÃO' />
         </Col>
-        <Col span={19}>
+        <Col span={13}>
           <label>VEÍCULO: <span style={{ color: 'red' }}>*</span></label>
           <Input autoComplete='off' id='veiculoSeguro' placeholder='VEÍCULO'
             onKeyPress={(e) => {
               if(e.code === 'Enter') {
-                document.getElementById('nomeSeguradoText').focus();
+                document.getElementById('usoVeiculoSeguro').focus();
               }
             }}
             value={dataNewSeguro.veiculo}
             onChange={(e) => setDataNewSeguro(response => ({...response, veiculo: String(e.target.value).toUpperCase()}))}  
           />
         </Col>
-        <Col span={8}>
+        <Col span={6}>
+          <label>USO DO VEÍCULO: <span style={{ color: 'red' }}>*</span></label>
+          <Select
+            id='usoVeiculoSeguro'
+            value={dataNewSeguro.usoVeiculo}
+            placeholder='SELECIONAR O USO DO VEÍCULO'
+            onChange={(e) => {
+              if(e) {
+                setDataNewSeguro(x => ({ ...x, usoVeiculo: e }));
+                document.getElementById('nomeSeguradoText').focus()
+              }else {
+                setDataNewSeguro(x => ({ ...x, usoVeiculo: null }))
+              }
+            }}
+            style={{
+              width: '100%'
+            }}
+          >
+            {['lazer e ida e volta ao trabalho', 'só lazer', 'visita a clientes', 'motorista de aplicativo', 'táxi', 'para entregas', 'outros']
+            .map((item, index) => (
+              <Select.Option key={index} value={item}>
+                {item.toUpperCase()}
+              </Select.Option>
+            ))}
+          </Select> 
+        </Col>
+        <Col span={13}>
           <label>SEGURADO: <span style={{ color: 'red' }}>*</span></label>
           <Input autoComplete='off' id='nomeSeguradoText' style={{ textTransform: 'uppercase' }} placeholder='NOME DO SEGURADO'
             onKeyPress={(e) => {
@@ -611,41 +638,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             value={dataNewSeguro.nome}
             onChange={(e) => setDataNewSeguro(response => ({...response, nome: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
           />  
-        </Col>
-        <Col span={5}>
-          <label>PROFISSÃO: <span style={{ color: 'red' }}>*</span></label>
-          <Select
-            id='profissoSegurado'
-            value={dataNewSeguro.profissao}
-            placeholder='SELECIONAR PROFISSÃO'
-            onChange={(e) => {
-              if(e) {
-                setDataNewSeguro(x => ({ ...x, profissao: e }));
-                document.getElementById('cpfSeguro').focus()
-              }else {
-                setDataNewSeguro(x => ({ ...x, profissao: null }))
-              }
-            }}
-            style={{
-              width: '100%'
-            }}
-          >
-            <Select.Option value='EMPRESÁRIO'>
-              EMPRESÁRIO
-            </Select.Option>
-            <Select.Option value='SERVIDOR PÚBLICO'>
-              SERVIDOR PÚBLICO
-            </Select.Option>
-            <Select.Option value='APOSENTADO'>
-              APOSENTADO
-            </Select.Option>
-            <Select.Option value='AUTÔNOMO'>
-              AUTÔNOMO
-            </Select.Option>
-            <Select.Option value='OUTROS'>
-              OUTROS
-            </Select.Option>
-          </Select> 
         </Col>
         <Col span={5}>
           <label>CPF: <span style={{ color: 'red' }}>*</span></label>
