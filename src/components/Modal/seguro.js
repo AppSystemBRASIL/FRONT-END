@@ -621,7 +621,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           >
             {['lazer e ida e volta ao trabalho', 'só lazer', 'visita a clientes', 'motorista de aplicativo', 'táxi', 'para entregas', 'outros']
             .map((item, index) => (
-              <Select.Option key={index} value={item}>
+              <Select.Option key={index} value={item.toUpperCase()}>
                 {item.toUpperCase()}
               </Select.Option>
             ))}
