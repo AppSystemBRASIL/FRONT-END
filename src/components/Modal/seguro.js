@@ -288,6 +288,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
 
   const salvarSeguro = async () => {
     function objetoVazio(obj) {
+      console.log(obj);
       for (const prop in obj) {
         if((prop !== 'condutor' && prop !== 'corretorUid' && prop !== 'corretorDisplayName' && prop !== 'bairro' && prop !== 'uid' &&  prop !== 'search') && obj[prop] === null) {
           return false;
