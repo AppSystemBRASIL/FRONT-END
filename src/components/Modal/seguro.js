@@ -288,7 +288,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
 
   const salvarSeguro = async () => {
     function objetoVazio(obj) {
-      console.log(obj);
+      delete obj.profissao;
+
       for (const prop in obj) {
         if((prop !== 'condutor' && prop !== 'corretorUid' && prop !== 'corretorDisplayName' && prop !== 'bairro' && prop !== 'uid' &&  prop !== 'search') && obj[prop] === null) {
           return false;
@@ -483,7 +484,6 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           await fechar();
         })
         .catch((error) => {
-          console.log(error)
           notification.error({
             message: 'OCORREU UM ERRO AO CADASTRAR!'
           })
