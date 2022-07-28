@@ -452,16 +452,16 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(String(dataNewSeguro.corretorUid)).set({
             total: firebase.firestore.FieldValue.increment(dataNewSeguro.search ? 0 : 1),
             valores: {
-              premio: firebase.firestore.FieldValue.increment((dataInitial.premio === dataNewSeguro.premio) ? 0 : premioValor),
-              comissao: firebase.firestore.FieldValue.increment((dataInitial.comissao === dataNewSeguro.comissao) ? 0 : comissaoValor),
+              premio: firebase.firestore.FieldValue.increment((dataInitial && (dataInitial?.premio === dataNewSeguro?.premio)) ? 0 : premioValor),
+              comissao: firebase.firestore.FieldValue.increment((dataInitial && (dataInitial?.comissao === dataNewSeguro?.comissao)) ? 0 : comissaoValor),
             }
           }, { merge: true });
 
           await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(String(corretora.uid)).set({
             total: firebase.firestore.FieldValue.increment(dataNewSeguro.search ? 0 : 1),
             valores: {
-              premio: firebase.firestore.FieldValue.increment((dataInitial.premio === dataNewSeguro.premio) ? 0 : premioValor),
-              comissao: firebase.firestore.FieldValue.increment((dataInitial.comissao === dataNewSeguro.comissao) ? 0 : comissaoValor),
+              premio: firebase.firestore.FieldValue.increment((dataInitial && (dataInitial?.premio === dataNewSeguro?.premio)) ? 0 : premioValor),
+              comissao: firebase.firestore.FieldValue.increment((dataInitial && (dataInitial?.comissao === dataNewSeguro?.comissao)) ? 0 : comissaoValor),
             }
           }, { merge: true });
 
