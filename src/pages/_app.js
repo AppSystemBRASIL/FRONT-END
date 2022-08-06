@@ -19,7 +19,7 @@ Router.events.on('routeChangeStart', () => {
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
-const theme = {
+export const theme = {
   colors: {
     red: {
       primary: '#CC0000',

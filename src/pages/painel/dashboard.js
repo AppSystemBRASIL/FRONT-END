@@ -1,43 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
-
-import { Content } from 'antd/lib/layout/layout';
+import React, { useEffect, useState } from 'react';
 
 import LayoutAdmin from '../../components/Layout/Admin';
 
-import { Row, Col } from 'antd';
+import { Row, Col, Input, DatePicker, Select, InputNumber, Button, Divider } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
+import moment from 'moment';
+
 import useAuth from '../../hooks/useAuth';
-import Router from 'next/router';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Filler,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+import firebase from '../../auth/AuthConfig';
+import { endOfDay, endOfMonth, startOfDay } from 'date-fns';
+import { theme } from 'pages/_app';
+
+export const options = {
+  responsive: true
+};
+
+function diasNoMes(mes, ano) {
+  return new Date(ano, mes, 0).getDate();
+}
+
+function getDates(month, year) {
+  return Array.from({ length: diasNoMes(month, year) }).map((item, index) => `${String(index + 1).padStart(2, '0')}`);
+}
 
 const Dashboard = () => {
-  const { setCollapsedSideBar } = useAuth();
+  const { setCollapsedSideBar, businessInfo } = useAuth();
+
+  const [date, setDate] = useState(null);
+
+  const [labels, setLabels] = useState(getDates(new Date().getMonth(), new Date().getFullYear()));
+
+  const [dataSeguros, setDataSeguros] = useState([]);
+
+  const [seguradoras, setSeguradoras] = useState([]);
+
+  const [anoAdesao, setAnoAdesao] = useState(null);
+  const [seguradora, setSeguradora] = useState(null);
 
   useEffect(() => {
     setCollapsedSideBar(window.screen.width <= 768 ? false : true);
 
-    Router.push('/painel/cotacoes');
+    ChartJS.register(
+      CategoryScale,
+      LinearScale,
+      PointElement,
+      LineElement,
+      Tooltip,
+      Filler,
+      Legend
+    );
+
+    firebase.firestore().collection('seguradoras').get()
+    .then((response) => {
+      const array = [];
+
+      response.forEach(item => array.push(item.data()));
+
+      setSeguradoras(array);
+    })
   }, []);
 
-  const [qtdCotacoesTotal, setQtdCotacoesTotal] = useState(null);
-  const [qtdCotacoesAguardando, setQtdCotacoesAguardando] = useState(null);
-  const [qtdCotacoesIniciado, setQtdCotacoesIniciado] = useState(null);
-  const [qtdCotacoesConcluido, setQtdCotacoesConcluido] = useState(null);
-  const [qtdCotacaoAnual, setQtdCotacaoAnual] = useState(null);
-  const [cotacoesList, setCotacoesList] = useState([]);
+  useEffect(() => {
+    if(!businessInfo) {
+      return;
+    }
 
-  const [yearSelected, setYearSelected] = useState(new Date().getFullYear());
+    getSeguros();
 
-  const [qtdAnos, setQtdAnos] = useState([]);
+    if(date) {
+      console.log(new Date(date[1]).getDate())
+    }
+  }, [businessInfo, date]);
 
-  const [cotacoesYearData, setCotacoesYearData] = useState([]);
+  function getSeguros() {
+    setDataSeguros([]);
 
-  const [loadingData, setLoadingData] = useState(false);
-  const [loadingArea, setLoadingArea] = useState(false);
+    firebase.firestore().collection('seguros')
+    .where('corretora.uid', '==', businessInfo.uid)
+    .where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
+    .where('seguro.vigencia', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), 1)))
+    .orderBy('seguro.vigencia', 'asc')
+    .get()
+    .then((response) => {
+      const array = [];
 
-  const CardComponent = ({children, style}) => {
+      console.log(response.size)
+
+      response.forEach(item => array.push(item.data()));
+
+      setDataSeguros(array.map(item => ({
+        ...item,
+        seguro: {
+          ...item.seguro,
+          vigencia: new Date(item.seguro.vigencia.seconds * 1000),
+          vigenciaFinal: new Date(item.seguro.vigenciaFinal.seconds * 1000)
+        }
+      })));      
+    })
+  }
+
+  const data = {
+    labels: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()),
+    datasets: [
+      {
+        fill: true,
+        label: 'SEGUROS ATIVOS',
+        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length),
+        borderColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.primary,
+        backgroundColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.secondary+'55',
+      },
+      {
+        fill: true,
+        label: 'SEGUROS CANCELADOS',
+        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => !e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item)))).length),
+        borderColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.primary,
+        backgroundColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.secondary,
+      },
+    ],
+  };
+
+  const CardComponent = ({ children, style }) => {
     return (
       <div
         style={{
@@ -53,10 +151,150 @@ const Dashboard = () => {
       </div>
     )
   }
+  
+  if(!businessInfo) {
+    return <></>;
+  }
 
   return (
     <LayoutAdmin title='PAINEL'>
       <Row gutter={[16, 20]}>
+        <Col span={24}>
+          <CardComponent style={{ padding: 20 }}>
+            <Row gutter={[16, 0]}>
+              <Col span={24}>
+                <CardComponent>
+                  <Row gutter={[16, 0]}>
+                    <Col span={24}>
+                      <div style={{
+                        display: 'flex',
+                        gap: '1.5rem',
+                        alignItems: 'flex-end',
+                        padding: 20,
+                        paddingBottom: 0
+                      }}>
+                        <div>
+                          <label>SEGURADORA:</label>
+                          <br/>
+                          <Select style={{ width: 200 }} value={seguradora} onChange={setSeguradora}>
+                            <Select.Option value={null}>
+                              {businessInfo?.razao_social}
+                            </Select.Option>
+                            {seguradoras.map((item, index) => (
+                              <Select.Option key={index} value={item.uid}>
+                                {item.razao_social}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </div>
+                        <div>
+                          <label>PERIODO:</label>
+                          <br/>
+                          <DatePicker.RangePicker value={!date ? null : [moment(date[0]), moment(date[1])]} format='DD/MM/YYYY' onChange={value => !value ? setDate(null) : setDate([startOfDay(new Date(value[0])), endOfDay(new Date(value[1]))])}
+                            disabledDate={current => {
+                              return new Date(current) > endOfMonth(new Date(current))
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label>ANO DE ADESÃO:</label>
+                          <br/>
+                          <InputNumber style={{ width: 150 }} value={anoAdesao} min={2000} onChange={setAnoAdesao} />
+                        </div>
+                        {(seguradora || date || anoAdesao) && (
+                          <label
+                            onClick={() => {
+                              setDate(null);
+
+                              getSeguros();
+                            }}
+                            style={{
+                              color: theme.colors[businessInfo?.layout?.theme].primary,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            RESETAR
+                          </label>
+                        )}
+                      </div>
+                    </Col>
+                    <Col span={24}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center', padding: 20 }}>
+                        <div style={{ width: '30%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5 }}>
+                          TOTAL DE SEGUROS
+                          <br/>
+                          <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                            {dataSeguros.length}
+                          </span>
+                        </div>
+                        <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                          <div>
+                            TOTAL EM PRÊMIO LÍQUIDO
+                            <br/>
+                            <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                              0
+                            </span>
+                          </div>
+                          <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
+                          <div>
+                            MÉDIA DO PRÊMIO LÍQUIDO
+                            <br/>
+                            <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                              0
+                            </span>
+                          </div>
+                        </div>
+                        <div style={{ width: '100%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                          <div>
+                            TOTAL DAS COMISSÕES
+                            <br/>
+                            <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                              0
+                            </span>
+                          </div>
+                          <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
+                          <div>
+                            VALOR MÉDIO DAS COMISSÕES
+                            <br/>
+                            <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                              0
+                            </span>
+                          </div>
+                          <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
+                          <div>
+                            MÉDIA DAS COMISSÕES
+                            <br/>
+                            <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                              0
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </CardComponent>
+              </Col>
+            </Row>
+            <Row
+              gutter={[16, 20]}
+              style={{ marginTop: 20 }}
+            >
+              <Col span={18}>
+                <CardComponent>
+                  <Line height={100} title='RELATÓRIO DE VENDAS' options={options} data={data}
+                    style={{
+                      marginTop: 30,
+                      padding: 20
+                    }}
+                  />
+                </CardComponent>
+              </Col>
+              <Col span={6}>
+                  
+              </Col>
+            </Row>
+          </CardComponent>
+        </Col>
         <Col span={24}>
           <CardComponent>
             <TableCotacao />

@@ -1,12 +1,10 @@
 const router = [
-  /*
-    {
-      title: 'PAINEL',
-      patchname: '/painel/dashboard',
-      icon: 'bx bx-bar-chart-alt-2',
-      roles: ['administrador', 'corretor', 'gestor']
-    },
-  */
+  {
+    title: 'PAINEL',
+    patchname: '/painel/dashboard',
+    icon: 'bx bx-bar-chart-alt-2',
+    roles: ['administrador', 'corretor', 'gestor']
+  },
   {
     title: 'COTAÇÕES/SEGUROS',
     icon: 'bx bx-file',
