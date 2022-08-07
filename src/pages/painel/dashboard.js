@@ -155,13 +155,15 @@ const Dashboard = () => {
   }
 
   const totalSeguros = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
-  const totalPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0));
+  const totalPremioNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
+  const totalPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPremioNumber);
   const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros);
 
   const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
   const totalComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber);
   const mediaComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber / totalSeguros);
-  
+  const percentualComissao = (comissaoNumber / totalPremioNumber) * 100
+
   if(!businessInfo) {
     return <></>;
   }
@@ -278,7 +280,7 @@ const Dashboard = () => {
                             MÉDIA DAS COMISSÕES
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                              0
+                              {(percentualComissao || 0).toFixed(2)}%
                             </span>
                           </div>
                         </div>
