@@ -212,7 +212,7 @@ const Dashboard = () => {
                         <div>
                           <label>ANO DE ADESÃO:</label>
                           <br/>
-                          <InputNumber style={{ width: 150 }} value={anoAdesao} min={2000} max={new Date().getFullYear()} onChange={setAnoAdesao} />
+                          <InputNumber disabled style={{ width: 150 }} value={anoAdesao} min={2000} max={new Date().getFullYear()} onChange={setAnoAdesao} />
                         </div>
                         {(seguradora || date || anoAdesao) && (
                           <label
@@ -286,7 +286,7 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </Col>
-                  </Row>
+                  </Row> 
                 </CardComponent>
               </Col>
             </Row>
