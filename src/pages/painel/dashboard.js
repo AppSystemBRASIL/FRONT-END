@@ -24,7 +24,7 @@ import {
 import { Line } from 'react-chartjs-2';
 
 import firebase from '../../auth/AuthConfig';
-import { endOfDay, endOfMonth, startOfDay } from 'date-fns';
+import { endOfDay, endOfMonth, startOfDay, startOfMonth } from 'date-fns';
 import { theme } from 'pages/_app';
 
 export const options = {
@@ -42,7 +42,7 @@ function getDates(month, year) {
 const Dashboard = () => {
   const { setCollapsedSideBar, businessInfo } = useAuth();
 
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState([startOfMonth(new Date()), endOfMonth(new Date())]);
 
   const [labels, setLabels] = useState(getDates(new Date().getMonth(), new Date().getFullYear()));
 
@@ -82,25 +82,27 @@ const Dashboard = () => {
     }
 
     getSeguros();
-
-    if(date) {
-      console.log(new Date(date[1]).getDate())
-    }
-  }, [businessInfo, date]);
+  }, [businessInfo, date, seguradora, anoAdesao]);
 
   function getSeguros() {
     setDataSeguros([]);
 
-    firebase.firestore().collection('seguros')
-    .where('corretora.uid', '==', businessInfo.uid)
-    .where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
+    let ref = firebase.firestore().collection('seguros').where('corretora.uid', '==', businessInfo.uid);
+
+    if(seguradora) {
+      ref = ref.where('seguradora.uid', '==', seguradora);
+    }
+
+    if(anoAdesao?.length === 4) {
+      ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao));
+    }
+    
+    ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
     .where('seguro.vigencia', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), 1)))
     .orderBy('seguro.vigencia', 'asc')
     .get()
     .then((response) => {
       const array = [];
-
-      console.log(response.size)
 
       response.forEach(item => array.push(item.data()));
 
@@ -112,7 +114,7 @@ const Dashboard = () => {
           vigenciaFinal: new Date(item.seguro.vigenciaFinal.seconds * 1000)
         }
       })));      
-    })
+    });
   }
 
   const data = {
@@ -151,6 +153,14 @@ const Dashboard = () => {
       </div>
     )
   }
+
+  const totalSeguros = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
+  const totalPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0));
+  const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros);
+
+  const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
+  const totalComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber);
+  const mediaComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber / totalSeguros);
   
   if(!businessInfo) {
     return <></>;
@@ -176,6 +186,7 @@ const Dashboard = () => {
                         <div>
                           <label>SEGURADORA:</label>
                           <br/>
+                          {seguradora}
                           <Select style={{ width: 200 }} value={seguradora} onChange={setSeguradora}>
                             <Select.Option value={null}>
                               {businessInfo?.razao_social}
@@ -192,19 +203,21 @@ const Dashboard = () => {
                           <br/>
                           <DatePicker.RangePicker value={!date ? null : [moment(date[0]), moment(date[1])]} format='DD/MM/YYYY' onChange={value => !value ? setDate(null) : setDate([startOfDay(new Date(value[0])), endOfDay(new Date(value[1]))])}
                             disabledDate={current => {
-                              return new Date(current) > endOfMonth(new Date(current))
+                              return new Date(current) > endOfMonth(new Date(current));
                             }}
                           />
                         </div>
                         <div>
                           <label>ANO DE ADESÃO:</label>
                           <br/>
-                          <InputNumber style={{ width: 150 }} value={anoAdesao} min={2000} onChange={setAnoAdesao} />
+                          <InputNumber style={{ width: 150 }} value={anoAdesao} min={2000} max={new Date().getFullYear()} onChange={setAnoAdesao} />
                         </div>
                         {(seguradora || date || anoAdesao) && (
                           <label
                             onClick={() => {
-                              setDate(null);
+                              setDate([startOfMonth(new Date()), endOfMonth(new Date())]);
+                              setSeguradora(null);
+                              setAnoAdesao(null);
 
                               getSeguros();
                             }}
@@ -224,7 +237,7 @@ const Dashboard = () => {
                           TOTAL DE SEGUROS
                           <br/>
                           <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                            {dataSeguros.length}
+                            {totalSeguros}
                           </span>
                         </div>
                         <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
@@ -232,7 +245,7 @@ const Dashboard = () => {
                             TOTAL EM PRÊMIO LÍQUIDO
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                              0
+                            {totalPremioLiquido}
                             </span>
                           </div>
                           <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
@@ -240,7 +253,7 @@ const Dashboard = () => {
                             MÉDIA DO PRÊMIO LÍQUIDO
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                              0
+                              {mediaPremioLiquido}
                             </span>
                           </div>
                         </div>
@@ -249,7 +262,7 @@ const Dashboard = () => {
                             TOTAL DAS COMISSÕES
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                              0
+                              {totalComissao}
                             </span>
                           </div>
                           <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
@@ -257,7 +270,7 @@ const Dashboard = () => {
                             VALOR MÉDIO DAS COMISSÕES
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                              0
+                              {mediaComissao}
                             </span>
                           </div>
                           <Divider style={{ borderColor: 'rgba(0, 0, 0, .2)' }} type='vertical' />
