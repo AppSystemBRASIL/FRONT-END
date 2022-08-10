@@ -27,6 +27,8 @@ import firebase from '../../auth/AuthConfig';
 import { endOfDay, endOfMonth, startOfDay, startOfMonth } from 'date-fns';
 import { theme } from 'pages/_app';
 import { FaPrint } from 'react-icons/fa';
+import generateToken from 'hooks/generateToken';
+import printListSeguros from 'components/PDF/ListSeguros';
 
 export const options = {
   responsive: true
@@ -194,9 +196,14 @@ const Dashboard = () => {
   const mediaComissaoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumberCancelados / totalSegurosCancelados);
   const percentualComissaoCancelados = ((comissaoNumberCancelados / totalPremioNumberCancelados) || 0) * 100;
 
-  function printPerformance() {
-
-  }
+  const printPerformance = async () => await printListSeguros(dataSeguros?.map(item => ({...item, key: generateToken(), seguro: { ...item.seguro, vigenciaFinal: moment(item.seguro.vigenciaFinal) } })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal), businessInfo.uid, {
+    date: [
+      moment(date[0]),
+      moment(date[1])
+    ],
+    corretor: businessInfo.razao_social,
+    seguradora: !seguradora ? null : seguradoras.filter(e => e.uid === seguradora)[0].razao_social.split(' ')[0]
+  });
 
   if(!businessInfo) {
     return <></>;
