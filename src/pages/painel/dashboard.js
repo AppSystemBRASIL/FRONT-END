@@ -98,8 +98,7 @@ const Dashboard = () => {
       ref = ref.where('seguradora.uid', '==', seguradora);
     }
 
-    if(String(anoAdesao)?.length === 4) {
-      alert();
+    if(anoAdesao && String(anoAdesao)?.length === 4) {
       ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao));
     }
     
