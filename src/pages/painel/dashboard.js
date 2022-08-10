@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import LayoutAdmin from '../../components/Layout/Admin';
 
-import { Row, Col, Input, DatePicker, Select, InputNumber, Button, Divider } from 'antd';
+import { Row, Col, Input, DatePicker, Select, InputNumber, Button, Divider, Modal } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
@@ -52,6 +52,8 @@ const Dashboard = () => {
 
   const [anoAdesao, setAnoAdesao] = useState(null);
   const [seguradora, setSeguradora] = useState(null);
+
+  const datePickerRef = useRef();
 
   useEffect(() => {
     setCollapsedSideBar(window.screen.width <= 768 ? false : true);
@@ -203,11 +205,23 @@ const Dashboard = () => {
                         <div>
                           <label>PERIODO:</label>
                           <br/>
-                          <DatePicker.RangePicker value={!date ? null : [moment(date[0]), moment(date[1])]} format='DD/MM/YYYY' onChange={value => !value ? setDate(null) : setDate([startOfDay(new Date(value[0])), endOfDay(new Date(value[1]))])}
-                            disabledDate={current => {
-                              return new Date(current) > endOfMonth(new Date(current));
-                            }}
-                          />
+                          <DatePicker.RangePicker ref={datePickerRef} value={!date ? null : [moment(date[0]), moment(date[1])]} format='DD/MM/YYYY' onChange={value => {
+                            if(!value) {
+                              setDate(null)
+                            }else {
+                              const valueFirst = startOfDay(new Date(value[0]));
+                              const valueLast = endOfDay(new Date(value[1]));
+
+                              const endMonth = endOfMonth(valueFirst);
+
+                              if(valueLast > endMonth) {
+                                alert('A data final não pode ser maior que a data final do mês de busca');
+                                console.log(datePickerRef.current);
+                              }else {
+                                setDate([valueFirst, valueLast]);
+                              }
+                            }
+                          }}/>
                         </div>
                         <div>
                           <label>ANO DE ADESÃO:</label>
