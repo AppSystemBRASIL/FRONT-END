@@ -16,7 +16,6 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip,
   Filler,
   Legend,
@@ -42,6 +41,16 @@ function getDates(month, year) {
   return Array.from({ length: diasNoMes(month, year) }).map((item, index) => `${String(index + 1).padStart(2, '0')}`);
 }
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Filler,
+  Legend
+);
+
 const Dashboard = () => {
   const { setCollapsedSideBar, businessInfo } = useAuth();
 
@@ -61,16 +70,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     setCollapsedSideBar(window.screen.width <= 768 ? false : true);
-
-    ChartJS.register(
-      CategoryScale,
-      LinearScale,
-      PointElement,
-      LineElement,
-      Tooltip,
-      Filler,
-      Legend
-    );
 
     firebase.firestore().collection('seguradoras').get()
     .then((response) => {
