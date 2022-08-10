@@ -98,7 +98,8 @@ const Dashboard = () => {
       ref = ref.where('seguradora.uid', '==', seguradora);
     }
 
-    if(anoAdesao?.length === 4) {
+    if(String(anoAdesao)?.length === 4) {
+      alert();
       ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao));
     }
     
@@ -258,7 +259,7 @@ const Dashboard = () => {
                         <div>
                           <label>ANO DE ADESÃO:</label>
                           <br/>
-                          <InputNumber disabled style={{ width: 150 }} value={anoAdesao} min={2000} max={new Date().getFullYear()} onChange={setAnoAdesao} />
+                          <InputNumber style={{ width: 150 }} value={anoAdesao} min={2000} max={new Date().getFullYear()} onChange={setAnoAdesao} />
                         </div>
                         {(seguradora || date || anoAdesao) && (
                           <label
