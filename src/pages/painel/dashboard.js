@@ -45,14 +45,15 @@ const Dashboard = () => {
 
   const [date, setDate] = useState([startOfMonth(new Date()), endOfMonth(new Date())]);
 
-  const [labels, setLabels] = useState(getDates(new Date().getMonth(), new Date().getFullYear()));
-
   const [dataSeguros, setDataSeguros] = useState([]);
+  const [dataSegurosCancelados, setDataSegurosCancelados] = useState([]);
 
   const [seguradoras, setSeguradoras] = useState([]);
 
   const [anoAdesao, setAnoAdesao] = useState(null);
   const [seguradora, setSeguradora] = useState(null);
+
+  const labels = getDates(new Date().getMonth(), new Date().getFullYear());
 
   const datePickerRef = useRef();
 
@@ -87,8 +88,9 @@ const Dashboard = () => {
     getSeguros();
   }, [businessInfo, date, seguradora, anoAdesao]);
 
-  function getSeguros() {
+  async function getSeguros() {
     setDataSeguros([]);
+    setDataSegurosCancelados([]);
 
     let ref = firebase.firestore().collection('seguros').where('corretora.uid', '==', businessInfo.uid);
 
@@ -100,24 +102,38 @@ const Dashboard = () => {
       ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao));
     }
     
-    ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
+    const refAtivos = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
     .where('seguro.vigencia', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), 1)))
-    .orderBy('seguro.vigencia', 'asc')
-    .get()
-    .then((response) => {
-      const array = [];
+    .orderBy('seguro.vigencia', 'asc');
 
-      response.forEach(item => array.push(item.data()));
+    const refCancel = ref.where('cancelada', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
+    .where('cancelada', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), 1)))
+    .orderBy('cancelada', 'asc');
 
-      setDataSeguros(array.map(item => ({
-        ...item,
-        seguro: {
-          ...item.seguro,
-          vigencia: new Date(item.seguro.vigencia.seconds * 1000),
-          vigenciaFinal: new Date(item.seguro.vigenciaFinal.seconds * 1000)
-        }
-      })));      
-    });
+    await getDados(refAtivos, setDataSeguros);
+    await getDados(refCancel, setDataSegurosCancelados);
+
+    async function getDados(data, setData) {
+      await data.get()
+      .then((response) => {
+        const array = [];
+
+        response.forEach(item => array.push(item.data()));
+
+        const dataTranted = array.map(item => ({
+          ...item,
+          seguro: {
+            ...item.seguro,
+            vigencia: new Date(item.seguro.vigencia.seconds * 1000),
+            vigenciaFinal: new Date(item.seguro.vigenciaFinal.seconds * 1000)
+          }
+        }));
+
+        setData(dataTranted);
+
+        return dataTranted;
+      });
+    }
   }
 
   const data = {
@@ -133,7 +149,7 @@ const Dashboard = () => {
       {
         fill: true,
         label: 'SEGUROS CANCELADOS',
-        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => !e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item)))).length),
+        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => !e.ativo || cancelada).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item)))).length),
         borderColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.primary,
         backgroundColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.secondary,
       },
@@ -157,15 +173,26 @@ const Dashboard = () => {
     )
   }
 
+
   const totalSeguros = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
   const totalPremioNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
   const totalPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPremioNumber);
-  const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros);
+  const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros) || 0);
 
   const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
   const totalComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber);
   const mediaComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber / totalSeguros);
-  const percentualComissao = (comissaoNumber / totalPremioNumber) * 100
+  const percentualComissao = (comissaoNumber / totalPremioNumber) * 100;
+
+  const totalSegurosCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
+  const totalPremioNumberCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
+  const totalPremioLiquidoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPremioNumberCancelados);
+  const mediaPremioLiquidoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSegurosCancelados) || 0);
+
+  const comissaoNumberCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
+  const totalComissaoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumberCancelados);
+  const mediaComissaoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumberCancelados / totalSegurosCancelados);
+  const percentualComissaoCancelados = ((comissaoNumberCancelados / totalPremioNumberCancelados) || 0) * 100;
 
   function printPerformance() {
 
@@ -275,7 +302,7 @@ const Dashboard = () => {
                         </div>
                         <div style={{ width: '70%', background: '#fff', border: '1px solid rgba(0, 0, 0, .2)', padding: '10px 0', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
                           <div>
-                            TOTAL EM PRÊMIO LÍQUIDO
+                            TOTAL DE PRÊMIO LÍQUIDO
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
                             {totalPremioLiquido}
@@ -336,7 +363,61 @@ const Dashboard = () => {
                 </CardComponent>
               </Col>
               <Col span={6}>
-                  
+                <Row gutter={[10, 23.6]}>
+                  <Col span={24}>
+                    <CardComponent>
+                      <div style={{ width: '100%', background: '#fff', padding: '10px 0', textAlign: 'center' }}>
+                        TOTAL DE SEGUROS CANCELADOS
+                        <br/>
+                        <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                          {totalSegurosCancelados}
+                        </span>
+                      </div>
+                    </CardComponent>
+                  </Col>
+                  <Col span={24}>
+                    <CardComponent>
+                      <div style={{ width: '100%', background: '#fff', padding: '10px 0', textAlign: 'center' }}>
+                        TOTAL DE PRÊMIO LÍQUIDO CANCELADO
+                        <br/>
+                        <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                          {totalPremioLiquidoCancelados}
+                        </span>
+                      </div>
+                    </CardComponent>
+                  </Col>
+                  <Col span={24}>
+                    <CardComponent>
+                      <div style={{ width: '100%', background: '#fff', padding: '10px 0', textAlign: 'center' }}>
+                        MÉDIA DO PRÊMIO LÍQUIDO CANCELADO
+                        <br/>
+                        <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                          {mediaPremioLiquidoCancelados}
+                        </span>
+                      </div>
+                    </CardComponent>
+                  </Col>
+                  <Col span={24}>
+                    <CardComponent>
+                      <div style={{ width: '100%', background: '#fff', padding: '10px 0', textAlign: 'center' }}>
+                        TOTAL DE COMISSÕES CANCELADAS
+                        <br/>
+                        <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
+                          {totalComissaoCancelados}
+                        </span>
+                        <span
+                          style={{
+                            position: 'absolute',
+                            bottom: 5,
+                            right: 20
+                          }}
+                        >
+                          {percentualComissaoCancelados}%
+                        </span>
+                      </div>
+                    </CardComponent>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </CardComponent>
