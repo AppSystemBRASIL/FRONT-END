@@ -26,6 +26,7 @@ import { Line } from 'react-chartjs-2';
 import firebase from '../../auth/AuthConfig';
 import { endOfDay, endOfMonth, startOfDay, startOfMonth } from 'date-fns';
 import { theme } from 'pages/_app';
+import { FaPrint } from 'react-icons/fa';
 
 export const options = {
   responsive: true
@@ -166,6 +167,10 @@ const Dashboard = () => {
   const mediaComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber / totalSeguros);
   const percentualComissao = (comissaoNumber / totalPremioNumber) * 100
 
+  function printPerformance() {
+
+  }
+
   if(!businessInfo) {
     return <></>;
   }
@@ -246,6 +251,18 @@ const Dashboard = () => {
                           </label>
                         )}
                       </div>
+                      {(totalSeguros > 0 && date) && (
+                        <FaPrint
+                          style={{
+                            position: 'absolute',
+                            top: 15,
+                            right: 30
+                          }}
+                          size={20}
+                          cursor='pointer'
+                          onClick={printPerformance}
+                        />
+                      )}
                     </Col>
                     <Col span={24}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center', padding: 20 }}>
