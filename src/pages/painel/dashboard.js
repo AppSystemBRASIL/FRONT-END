@@ -228,7 +228,6 @@ const Dashboard = () => {
                         <div>
                           <label>SEGURADORA:</label>
                           <br/>
-                          {seguradora}
                           <Select style={{ width: 200 }} value={seguradora} onChange={setSeguradora}>
                             <Select.Option value={null}>
                               {businessInfo?.razao_social}
