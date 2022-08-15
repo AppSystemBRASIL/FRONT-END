@@ -652,7 +652,10 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
               }
             }}
             value={dataNewSeguro.nome}
-            onChange={(e) => setDataNewSeguro(response => ({...response, nome: maskOnlyLetters(String(e.target.value).toUpperCase())}))}
+            onChange={(e) => {
+              const nomeText = maskOnlyLetters(String(e?.target?.value || '').toUpperCase());
+              setDataNewSeguro(response => ({...response, nome: nomeText, condutor: nomeText }));
+            }}
           />  
         </Col>
         <Col span={5}>
@@ -703,7 +706,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <label>CEP: <span style={{ color: 'red' }}>*</span></label>
           <Input id='cepModal' autoComplete='off' value={dataNewSeguro.cep} maxLength={9} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, cep: !response.target.value ? '' : maskCEP(response.target.value)}))} onKeyPress={(e) => {
             if(e.code === 'Enter') {
-              document.getElementById('bairroModal').focus();
+              document.getElementById('parcelasModal').focus();
             }
           }} placeholder='CEP' />
         </Col>
@@ -768,7 +771,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
               if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
                 document.getElementById('percentualModalfsdfds').focus(); 
               }else {
-                salvarSeguro()
+                salvarSeguro();
               }
             }
           }} placeholder='0' />
@@ -790,7 +793,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
                     <label>% PRODUTOR: <span style={{ color: 'red' }}>*</span></label>
                     <Input id='percentualModalfsdfds' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.comissaoCorretor} onChange={(response) => setDataNewSeguro(e => ({...e, comissaoCorretor: maskPercentual(String(response.target.value) || '0')}))} onKeyPress={(e) => {
                       if(e.code === 'Enter') {
-                        document.getElementById('anoAdesao').focus();
+                        salvarSeguro();
                       }
                     }} placeholder='0' />
                   </Col>
