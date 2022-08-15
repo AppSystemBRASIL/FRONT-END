@@ -187,7 +187,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
-            usoVeiculo: arrayFirst.riscos.usoVeiculo || 'OUTROS',
+            usoVeiculo: arrayFirst?.riscos?.usoVeiculo || 'OUTROS',
             cpf: arrayFirst.segurado.cpf,
             telefone: arrayFirst.segurado.telefone,
             condutor: arrayFirst.veiculo.condutor,
@@ -308,14 +308,16 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
       return;
     }
 
-    if(dataNewSeguro.placa && dataNewSeguro.placa.length < 7) {
-      notification.destroy();
-      notification.warn({
-        message: 'PLACA INVÁLIDA!'
-      });
+    /*
+      if(dataNewSeguro.placa && dataNewSeguro.placa.length < 7) {
+        notification.destroy();
+        notification.warn({
+          message: 'PLACA INVÁLIDA!'
+        });
 
-      return;
-    }
+        return;
+      }
+    */
 
     if(!validateCPF(dataNewSeguro.cpf)) {
       notification.destroy();
@@ -326,14 +328,16 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
       return;
     }
 
-    if(!validarPlaca(dataNewSeguro.placa)) {
-      notification.destroy();
-      notification.warn({
-        message: 'PLACA INVÁLIDA!'
-      });
+    /*
+      if(!validarPlaca(dataNewSeguro.placa)) {
+        notification.destroy();
+        notification.warn({
+          message: 'PLACA INVÁLIDA!'
+        });
 
-      return;
-    }
+        return;
+      }
+    */
 
     if(!validarCelular(dataNewSeguro.telefone)) {
       notification.destroy();
@@ -354,7 +358,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
       veiculo: {
         condutor: dataNewSeguro.condutor,
         veiculo: dataNewSeguro.veiculo,
-        placa: dataNewSeguro.placa,
+        placa: dataNewSeguro?.placa || null,
         modelo: dataNewSeguro.modelo
       },
       endereco: {
@@ -524,16 +528,10 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           </Col>
         )}
         <Col span={5}>
-          <label>PLACA: <span style={{ color: 'red' }}>*</span></label>
+          <label>PLACA:</label>
           <Input ref={placaRef} id='placaModal' autoFocus={true} autoComplete='off' value={dataNewSeguro.placa} maxLength={7} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, placa: maskPlaca(String(response.target.value)).toUpperCase()}))} onKeyPress={(e) => {
             if(e.code === 'Enter') {
-              if(validarPlaca(dataNewSeguro.placa)) {
-                document.getElementById('seguradora').focus()
-              }else {
-                notification.warn({
-                  message: 'PLACA INVÁLIDA!'
-                })
-              }
+              document.getElementById('seguradora').focus();
             }
           }} placeholder='PLACA' />
         </Col>

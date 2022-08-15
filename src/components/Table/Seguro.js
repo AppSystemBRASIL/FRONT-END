@@ -30,14 +30,14 @@ import { v4 as uuid } from 'uuid';
 
 import _ from 'lodash';
 
-
 import { endOfDay, format, formatDistanceStrict, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
 import { maskCEP, maskMoney, maskOnlyNumbers, maskDate, maskOnlyLetters } from 'hooks/mask';
-import axios from 'axios';
 import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
 import ModalSeguro from 'components/Modal/seguro';
+
+import axios from 'axios';
 
 import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
@@ -211,11 +211,11 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
             </Col>
             <Col span={6}>
               <label>ANO DO MODELO:</label>
-              <Input id='anoModeloVeiculoModalEndosso' onPressEnter={() => document.getElementById('condutorModalEndosso').focus()} value={state.modelo} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO VEÍCULO' onChange={(e) => setState(resp => ({ ...resp, modelo: String(e.target.value).toUpperCase() }))} />
+              <Input id='anoModeloVeiculoModalEndosso' onPressEnter={() => document.getElementById('franquiaModalEndosso').focus()} value={state.modelo} autoComplete='off' style={{ width: '100%', textTransform: 'uppercase' }} type='text' placeholder='NOME DO VEÍCULO' onChange={(e) => setState(resp => ({ ...resp, modelo: String(e.target.value).toUpperCase() }))} />
             </Col>
             <Col span={7}>
               <label>FRANQUIA:</label>
-              <Input value={state.franquia} prefix='R$' style={{ textTransform: 'uppercase' }} onChange={(e) => setState(resp => ({ ...resp, franquia: !e.target.value ? null : maskMoney(e.target.value) }))} />
+              <Input id='franquiaModalEndosso' value={state.franquia} prefix='R$' style={{ textTransform: 'uppercase' }} onPressEnter={() => document.getElementById('condutorModalEndosso').focus()} onChange={(e) => setState(resp => ({ ...resp, franquia: !e.target.value ? null : maskMoney(e.target.value) }))} />
             </Col>
             <Col span={24}>
               <label>CONDUTOR:</label>
@@ -254,7 +254,9 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
         </Col>
         <Col span={8}>
           <label>COMISSÃO:</label>
-          <Input id='comissaoModalEndosso' value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))} />
+          <Input id='comissaoModalEndosso' value={state.percentual} type='tel' prefix='%' autoComplete='off' maxLength={2} max={99} style={{ textTransform: 'uppercase' }} placeholder='0' onChange={(e) => setState(resp => ({ ...resp, percentual: !e.target.value ? null : maskOnlyNumbers(e.target.value) }))}
+            onPressEnter={confirmarEndosso}
+          />
         </Col>
         <Col span={8}>
           <label>COMISSÃO: </label>
@@ -319,8 +321,6 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     if(date) {
       ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
       ref = ref.where('seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
-    }else {
-      ref = ref.where('seguro.vigencia', '>=', new Date());
     }
 
     ref = ref.orderBy('seguro.vigencia', 'asc');
@@ -347,7 +347,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.where('segurado.cpf', '==', cpf);
       ref = ref.orderBy('created', 'desc');
     }if(placa !== undefined && placa.length === 7) {
-      ref = ref.where('veiculo.placa', '==', placa);
+      ref = ref.where('veiculo.placa', '==', String(placa).toUpperCase());
       ref = ref.orderBy('created', 'desc');
     }else if((!init && lastData !== 0)) {
       ref = ref.orderBy('created', 'asc');
