@@ -198,8 +198,8 @@ const Corretora = () => {
           <Col span={12}>
             <label>LAYOUT: <sup><span style={{ color: 'red' }}>*</span></sup></label>
             <Select value={novaCorretora.layout.theme} style={{ width: '100%' }} onChange={(e) => setNovaCorretora(response => ({...response, layout: { theme: e }}))}>
-              {['blue', 'red', 'green', 'yellow', 'purple'].map((item) => (
-                <Select.Option value={item}>
+              {['blue', 'red', 'green', 'yellow', 'purple'].map((item, index) => (
+                <Select.Option value={item} key={index}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div style={{ width: 10, height: 10, borderRadius: 100, background: item, marginRight: 5 }} /> {item.toUpperCase()}
                   </div>
@@ -266,7 +266,7 @@ const Corretora = () => {
                 >
                   <Select.Option value={null}>TODAS</Select.Option>
                   {Object.keys(statusPaymentText).map((item, index) => (
-                    <Select.Option value={item}>{statusPaymentText[item].toUpperCase()}</Select.Option>
+                    <Select.Option value={item} key={index}>{statusPaymentText[item].toUpperCase()}</Select.Option>
                   ))}
                 </Select>
               </div>

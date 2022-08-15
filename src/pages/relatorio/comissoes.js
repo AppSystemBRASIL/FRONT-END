@@ -19,9 +19,9 @@ export default function RelatorioComissoes({ corretor, corretora, ...props }) {
 
       let ref = firebase.firestore().collection('seguros').where('ativo', '==', true);
 
-      ref = ref.where('seguro.vigenciaFinal', '>=', startOfDay(new Date(initial)));
-      ref = ref.where('seguro.vigenciaFinal', '<=', endOfDay(new Date(finish)));
-      ref = ref.orderBy('seguro.vigenciaFinal', 'asc');
+      ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(initial)));
+      ref = ref.where('seguro.vigencia', '<=', endOfDay(new Date(finish)));
+      ref = ref.orderBy('seguro.vigencia', 'asc');
       ref = ref.where('corretor.uid', '==', corretor);
 
       ref.get()

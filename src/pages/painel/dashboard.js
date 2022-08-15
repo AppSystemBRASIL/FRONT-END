@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import LayoutAdmin from '../../components/Layout/Admin';
 
-import { Row, Col, Input, DatePicker, Select, InputNumber, Button, Divider, Modal } from 'antd';
+import { Row, Col, DatePicker, Select, InputNumber, Button, Divider, Modal } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
@@ -102,20 +102,21 @@ const Dashboard = () => {
     if(anoAdesao && String(anoAdesao)?.length === 4) {
       ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao));
     }
-    
-    const refAtivos = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
-    .where('seguro.vigencia', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), 1)))
+
+    if(date.length === 0) {
+      return null;
+    }
+
+    const refAtivos = ref.where('ativo', '==', true).where('seguro.vigencia', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
+    .where('seguro.vigencia', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), new Date(date[1].getFullYear(), date[1].getMonth(), 0).getDate())))
     .orderBy('seguro.vigencia', 'asc');
 
     const refCancel = ref.where('cancelada', '>=', startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), 1)))
-    .where('cancelada', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), 1)))
+    .where('cancelada', '<=', endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), new Date(date[1].getFullYear(), date[1].getMonth(), 0).getDate())))
     .orderBy('cancelada', 'asc');
 
-    await getDados(refAtivos, setDataSeguros);
-    await getDados(refCancel, setDataSegurosCancelados);
-
-    async function getDados(data, setData) {
-      await data.get()
+    async function getDados(data) {
+      return await data.get()
       .then((response) => {
         const array = [];
 
@@ -123,18 +124,21 @@ const Dashboard = () => {
 
         const dataTranted = array.map(item => ({
           ...item,
+          cancelada: item?.cancelada?.toDate() || null,
           seguro: {
             ...item.seguro,
-            vigencia: new Date(item.seguro.vigencia.seconds * 1000),
-            vigenciaFinal: new Date(item.seguro.vigenciaFinal.seconds * 1000)
+            vigencia: item.seguro.vigencia.toDate(),
+            vigenciaFinal: item.seguro.vigenciaFinal.toDate()
           }
         }));
 
-        setData(dataTranted);
-
         return dataTranted;
-      });
+      })
+      .catch(() => []);
     }
+
+    setDataSeguros(await getDados(refAtivos));
+    setDataSegurosCancelados(await getDados(refCancel));
   }
 
   const data = {
@@ -143,14 +147,14 @@ const Dashboard = () => {
       {
         fill: true,
         label: 'SEGUROS ATIVOS',
-        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length),
+        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length),
         borderColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.primary,
         backgroundColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.secondary+'55',
       },
       {
         fill: true,
         label: 'SEGUROS CANCELADOS',
-        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => !e.ativo || cancelada).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item)))).length),
+        data: labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[1].getFullYear() : new Date().getFullYear(), date ? date[1].getMonth() : new Date().getMonth(), Number(item)))).length),
         borderColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.primary,
         backgroundColor: theme.colors[businessInfo?.layout?.theme || 'blue']?.secondary,
       },
@@ -175,12 +179,12 @@ const Dashboard = () => {
   }
 
 
-  const totalSeguros = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
-  const totalPremioNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
+  const totalSeguros = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
+  const totalPremioNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
   const totalPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPremioNumber);
-  const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros) || 0);
+  const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros) || 0);
 
-  const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.ativo).filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
+  const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
   const totalComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber);
   const mediaComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber / totalSeguros);
   const percentualComissao = (comissaoNumber / totalPremioNumber) * 100;
@@ -244,7 +248,7 @@ const Dashboard = () => {
                           <br/>
                           <DatePicker.RangePicker ref={datePickerRef} value={!date ? null : [moment(date[0]), moment(date[1])]} format='DD/MM/YYYY' onChange={value => {
                             if(!value) {
-                              setDate(null)
+                              setDate([startOfMonth(new Date()), endOfMonth(new Date())]);
                             }else {
                               const valueFirst = startOfDay(new Date(value[0]));
                               const valueLast = endOfDay(new Date(value[1]));
@@ -252,8 +256,7 @@ const Dashboard = () => {
                               const endMonth = endOfMonth(valueFirst);
 
                               if(valueLast > endMonth) {
-                                alert('A data final não pode ser maior que a data final do mês de busca');
-                                console.log(datePickerRef.current);
+                                setDate([valueFirst, endMonth]);
                               }else {
                                 setDate([valueFirst, valueLast]);
                               }
@@ -268,7 +271,7 @@ const Dashboard = () => {
                         {(seguradora || date || anoAdesao) && (
                           <label
                             onClick={() => {
-                              setDate([startOfMonth(new Date()), endOfMonth(new Date())]);
+                              //setDate([startOfMonth(new Date()), endOfMonth(new Date())]);
                               setSeguradora(null);
                               setAnoAdesao(null);
 
@@ -343,7 +346,7 @@ const Dashboard = () => {
                             MÉDIA DAS COMISSÕES
                             <br/>
                             <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>
-                              {(percentualComissao || 0).toFixed(2)}%
+                              {Number(percentualComissao || 0).toFixed(2).padEnd(2, '0')}%
                             </span>
                           </div>
                         </div>
@@ -417,7 +420,7 @@ const Dashboard = () => {
                             right: 20
                           }}
                         >
-                          {percentualComissaoCancelados}%
+                          {Number(percentualComissaoCancelados || 0).toFixed(2)}%
                         </span>
                       </div>
                     </CardComponent>

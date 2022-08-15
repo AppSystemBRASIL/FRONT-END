@@ -105,7 +105,7 @@ const Seguradoras = () => {
             <br/>
             <Row gutter={[10, 20]}>
               {novaSeguradora.contatos.length > 0 ? novaSeguradora.contatos.map((item, index) => (
-                <Col span={24} style={{ border: '1px solid #d9d9d9', padding: '50px 10px' }}>
+                <Col span={24} style={{ border: '1px solid #d9d9d9', padding: '50px 10px' }} key={index}>
                   <CloseCircleFilled style={{
                     cursor: 'pointer',
                     position: 'absolute',
@@ -129,7 +129,7 @@ const Seguradoras = () => {
                     }} value={item.setor} style={{ padding: 0, outline: 'none', borderRadius: 0, border: 'none', borderBottom: '1px solid #d9d9d9' }} />
                   </div>
                   {item.telefones.map((item1, index1) => (
-                    <Row gutter={[10, 10]} style={{ marginTop: 10 }}>
+                    <Row gutter={[10, 10]} style={{ marginTop: 10 }} key={index}>
                       <Col span={14}>
                         <label>LOCAL:</label>
                         <br/>

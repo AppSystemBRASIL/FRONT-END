@@ -178,7 +178,7 @@ const TableSeguradora = ({ infiniteData, limit, cnpj }) => {
                                           <Input readOnly value={item.setor} style={{ padding: 0, outline: 'none', borderRadius: 0, border: 'none', borderBottom: '1px solid #d9d9d9' }} />
                                         </div>
                                         {item.telefones.map((item1, index1) => (
-                                          <Row gutter={[10, 10]} style={{ marginTop: 10 }}>
+                                          <Row gutter={[10, 10]} style={{ marginTop: 10 }} key={index1}>
                                             <Col span={14}>
                                               <label>LOCAL:</label>
                                               <br/>

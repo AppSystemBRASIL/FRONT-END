@@ -317,13 +317,13 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     let ref = firebase.firestore().collection('seguros').where('ativo', '==', true);
 
     if(date) {
-      ref = ref.where('seguro.vigenciaFinal', '>=', startOfDay(new Date(date[0].toDate())));
-      ref = ref.where('seguro.vigenciaFinal', '<=', endOfDay(new Date(date[1].toDate())));
+      ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
+      ref = ref.where('seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
     }else {
-      ref = ref.where('seguro.vigenciaFinal', '>=', new Date());
+      ref = ref.where('seguro.vigencia', '>=', new Date());
     }
 
-    ref = ref.orderBy('seguro.vigenciaFinal', 'asc');
+    ref = ref.orderBy('seguro.vigencia', 'asc');
 
     if(user.tipo !== 'corretor') {
       ref = ref.where('corretora.uid', '==', corretora);
