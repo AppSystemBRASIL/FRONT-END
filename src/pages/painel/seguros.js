@@ -289,6 +289,7 @@ const Seguro = () => {
           seguros={seguros}
           setViewNewSeguro={setViewNewSeguro}
           businessInfo={businessInfo}
+          openModalNew={() => setViewNewSeguro(true)}
         />
       </CardComponent>
     </LayoutAdmin>

@@ -44,7 +44,7 @@ function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
 
-const ContentEndosso = ({ data, type, businessInfo, theme }) => {
+const ContentEndosso = ({ data, type, businessInfo, theme, openModalNew }) => {
   const [state, setState] = useState({
     segurado: data.segurado,
     placa: data.veiculo.placa,
@@ -162,34 +162,53 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
       }
     }
 
-    await firebase.firestore().collection('seguros').doc(data.uid).set(dados, { merge: true })
-    .then(async () => {
-      if(data.corretor) {
-        await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
+    Modal.confirm({
+      title: 'Deseja realmente confirmar o registro do endosso',
+      content: 'Lembrando que ao confirmar a operação não será possível reverter, a não ser que exclua o registro.',
+      okButtonProps: {
+        background: theme.colors[businessInfo.layout.theme].primary,
+        color: 'white',
+        border: 'none',
+        outline: 'none',
+        marginLeft: 10,
+        fontWeight: 'bold'
+      },
+      cancelButtonProps: {
+        border: '1px solid black',
+        outline: 'none',
+        color: 'black'
+      },
+      okText: 'CONFIRMAR',
+      cancelText: 'FECHAR',
+      onOk: async () => await firebase.firestore().collection('seguros').doc(data.uid).set(dados, { merge: true })
+      .then(async () => {
+        if(data.corretor) {
+          await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(data.corretor.uid).set({
+            valores: {
+              premio: firebase.firestore.FieldValue.increment(valorEndosso),
+              comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
+            }
+          }, { merge: true });
+        }
+  
+        await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
           valores: {
             premio: firebase.firestore.FieldValue.increment(valorEndosso),
             comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
           }
         }, { merge: true });
-      }
 
-      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(data.corretora.uid).set({
-        valores: {
-          premio: firebase.firestore.FieldValue.increment(valorEndosso),
-          comissao: firebase.firestore.FieldValue.increment(comissaoEndosso),
-        }
-      }, { merge: true });
-
-      Modal.destroyAll();
-      notification.success({
-        message: 'ENDOSSO GERADO COM SUCESSO!'
-      });
-    })
-    .catch(() => {
-      notification.error({
-        message: 'ERRO AO GERAR ENDOSSO!'
-      });
-    })
+        Modal.destroyAll();
+        notification.success({
+          message: 'ENDOSSO GERADO COM SUCESSO!'
+        });
+      })
+      .catch(() => {
+        notification.error({
+          message: 'ERRO AO GERAR ENDOSSO!'
+        });
+      })
+    });
   }
 
   return (
@@ -564,7 +583,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           <Divider style={{ margin: 0, marginBottom: 10 }} />
         </>
       ],
-      content: <ContentEndosso data={data} type={type} theme={theme} businessInfo={businessInfo} />,
+      content: <ContentEndosso data={data} type={type} theme={theme} businessInfo={businessInfo} openModalNew={openModalNew} />,
       okButtonProps: {
         style: {
           display: 'none',

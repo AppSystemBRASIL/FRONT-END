@@ -73,10 +73,16 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     juros: businessInfo.comissao.juros
   };
 
-  async function fechar() {
+  async function fechar(openView) {
     await setDataNewSeguro(dadaInitial);
     await setVisible(false);
     await setDataNewSeguro(dadaInitial);
+
+    if(openView) {
+      setTimeout(() => {
+        setVisible(true);
+      }, 500);
+    }
   }
 
   const [dataNewSeguro, setDataNewSeguro] = useState(data || dadaInitial);
@@ -485,7 +491,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             });
           }
 
-          await fechar();
+          await fechar(true);
         })
         .catch((error) => {
           notification.error({
@@ -619,14 +625,14 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <label>USO DO VEÍCULO: <span style={{ color: 'red' }}>*</span></label>
           <Select
             id='usoVeiculoSeguro'
-            value={dataNewSeguro.usoVeiculo}
+            value={dataNewSeguro.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase()}
             placeholder='SELECIONAR O USO DO VEÍCULO'
             onChange={(e) => {
               if(e) {
                 setDataNewSeguro(x => ({ ...x, usoVeiculo: e }));
                 document.getElementById('nomeSeguradoText').focus()
               }else {
-                setDataNewSeguro(x => ({ ...x, usoVeiculo: null }))
+                setDataNewSeguro(x => ({ ...x, usoVeiculo: String('lazer e ida e volta ao trabalho').toUpperCase() }))
               }
             }}
             style={{
