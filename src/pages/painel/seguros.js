@@ -201,7 +201,7 @@ const Seguro = () => {
                 />
                 <div>
                   <div style={{ width: '100%' }}>PRODUTOR:</div>
-                  <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: '100%' }} onChange={e => {
+                  <Select allowClear placeholder='SELECIONAR' style={{ width: '100%' }} onChange={e => {
                     setCorretor(e ? e : null);
                   }}
                   showSearch
@@ -229,7 +229,7 @@ const Seguro = () => {
             />
             <div>
               <div style={{ width: '100%' }}>SEGURADORA:</div>
-              <Select allowClear placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={e => {
+              <Select allowClear placeholder='SELECIONAR' style={{ width: '100%' }} onChange={e => {
                 setSeguradora(e ? e : null);
               }}
               showSearch
