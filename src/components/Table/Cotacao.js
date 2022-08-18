@@ -180,7 +180,7 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
       cep: dados.veiculo.cep,
       condutor: dados.condutor.nome,
       profissao: dados.segurado.profissao || 'OUTROS',
-      usoVeiculo: dados.riscos.usoVeiculo || 'OUTROS',
+      usoVeiculo: dados.riscos.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase(),
       modelo: dados.veiculo.modelo || null,
       juros: dados.valores?.juros || null
     }));

@@ -862,7 +862,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       comissaoCorretora: dados.valores.corretora.percentual,
       comissaoCorretoraValor: dados.valores.corretora.valor,
       profissao: dados.segurado.profissao || 'OUTROS',
-      usoVeiculo: dados.riscos?.usoVeiculo || 'OUTROS',
+      usoVeiculo: dados.riscos?.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase(),
       modelo: dados.veiculo.modelo || null,
       juros: dados.valores?.juros || null
     }));

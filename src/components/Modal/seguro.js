@@ -30,7 +30,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     if(visible) {
       setTimeout(() => {
         document.getElementById('placaModal').focus();
-      placaRef.current.focus();
+        placaRef.current.focus();
       }, 100);
     }
   }, [visible]);
@@ -66,9 +66,9 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     vigencia: null,
     seguradora: null,
     cpf: null,
-    veiculo: null,
     condutor: null,
     profissao: null,
+    usoVeiculo: String('lazer e ida e volta ao trabalho').toUpperCase(),
     modelo: null,
     juros: businessInfo.comissao.juros
   };
@@ -156,7 +156,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   }, [user]);
 
   useEffect(() => {
-    const dados = data ? {...data, usoVeiculo: data?.usoVeiculo || 'OUTROS', modelo: data?.modelo || null, juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
+    const dados = data ? {...data, usoVeiculo: data?.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase(), modelo: data?.modelo || null, juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
 
     if(user) {
       if(user.tipo === 'corretor') {
@@ -193,7 +193,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
-            usoVeiculo: arrayFirst?.riscos?.usoVeiculo || 'OUTROS',
+            usoVeiculo: arrayFirst?.riscos?.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase(),
             cpf: arrayFirst.segurado.cpf,
             telefone: arrayFirst.segurado.telefone,
             condutor: arrayFirst.veiculo.condutor,
