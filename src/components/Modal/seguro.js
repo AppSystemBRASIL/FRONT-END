@@ -68,7 +68,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     cpf: null,
     condutor: null,
     profissao: null,
-    usoVeiculo: String('lazer e ida e volta ao trabalho').toUpperCase(),
+    usoVeiculo: null,
     modelo: null,
     juros: businessInfo.comissao.juros
   };
@@ -156,7 +156,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
   }, [user]);
 
   useEffect(() => {
-    const dados = data ? {...data, usoVeiculo: data?.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase(), modelo: data?.modelo || null, juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
+    const dados = data ? {...data, usoVeiculo: data?.usoVeiculo || null, modelo: data?.modelo || null, juros: data?.juros || businessInfo.comissao.juros } : dadaInitial;
 
     if(user) {
       if(user.tipo === 'corretor') {
@@ -193,7 +193,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
-            usoVeiculo: arrayFirst?.riscos?.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase(),
+            usoVeiculo: arrayFirst?.riscos?.usoVeiculo || null,
             cpf: arrayFirst.segurado.cpf,
             telefone: arrayFirst.segurado.telefone,
             condutor: arrayFirst.veiculo.condutor,
@@ -393,7 +393,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         }
       },
       riscos: {
-        usoVeiculo: dataNewSeguro.usoVeiculo,
+        usoVeiculo: dataNewSeguro.usoVeiculo || null,
       },
       valores: {
         parcelas: dataNewSeguro.parcelas,
@@ -625,15 +625,25 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <label>USO DO VEÍCULO: <span style={{ color: 'red' }}>*</span></label>
           <Select
             id='usoVeiculoSeguro'
-            value={dataNewSeguro.usoVeiculo || String('lazer e ida e volta ao trabalho').toUpperCase()}
+            value={dataNewSeguro.usoVeiculo}
             placeholder='SELECIONAR O USO DO VEÍCULO'
+            onDropdownVisibleChange={(e) => {
+              if(!e) {
+                if(!dataNewSeguro.usoVeiculo) {
+                  setDataNewSeguro(x => ({ ...x, usoVeiculo: String('lazer e ida e volta ao trabalho').toUpperCase() }));
+                }
+
+                document.getElementById('nomeSeguradoText').focus();
+              }
+            }}
             onChange={(e) => {
               if(e) {
                 setDataNewSeguro(x => ({ ...x, usoVeiculo: e }));
-                document.getElementById('nomeSeguradoText').focus()
               }else {
                 setDataNewSeguro(x => ({ ...x, usoVeiculo: String('lazer e ida e volta ao trabalho').toUpperCase() }))
               }
+
+              document.getElementById('nomeSeguradoText').focus();
             }}
             style={{
               width: '100%'

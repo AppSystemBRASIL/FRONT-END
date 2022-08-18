@@ -44,7 +44,7 @@ function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
 
-const ContentEndosso = ({ data, type, businessInfo, theme, openModalNew }) => {
+const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   const [state, setState] = useState({
     segurado: data.segurado,
     placa: data.veiculo.placa,
@@ -583,7 +583,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
           <Divider style={{ margin: 0, marginBottom: 10 }} />
         </>
       ],
-      content: <ContentEndosso data={data} type={type} theme={theme} businessInfo={businessInfo} openModalNew={openModalNew} />,
+      content: <ContentEndosso data={data} type={type} theme={theme} businessInfo={businessInfo} />,
       okButtonProps: {
         style: {
           display: 'none',
