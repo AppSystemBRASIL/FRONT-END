@@ -149,30 +149,8 @@ const Seguro = () => {
               <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
             </span>
           )}
-          <Col span={24}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <div/>
-            <div>
-              <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
-            </div>
-            <div>
-              <Select
-                value={searchCancel}
-                onChange={(value) => setSearchCancel(value)}
-              >
-                <Select.Option value={false}>
-                  ATIVOS
-                </Select.Option>
-                <Select.Option value={true}>
-                  CANCELADOS
-                </Select.Option>
-              </Select>
-            </div>
+          <Col span={24}>
+            <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS <sup><FaPlus style={{ cursor: 'pointer' }} onClick={() => setViewNewSeguro(true)} /></sup></h1>
           </Col>
           {(user.tipo === 'administrador' || user.tipo === 'gestor') && (
             <Col span={24} style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', textAlign: 'center' }}>

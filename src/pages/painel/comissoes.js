@@ -27,6 +27,8 @@ const Seguro = () => {
   const [cpf, setCPF] = useState('');
   const [placa, setPlaca] = useState('');
 
+  const [statusSeguro, setStatusSeguro] = useState(null);
+
   const [seguradora, setSeguradora] = useState(null);
   const [corretor, setCorretor] = useState(null);
 
@@ -242,10 +244,27 @@ const Seguro = () => {
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
-            <div style={{ width: '50%' }}>
+            <div style={{ width: '30%' }}>
               <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
               <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => setDate(e)} />
             </div>
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
+            <div style={{ width: '20%' }}>
+              <div style={{ width: '100%' }}>STATUS:</div>
+              <Select placeholder='SELECIONAR SEGURADORA' style={{ width: '100%' }} onChange={e => setStatusSeguro(e)}
+                value={statusSeguro}
+              >
+                <Select.Option value={null}>
+                  ATIVOS
+                </Select.Option>
+                <Select.Option value={true}>
+                  CANCELADOS
+                </Select.Option>
+              </Select>
+            </div>
+            
             {/*
               <div
                 style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
@@ -309,6 +328,7 @@ const Seguro = () => {
             corretor={corretor}
             date={date}
             cpf={cpf}
+            cancel={statusSeguro}
             placa={placa}
             user={user}
             infiniteData={true}
@@ -317,6 +337,7 @@ const Seguro = () => {
             seguros={seguros}
             setViewNewSeguro={setViewNewSeguro}
             businessInfo={businessInfo}
+            padding={true}
           />
         )}
       </CardComponent>

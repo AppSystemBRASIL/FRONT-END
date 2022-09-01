@@ -41,7 +41,11 @@ import axios from 'axios';
 
 import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
-  return jsonComposto[percentual][parcela];
+  if(parcela === '10' || percentual === '10') {
+    console.log(`Parcela: ${parcela} || Percentual: ${percentual}`);
+  }else {
+    return jsonComposto[percentual][parcela];
+  }
 }
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
@@ -296,7 +300,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header }) => {
+const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header, padding, cancel }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -320,7 +324,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
         getCotacao('init');
       }
     }
-  }, [cpf, placa, seguradora, corretor, date]);
+  }, [cpf, placa, seguradora, corretor, date, cancel]);
 
   useEffect(() => {
     getCotacao('init');
@@ -335,11 +339,11 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       await setSeguros([]); 
     }
 
-    let ref = firebase.firestore().collection('seguros').where('ativo', '==', true);
+    let ref = firebase.firestore().collection('seguros').where('ativo', '==', cancel === undefined ? true : !cancel);
 
     if(date) {
-      ref = ref.where('seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
-      ref = ref.where('seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
+      ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
+      ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
     }
 
     ref = ref.orderBy('seguro.vigencia', 'asc');
@@ -878,7 +882,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       <ModalSeguro data={dataSeguroView} visible={visibleModalSeguro} setVisible={setVisibleModalSeguro} />
       <Table
         dataSource={seguros?.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal)}
-        pagination={false}
+        pagination={padding === undefined ? false : padding}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
           emptyText: [
@@ -1181,15 +1185,20 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     >
                       <Dropdown overlay={() => (
                         <Menu>
-                          <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
-                            ENDOSSO DO VEÍCULO | CONDUTOR
-                          </Menu.Item>
-                          <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
-                            ENDOSSO DO ENDEREÇO
-                          </Menu.Item>
-                          <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
-                            ENDOSSO DE CANCELAMENTO
-                          </Menu.Item>
+                          
+                          {dados.ativo === true && (
+                            <>
+                              <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
+                                ENDOSSO DO VEÍCULO | CONDUTOR
+                              </Menu.Item>
+                              <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
+                                ENDOSSO DO ENDEREÇO
+                              </Menu.Item>
+                              <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
+                                ENDOSSO DE CANCELAMENTO
+                              </Menu.Item>
+                            </>
+                          )}
                           {dados.endossos?.length > 0 && (
                             <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
                               REGISTROS DE ENDOSSOS
