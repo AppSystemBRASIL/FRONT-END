@@ -30,7 +30,7 @@ const Seguro = () => {
   const [statusSeguro, setStatusSeguro] = useState(null);
 
   const [seguradora, setSeguradora] = useState(null);
-  const [corretor, setCorretor] = useState(null);
+  const [corretor, setCorretor] = useState('null');
 
   const [date, setDate] = useState(null);
 
@@ -234,6 +234,9 @@ const Seguro = () => {
               }
               value={corretor}
               >
+                <Select.Option value='null'>
+                  {businessInfo?.razao_social}
+                </Select.Option>
                 {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
                   <Select.Option key={index} value={item.uid}>
                     {item.nomeCompleto}

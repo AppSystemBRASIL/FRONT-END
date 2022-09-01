@@ -346,7 +346,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
     }
 
-    ref = ref.orderBy('seguro.vigencia', 'asc');
+    ref = ref.orderBy(cancel ? 'cancelada' : 'seguro.vigencia', 'asc');
 
     if(user.tipo !== 'corretor') {
       ref = ref.where('corretora.uid', '==', corretora);
