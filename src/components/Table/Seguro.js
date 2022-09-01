@@ -522,9 +522,12 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     return;
                   }
 
+                  const estorno = Math.abs((dados.valores.comissao / 365) * Math.ceil((new Date(dados.seguro.vigencia.toDate()).getTime() - dateNew.getTime()) / (1000 * 3600 * 24)));
+
                   await firebase.firestore().collection('seguros').doc(dados.uid).set({
                     ativo: false,
-                    cancelada: dateNew
+                    cancelada: dateNew,
+                    estorno
                   }, { merge: true })
                   .then(async () => {
                     if(dados.corretor) {
