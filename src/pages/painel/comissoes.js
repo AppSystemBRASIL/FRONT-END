@@ -106,7 +106,7 @@ const Seguro = () => {
     seguradora: !seguradora ? null : seguradoras.filter(e => e.uid === seguradora)[0].razao_social.split(' ')[0],
     placa,
     cpf
-  }, true);
+  }, true, statusSeguro ? 'estorno' : undefined);
 
   const verifyFilter = !date && !corretor && !seguradora && (!placa && !cpf);
 
@@ -139,41 +139,41 @@ const Seguro = () => {
             position: 'relative'
           }}
         >
-          {(date && seguros.length > 0 && corretor) && (
-            <span
-              style={{
-                position: 'absolute',
-                top: 15,
-                right: 150,
-                fontSize: '1.2rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                zIndex: 1
-              }}
-              onClick={printSeguros}
-            >
-              <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
-            </span>
-          )}
-          {(date && seguros.length > 0 && corretor) && (
-            <span
-              style={{
-                position: 'absolute',
-                top: 15,
-                right: 15,
-                fontSize: '1.2rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                zIndex: 1
-              }}
-              onClick={sendPrint}
-            >
-              <FaPaperPlane style={{ marginRight: 5 }} /> ENVIAR
-            </span>
+          {(date && seguros.length > 0 && corretor !== 'null') && (
+            <>
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 15,
+                  right: 150,
+                  fontSize: '1.2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  zIndex: 1
+                }}
+                onClick={printSeguros}
+              >
+                <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
+              </span>
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 15,
+                  right: 15,
+                  fontSize: '1.2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  zIndex: 1
+                }}
+                onClick={sendPrint}
+              >
+                <FaPaperPlane style={{ marginRight: 5 }} /> ENVIAR
+              </span>
+            </>
           )}
           <Col span={24}>
             <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>COMISSÕES</h1>
@@ -221,7 +221,7 @@ const Seguro = () => {
             <div style={{ width: '50%' }}>
               <div style={{ width: '100%' }}>PRODUTOR:</div>
               <Select allowClear placeholder='SELECIONAR PRODUTOR' style={{ width: '100%' }} onChange={e => {
-                setCorretor(e ? e : null);
+                setCorretor(e ? e : 'null');
               }}
               autoFocus={true}
               showSearch

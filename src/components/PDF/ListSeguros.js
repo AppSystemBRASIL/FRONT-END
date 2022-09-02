@@ -7,12 +7,300 @@ function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
 
-export default async function printListSeguros(seguros, corretora, filtros, comissao) {
+export default async function printListSeguros(seguros, corretora, filtros, comissao, type) {
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
   let content = null;
 
-  if(!comissao) {
+  if(type && type === 'estorno') {
+    function getTableListHeaderWidth() {
+      const array = [];
+      array.push(80);
+      array.push(25);
+      array.push(60);
+      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+        array.push(60);
+      }
+      array.push(filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? 70 : 60);
+      array.push(65);
+      array.push('*');
+      return array;
+    }
+  
+    function getTableListHeader() {
+      const array = [];
+      array.push({
+        text: 'CANCELAMENTO\nFINAL VIGÊNCIA',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: 'DIAS',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: 'COMISSÃO TOTAL',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+        array.push({
+          text: 'COMISSÃO PRODUTOR',
+          fontSize: 10,
+          alignment: 'center'
+        }); 
+      }
+      
+      array.push({
+        text: 'ESTORNO',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: 'PLACA',
+        fontSize: 10,
+        alignment: 'center'
+      });
+      array.push({
+        text: 'SEGURADO',
+        fontSize: 10,
+      });
+      return array;
+    }
+  
+    function getTableList(item) {
+      const array = [];
+      array.push({
+        text: `${format(item.seguro.vigencia.toDate(), 'dd/MM/yyyy')}\n${format(item.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}`,
+        alignment: 'center',
+        fontSize: 10
+      });
+      array.push({
+        text: Math.abs(Math.ceil((new Date(item.seguro.vigencia.toDate()).getTime() - new Date(item.cancelada.toDate()).getTime()) / (1000 * 3600 * 24))),
+        alignment: 'center',
+        fontSize: 10
+      });
+      array.push({
+        text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(item.valores.comissao),
+        alignment: 'center',
+        fontSize: 10
+      });
+      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+        array.push({
+          text: !item.corretor ? '-----------' : new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(item.corretor.comissao.valor),
+          alignment: 'center',
+          fontSize: 10
+        });
+      }
+      array.push({
+        text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format((!item.corretor ? item.valores.comissao : item.corretor.comissao.valor / 365) * Math.ceil((new Date(item.seguro.vigencia.toDate()).getTime() - new Date(item.cancelada.toDate()).getTime()) / (1000 * 3600 * 24)) - (item.corretor ? item.corretor.comissao.valor : item.valores.comissao)),
+        alignment: 'center',
+        fontSize: 10
+      });
+      array.push({
+        text: item.veiculo.placa,
+        alignment: 'center',
+        fontSize: 10
+      });
+      array.push({
+        text: item.segurado.nome,
+        fontSize: 10
+      });
+      return array;
+    }
+
+    function getBottomListTop() {
+      const array = [];
+
+      array.push({
+        text: '',
+        alignment: 'left',
+        fontSize: 10,
+        color: 'red'
+      });
+
+      array.push({
+        text: '',
+      });
+
+      array.push({
+        text: 'd',
+        alignment: 'center',
+        fontSize: 10,
+        color: 'white'
+      });
+      
+      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+        array.push({
+          text: '',
+          alignment: 'center',
+          fontSize: 10,
+        });
+      }
+
+      array.push({
+        text: '',
+        alignment: 'center',
+        fontSize: 10
+      });
+
+      array.push({
+        text: '',
+      });
+
+      array.push({
+        text: '',
+      });
+
+      return array;
+    }
+
+    function getBottomList() {
+      const array = [];
+
+      array.push({
+        text: `TOTAL ESTORNO`,
+        alignment: 'left',
+        fontSize: 10,
+        color: 'red'
+      });
+
+      array.push({
+        text: '',
+      });
+
+      array.push({
+        text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => a + b.valores.comissao, 0)),
+        alignment: 'center',
+        fontSize: 10,
+      });
+      
+      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+        array.push({
+          text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => a + b.corretor.comissao.valor, 0)),
+          alignment: 'center',
+          fontSize: 10,
+        });
+      }
+
+      array.push({
+        text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => a + (!b.corretor ? b.valores.comissao : b.corretor.comissao.valor / 365) * Math.ceil((new Date(b.seguro.vigencia.toDate()).getTime() - new Date(b.cancelada.toDate()).getTime()) / (1000 * 3600 * 24)) - (b.corretor ? b.corretor.comissao.valor : b.valores.comissao), 0)),
+        alignment: 'center',
+        fontSize: 10,
+        color: 'red'
+      });
+
+      array.push({
+        text: '',
+      });
+
+      array.push({
+        text: '',
+      });
+
+      return array;
+    }
+  
+    content = [
+      {
+        table: {
+          widths: ['*', 154.4],
+          body: [
+            [ 
+              [
+                {
+                  text: corretora.razao_social,
+                  alignment: 'left',
+                  bold: true,
+                  fontSize: 18,
+                  marginTop: 5
+                },
+                {
+                  text: `RELATÓRIO DE SEGUROS ${type === 'estorno' ? 'CANCELADOS' : ''}`,
+                  alignment: 'left',
+                  bold: true,
+                  fontSize: 10,
+                  color: 'red',
+                  marginBottom: 10
+                }
+              ],
+              [
+                {
+                  text: filtros.date && `PERÍODO:\n${format(filtros.date[0].toDate(), 'dd/MM/yyyy')} - ${format(filtros.date[1].toDate(), 'dd/MM/yyyy')}`,
+                  bold: true,
+                  fontSize: 10,
+                },
+                {
+                  text: filtros.corretor && `PRODUTOR:\n${filtros.corretor}`,
+                  bold: true,
+                  fontSize: 10,
+                },
+                {
+                  text: filtros.seguradora && `SEGURADORA:\n${filtros.seguradora}`,
+                  bold: true,
+                  fontSize: 10,
+                },
+                {
+                  text: filtros.placa && `PLACA: ${filtros.placa}`,
+                  bold: true,
+                  fontSize: 10,
+                },
+                {
+                  text: filtros.cpf && `CPF: ${filtros.cpf}`,
+                  bold: true,
+                  fontSize: 10,
+                }
+              ]
+            ],
+          ]
+        }
+      },
+      {
+        table: {
+          widths: getTableListHeaderWidth(),
+          body: [
+            getTableListHeader(),
+          ]
+        }
+      },
+      {
+        table: {
+          widths: getTableListHeaderWidth(),
+          body: [...seguros].map((item) => getTableList(item))
+        }
+      },
+      {
+        table: {
+          widths: getTableListHeaderWidth(),
+          body: [
+            getBottomListTop()
+          ]
+        }
+      },
+      {
+        table: {
+          widths: getTableListHeaderWidth(),
+          body: [
+            getBottomList()
+          ]
+        }
+      },
+      {
+        table: {
+          widths: '*',
+          body: [
+            [ 
+              {
+                text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
+                alignment: 'left',
+              }
+            ],
+          ]
+        }
+      }
+    ];
+  }else if(!comissao) {
     function getTableListHeaderWidth() {
       const array = [];
       array.push(55);
@@ -278,21 +566,22 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         ],
         alignment: 'center'
       });
+
       array.push({
         text: [
           {
-            text: `${new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(item.valores.comissao)} | ${Number(item.valores.corretor.percentual).toFixed(0)}% \n`,
+            text: !item?.valores?.corretor?.percentual ? '--------' : `${new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(item.valores.comissao)} | ${Number(item.valores.corretor.percentual).toFixed(0)}% \n`,
             fontSize: 10
           },
           {
-            text: `COMISSÃO: ${new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format((item.valores.corretor.percentual / 100) * item.valores.comissao)}`,
+            text: !item?.valores?.corretor?.percentual ? '--------' : `COMISSÃO: ${new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format((item.valores.corretor.percentual / 100) * item.valores.comissao)}`,
             fontSize: 7
           }
         ],
         alignment: 'center'
       });
       array.push({
-        text: `${item.valores.parcelas > 4 ? new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(Number(item.valores.corretor.valor * juroComposto({
+        text: !item?.valores?.corretor?.percentual ? '--------' : `${item.valores.parcelas > 4 ? new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(Number(item.valores.corretor.valor * juroComposto({
           parcela: String(item.valores.parcelas),
           percentual: String(item.valores.juros || 0)
         })) -  item.valores.corretor.valor) : '--------'}`,
@@ -300,13 +589,14 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         alignment: 'center'
       });
       array.push({
-        text: `${item.valores.parcelas > 4 ? new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(Number(item.valores.corretor.valor * juroComposto({
+        text: !item?.valores?.corretor?.percentual ? '--------' : `${item.valores.parcelas > 4 ? new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(Number(item.valores.corretor.valor * juroComposto({
           parcela: String(item.valores.parcelas),
           percentual: String(item.valores.juros || 0)
         }))) : new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format((item.valores.corretor.percentual / 100) * item.valores.comissao)}`,
         fontSize: 10,
         alignment: 'center'
       });
+
       return array;
     }
 
@@ -422,7 +712,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
                     text: 'COMISSÃO A PAGAR: \n',
                   },
                   {
-                    text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => Number(b.valores.parcelas > 4 ? Number(b.valores.corretor.valor * juroComposto({
+                    text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? 0 : [...seguros].reduce((a, b) => Number(b.valores.parcelas > 4 ? Number(b.valores.corretor.valor * juroComposto({
                       parcela: String(b.valores.parcelas),
                       percentual: String(b.valores.juros || 0)
                     })) : b.valores.corretor.valor) + a, 0)),

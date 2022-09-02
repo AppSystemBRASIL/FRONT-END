@@ -41,11 +41,7 @@ import axios from 'axios';
 
 import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
-  if(parcela === '10' || percentual === '10') {
-    console.log(`Parcela: ${parcela} || Percentual: ${percentual}`);
-  }else {
-    return jsonComposto[percentual][parcela];
-  }
+  return jsonComposto[percentual][parcela];
 }
 
 const ContentEndosso = ({ data, type, businessInfo, theme }) => {
@@ -526,7 +522,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                     return;
                   }
 
-                  const estorno = Math.abs((dados.valores.comissao / 365) * Math.ceil((new Date(dados.seguro.vigencia.toDate()).getTime() - dateNew.getTime()) / (1000 * 3600 * 24)));
+                  const estorno = Math.abs((!dados.corretor ? dados.valores.comissao : dados.corretor.comissao.valor / 365) * Math.ceil((new Date(dados.seguro.vigencia.toDate()).getTime() - dateNew.getTime()) / (1000 * 3600 * 24)));
 
                   await firebase.firestore().collection('seguros').doc(dados.uid).set({
                     ativo: false,
@@ -1010,11 +1006,17 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               </div>
             ]
           }
-          render={(seguro) => seguro && (
+          render={(seguro, dados) => seguro && (
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
               {format(seguro.vigencia.toDate(), 'dd/MM/yyyy')}
               <br/>
               <span style={{ fontSize: '.7rem' }}>ATÉ: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
+              {(dados.cancelada && !dados.ativo) && (
+                <>
+                  <br/>
+                  <span style={{ fontSize: '.7rem' }}>CANCELADA: {format(seguro.cancelada.toDate(), 'dd/MM/yyyy')}</span>
+                </>
+              )}
             </div>
           )}
         />
@@ -1039,7 +1041,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
             </div>
           )}
         />
-        {corretor && (
+        {(corretor !== 'null') && (
           <Table.Column
             width={300}
             key='valores'
@@ -1051,7 +1053,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
                 </div> 
               ]
             }
-            render={(valores, dados) => valores.corretor && (
+            render={(valores, dados) => (valores.corretor && valores.corretor.valor && valores.juros) && (
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
                 <div>
                   {Number(valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
