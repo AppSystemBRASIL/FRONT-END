@@ -2,6 +2,10 @@ import { format } from 'date-fns';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
+import firebase from '../../auth/AuthConfig';
+
+import bancos from '../../data/bancos.json';
+
 import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
@@ -110,52 +114,6 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
-    function getBottomListTop() {
-      const array = [];
-
-      array.push({
-        text: '',
-        alignment: 'left',
-        fontSize: 10,
-        color: 'red'
-      });
-
-      array.push({
-        text: '',
-      });
-
-      array.push({
-        text: 'd',
-        alignment: 'center',
-        fontSize: 10,
-        color: 'white'
-      });
-      
-      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
-        array.push({
-          text: '',
-          alignment: 'center',
-          fontSize: 10,
-        });
-      }
-
-      array.push({
-        text: '',
-        alignment: 'center',
-        fontSize: 10
-      });
-
-      array.push({
-        text: '',
-      });
-
-      array.push({
-        text: '',
-      });
-
-      return array;
-    }
-
     function getBottomList() {
       const array = [];
 
@@ -201,6 +159,11 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
 
       return array;
     }
+
+    const dadosBancarios = await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    .then((response) => {
+      return response.data().dadosBancarios;
+    })
   
     content = [
       {
@@ -272,10 +235,13 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       },
       {
         table: {
-          widths: getTableListHeaderWidth(),
-          body: [
-            getBottomListTop()
-          ]
+          widths: ['*'],
+          body: [[
+            {
+              text: 'd',
+              color: 'white'
+            }
+          ]]
         }
       },
       {
@@ -294,11 +260,84 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
               {
                 text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
                 alignment: 'left',
+                fontSize: 10
               }
             ],
           ]
         }
-      }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: 'd',
+              color: 'white',
+              border: [false, false, false, false]
+            }
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: 'd',
+              color: 'white',
+              border: [false, false, false, false]
+            }
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: `DADOS BANCÁRIOS: ${filtros.corretor}`,
+            }
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*', 80, 60, 140],
+          body: [[
+            {
+              text: 'BANCO',
+            },
+            {
+              text: 'CONTA',
+            },
+            {
+              text: 'AGÊNCIA',
+            },
+            {
+              text: 'PIX',
+            },
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*', 80, 60, 140],
+          body: [[
+            {
+              text: bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
+            },
+            {
+              text: `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
+            },
+            {
+              text: `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
+            },
+            {
+              text: `${dadosBancarios.pix ? dadosBancarios.pix : '-------------------'}`,
+            },
+          ]]
+        }
+      },
     ];
   }else if(!comissao) {
     function getTableListHeaderWidth() {

@@ -11,8 +11,6 @@ import { FaPlus, FaTimes } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 
-import axios from 'axios';
-
 import { useTheme } from 'styled-components';
 
 import banco from '../../data/bancos';
