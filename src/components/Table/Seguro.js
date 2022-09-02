@@ -1014,7 +1014,7 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
               {(dados.cancelada && !dados.ativo) && (
                 <>
                   <br/>
-                  <span style={{ fontSize: '.7rem' }}>CANCELADA: {format(seguro.cancelada.toDate(), 'dd/MM/yyyy')}</span>
+                  <span style={{ fontSize: '.7rem' }}>CANCELADA: {format(new Date(dados.cancelada.toDate()), 'dd/MM/yyyy')}</span>
                 </>
               )}
             </div>
