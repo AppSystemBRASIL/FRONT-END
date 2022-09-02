@@ -163,8 +163,8 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
     const dadosBancarios = await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
-    })
-  
+    });
+
     content = [
       {
         table: {
@@ -324,13 +324,13 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           widths: ['*', 80, 60, 140],
           body: [[
             {
-              text: bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
+              text: !dadosBancarios.banco ? '-----------------------------------------------' : bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
             },
             {
-              text: `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
+              text: !dadosBancarios.conta ? '------------------------' : `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
             },
             {
-              text: `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
+              text: !dadosBancarios.agencia ? '------------------' : `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
             },
             {
               text: `${dadosBancarios.pix ? dadosBancarios.pix : '-------------------'}`,
@@ -639,6 +639,11 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
+    const dadosBancarios = await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    .then((response) => {
+      return response.data().dadosBancarios;
+    });
+
     content = [
       {
         table: {
@@ -765,7 +770,79 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
             ],
           ]
         }
-      }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: 'd',
+              color: 'white',
+              border: [false, false, false, false]
+            }
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: 'd',
+              color: 'white',
+              border: [false, false, false, false]
+            }
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              text: `DADOS BANCÁRIOS: ${filtros.corretor}`,
+            }
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*', 80, 60, 140],
+          body: [[
+            {
+              text: 'BANCO',
+            },
+            {
+              text: 'CONTA',
+            },
+            {
+              text: 'AGÊNCIA',
+            },
+            {
+              text: 'PIX',
+            },
+          ]]
+        }
+      },
+      {
+        table: {
+          widths: ['*', 80, 60, 140],
+          body: [[
+            {
+              text: !dadosBancarios.banco ? '-----------------------------------------------' : bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
+            },
+            {
+              text: !dadosBancarios.conta ? '------------------------' : `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
+            },
+            {
+              text: !dadosBancarios.agencia ? '------------------' : `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
+            },
+            {
+              text: `${dadosBancarios.pix ? dadosBancarios.pix : '-------------------'}`,
+            },
+          ]]
+        }
+      },
     ];
   }
 
