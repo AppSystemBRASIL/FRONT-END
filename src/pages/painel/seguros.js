@@ -193,9 +193,9 @@ const Seguro = () => {
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
-            <div style={{ width: 350 }}>
+            <div style={{ width: 300 }}>
               <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
-              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => {
+              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: 300 }} value={date} onChange={(e) => {
                 setDate(e);
 
                 if(e) {
@@ -210,7 +210,7 @@ const Seguro = () => {
                 />
                 <div>
                   <div style={{ width: '100%' }}>PRODUTOR:</div>
-                  <Select allowClear placeholder='SELECIONAR' style={{ width: '100%' }} onChange={e => {
+                  <Select allowClear placeholder='SELECIONAR' style={{ width: 300 }} onChange={e => {
                     setCorretor(e ? e : null);
                   }}
                   showSearch
@@ -268,9 +268,23 @@ const Seguro = () => {
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
-            <div>
+          </Col>
+          <Divider style={{ borderColor: '#d1d1d1', marginBottom: 15 }} />
+          <Col span={24}
+            style={{
+              display: width > 768 && 'flex',
+              alignItems: width > 768 && 'center',
+              flexDirection: width > 768 && 'row',
+              justifyContent: width > 768 && 'space-between',
+              textAlign: 'center'
+            }}
+          >
+            <div
+              style={{ marginLeft: 20, marginRight: 20, border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
+            <div style={{ width: 160 }}>
               <div style={{ width: '100%' }}>SEGURADO:</div>
-              <Input style={{ width: '100%' }} allowClear type='text' value={segurado} placeholder='SEGURADO' onChange={(e) => {
+              <Input style={{ width: 200 }} allowClear type='text' value={segurado} placeholder='SEGURADO' onChange={(e) => {
                 setSegurado(maskOnlyLetters(e.target.value));
 
                 if(e.target.value) {
@@ -312,6 +326,7 @@ const Seguro = () => {
               </>
             )}
           </Col>
+          <Divider style={{ borderColor: '#d1d1d1', marginBottom: 15 }} />
         </Row>
         <TableSeguro
           seguradora={seguradora}
