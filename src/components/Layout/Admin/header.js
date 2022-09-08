@@ -148,11 +148,13 @@ const Header = ({ collapsed }) => {
                   classNames='menu-primary'
                 >
                   <div className='menu'>
-                    <DropdownItem onClick={() => Router.push('/painel/perfil')}>
-                      <div>
-                        <span className='icon-button'><i className='bx bxs-user'/></span> MEU PERFIL
-                      </div>
-                    </DropdownItem>
+                    {/*
+                      <DropdownItem onClick={() => Router.push('/painel/perfil')}>
+                        <div>
+                          <span className='icon-button'><i className='bx bxs-user'/></span> MEU PERFIL
+                        </div>
+                      </DropdownItem>
+                    */}
                     <DropdownItem onClick={signOut}>
                       <div>
                         <span className='icon-button'><i className='bx bx-log-out'/></span> DESLOGAR
