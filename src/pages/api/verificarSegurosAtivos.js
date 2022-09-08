@@ -1,6 +1,6 @@
 import firebase from '../../auth/AuthConfig';
 
-import { format, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 
 export default async function handler(req, res) {
   let ref = firebase
@@ -18,10 +18,7 @@ export default async function handler(req, res) {
   .then((response) => {
     if(!response.empty) {
       response.forEach((item) => {
-        firebase.firestore().collection('seguros').doc(item.data().uid).set({
-          ativo: false,
-          cancelada: startOfDay(new Date())
-        }, { merge: true });
+        firebase.firestore().collection('seguros').doc(item.data().uid).delete();
       })
     }
   });

@@ -4,7 +4,7 @@ import { Row, Col, Input, DatePicker, Select, Divider } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCPF } from '../../hooks/mask';
+import { maskCPF, maskOnlyLetters, maskYear } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
 import { FaPlus, FaPrint } from 'react-icons/fa';
@@ -28,6 +28,9 @@ const Seguro = () => {
 
   const [cpf, setCPF] = useState('');
   const [placa, setPlaca] = useState('');
+
+  const [anoAdesao, setAnoAdesao] = useState('');
+  const [segurado, setSegurado] = useState('');
 
   const [seguradora, setSeguradora] = useState(null);
   const [corretor, setCorretor] = useState(null);
@@ -106,8 +109,6 @@ const Seguro = () => {
   });
 
   const verifyFilter = !date && !corretor && !seguradora && (!placa && !cpf);
-
-  const [searchCancel, setSearchCancel] = useState(null);
 
   if(!user && !corretora) {
     return <></>;
@@ -194,7 +195,13 @@ const Seguro = () => {
             />
             <div style={{ width: 350 }}>
               <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
-              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => setDate(e)} />
+              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => {
+                setDate(e);
+
+                if(e) {
+                  setSegurado('');
+                }
+              }} />
             </div>
             {(user && user.tipo !== 'corretor') && (
               <>
@@ -254,11 +261,39 @@ const Seguro = () => {
             <div
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
+            <div>
+              <div style={{ width: '100%' }}>ANO DE ADESÃO:</div>
+              <DatePicker.YearPicker maxLength={4} style={{ width: '100%' }} allowClear type='text' value={anoAdesao} placeholder='ANO' onChange={(e) => setAnoAdesao(e)} />
+            </div>
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
+            <div>
+              <div style={{ width: '100%' }}>SEGURADO:</div>
+              <Input style={{ width: '100%' }} allowClear type='text' value={segurado} placeholder='SEGURADO' onChange={(e) => {
+                setSegurado(maskOnlyLetters(e.target.value));
+
+                if(e.target.value) {
+                  setPlaca('');
+                  setDate(null);
+                }
+              }} />
+            </div>
+            <div
+              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+            />
             {cpf.length === 0 && (
               <>
                 <div>
                   <div style={{ width: '100%' }}>PLACA:</div>
-                  <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='AAA0000' onChange={(e) => setPlaca(String(e.target.value).toUpperCase())} />
+                  <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='PLACA' onChange={(e) => {
+                    setPlaca(String(e.target.value).toUpperCase());
+                    
+                    if(e.target.value) {
+                      setDate(null);
+                      setSegurado('');
+                    }
+                  }} />
                 </div>
                 <div
                   style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
@@ -269,7 +304,7 @@ const Seguro = () => {
               <>
                 <div>
                   <div style={{ width: '100%' }}>CPF:</div>
-                  <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='000.000.000-00' onChange={(e) => setCPF(maskCPF(e.target.value))} />
+                  <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='CPF' onChange={(e) => setCPF(maskCPF(e.target.value))} />
                 </div>
                 <div
                   style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
@@ -288,6 +323,8 @@ const Seguro = () => {
           infiniteData={false}
           corretora={corretora.uid}
           setSeguros={setSeguros}
+          anoAdesao={anoAdesao}
+          segurado={segurado}
           seguros={seguros}
           setViewNewSeguro={setViewNewSeguro}
           businessInfo={businessInfo}

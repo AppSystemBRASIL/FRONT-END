@@ -349,6 +349,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         array.push(100);
       }
       array.push(65);
+      array.push(60);
       array.push(20);
       return array;
     }
@@ -378,6 +379,10 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         fontSize: 10,
       });
       array.push({
+        text: 'PRÊMIO',
+        fontSize: 10,
+      });
+      array.push({
         text: '%',
         fontSize: 10,
         alignment: 'center'
@@ -396,7 +401,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         fontSize: 10,
       });
       array.push({
-        text: item.segurado.nome,
+        text: `${item.segurado.nome.split(' ').slice(0, 1)} ${item.segurado.nome.split(' ').slice(-1)}`,
         fontSize: 10
       });
       if(!filtros.corretor) {
@@ -407,6 +412,10 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       }
       array.push({
         text: item.seguradora.razao_social.split(' ')[0],
+        fontSize: 10
+      });
+      array.push({
+        text: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valores.premio),
         fontSize: 10
       });
       array.push({
@@ -505,6 +514,19 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
             [ 
               {
                 text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
+                alignment: 'left',
+              }
+            ],
+          ]
+        }
+      },
+      {
+        table: {
+          widths: '*',
+          body: [
+            [ 
+              {
+                text: `TOTAL EM PRÊMIOS: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format([...seguros].reduce((a, b) => a + b.valores.premio, 0))}`,
                 alignment: 'left',
               }
             ],

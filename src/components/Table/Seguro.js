@@ -296,7 +296,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header, padding, cancel }) => {
+const TableSeguro = ({ anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header, padding, cancel }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -312,15 +312,19 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     if((cpf.length === 14) || (placa.length === 7)) {
       getCotacao('init');
     }else if(cpf.length === 0) {
-      if(placa.length === 7 || placa.length === 0) {
+      if(placa.length >= 3 || placa.length === 0) {
         getCotacao('init');
       }
     }else if(placa.length === 0) {
       if(cpf.length === 14 || cpf.length === 0) {
         getCotacao('init');
       }
+    }else if(anoAdesao) {
+      getCotacao('init');
+    }else if(segurado?.length > 3) {
+      getCotacao('init');
     }
-  }, [cpf, placa, seguradora, corretor, date, cancel]);
+  }, [cpf, placa, seguradora, corretor, date, cancel, anoAdesao, segurado]);
 
   useEffect(() => {
     getCotacao('init');
@@ -340,6 +344,14 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
     if(date) {
       ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
       ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
+    }
+
+    if(placa?.length >= 4) {
+      ref = ref.orderBy('veiculo.placa', 'desc');
+    }
+
+    if(segurado?.length >= 3) {
+      ref = ref.orderBy('segurado.nome', 'desc');
     }
 
     ref = ref.orderBy(cancel ? 'cancelada' : 'seguro.vigencia', 'asc');
@@ -362,11 +374,19 @@ const TableSeguro = ({ corretor, seguradora, date, infiniteData, limit, cpf, pla
       ref = ref.where('seguradora.uid', '==', seguradora);
     }
 
+    if(anoAdesao) {
+      ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao.year()));
+    }
+
+    if(segurado?.length > 3) {
+      ref = ref.where('segurado.nome', '>=', String(segurado).toUpperCase()).where('segurado.nome', '<=', String(segurado).toUpperCase() + '~');
+    }
+
     if(cpf !== undefined && cpf.length === 14) {
       ref = ref.where('segurado.cpf', '==', cpf);
       ref = ref.orderBy('created', 'desc');
-    }if(placa !== undefined && placa.length === 7) {
-      ref = ref.where('veiculo.placa', '==', String(placa).toUpperCase());
+    }else if(placa !== undefined && placa.length >= 4) {
+      ref = ref.where('veiculo.placa', '>=', String(placa).toUpperCase()).where('veiculo.placa', '<=', String(placa).toUpperCase() + '~');
       ref = ref.orderBy('created', 'desc');
     }else if((!init && lastData !== 0)) {
       ref = ref.orderBy('created', 'asc');
