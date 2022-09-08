@@ -139,7 +139,7 @@ const Seguro = () => {
             position: 'relative'
           }}
         >
-          {(date && seguros.length > 0 && corretor !== 'null') && (
+          {(date && seguros.length > 0) && (
             <>
               <span
                 style={{

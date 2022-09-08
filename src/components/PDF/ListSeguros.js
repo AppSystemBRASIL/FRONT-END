@@ -160,7 +160,8 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
-    const dadosBancarios = await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+
+    const dadosBancarios = filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
     });
@@ -324,16 +325,16 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           widths: ['*', 80, 60, 140],
           body: [[
             {
-              text: !dadosBancarios.banco ? '-----------------------------------------------' : bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
+              text: !dadosBancarios?.banco ? '-----------------------------------------------' : bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
             },
             {
-              text: !dadosBancarios.conta ? '------------------------' : `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
+              text: !dadosBancarios?.conta ? '------------------------' : `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
             },
             {
-              text: !dadosBancarios.agencia ? '------------------' : `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
+              text: !dadosBancarios?.agencia ? '------------------' : `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
             },
             {
-              text: `${dadosBancarios.pix ? dadosBancarios.pix : '-------------------'}`,
+              text: `${dadosBancarios?.pix ? dadosBancarios.pix : '-------------------'}`,
             },
           ]]
         }
@@ -661,7 +662,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
-    const dadosBancarios = await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    const dadosBancarios = filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
     });
@@ -851,16 +852,16 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           widths: ['*', 80, 60, 140],
           body: [[
             {
-              text: !dadosBancarios.banco ? '-----------------------------------------------' : bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
+              text: !dadosBancarios?.banco ? '-----------------------------------------------' : bancos.filter(e => e.value === dadosBancarios.banco)[0].label.toUpperCase()+' - '+dadosBancarios.banco,
             },
             {
-              text: !dadosBancarios.conta ? '------------------------' : `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
+              text: !dadosBancarios?.conta ? '------------------------' : `${dadosBancarios.conta}${dadosBancarios.conta_d ? ` - ${dadosBancarios.conta_d}` : ''}${dadosBancarios.conta_o ? ` | ${dadosBancarios.conta_o}` : ''}`,
             },
             {
-              text: !dadosBancarios.agencia ? '------------------' : `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
+              text: !dadosBancarios?.agencia ? '------------------' : `${dadosBancarios.agencia}${dadosBancarios.agencia_d ? ` - ${dadosBancarios.agencia_d}` : ''}`,
             },
             {
-              text: `${dadosBancarios.pix ? dadosBancarios.pix : '-------------------'}`,
+              text: `${dadosBancarios?.pix ? dadosBancarios.pix : '-------------------'}`,
             },
           ]]
         }
