@@ -262,7 +262,7 @@ const Seguro = () => {
               style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
             />
             <div>
-              <div style={{ width: '100%' }}>ANO DE ADESÃO:</div>
+              <div style={{ width: '100%' }}>ADESÃO:</div>
               <DatePicker.YearPicker maxLength={4} style={{ width: '100%' }} allowClear type='text' value={anoAdesao} placeholder='ANO' onChange={(e) => setAnoAdesao(e)} />
             </div>
             <div
