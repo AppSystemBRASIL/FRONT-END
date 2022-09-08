@@ -28,6 +28,7 @@ const Seguro = () => {
 
   const [cpf, setCPF] = useState('');
   const [placa, setPlaca] = useState('');
+  const [placaPremiada, setPlacaPremiada] = useState('');
 
   const [anoAdesao, setAnoAdesao] = useState('');
   const [segurado, setSegurado] = useState('');
@@ -190,28 +191,88 @@ const Seguro = () => {
               textAlign: 'center'
             }}
           >
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div style={{ width: 300 }}>
-              <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
-              <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: 300 }} value={date} onChange={(e) => {
-                setDate(e);
-
-                if(e) {
-                  setSegurado('');
-                }
-              }} />
-            </div>
-            {(user && user.tipo !== 'corretor') && (
-              <>
+            <Row
+              style={{
+                width: '100%'
+              }}
+            >
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
                 <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
                 />
+              </Col>
+              <Col span={5}>
+                <div style={{ width: '100%' }}>PERIODO DA VIGÊNCIA:</div>
+                <DatePicker.RangePicker format='DD/MM/yyyy' style={{ width: '100%' }} value={date} onChange={(e) => {
+                  setDate(e);
+                  if(e) {
+                    setSegurado('');
+                  }
+                }} />
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+              <Col span={5}>
+                {(user && user.tipo !== 'corretor') && (
+                  <div>
+                    <div style={{ width: '100%' }}>PRODUTOR:</div>
+                    <Select allowClear placeholder='SELECIONAR' style={{ width: '100%' }} onChange={e => {
+                      setCorretor(e ? e : null);
+                    }}
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                    filterSort={(optionA, optionB) =>
+                      optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                    }
+                    value={corretor}
+                    >
+                      <Select.Option value={'null'}>{corretora.razao_social}</Select.Option>
+                      {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
+                        <Select.Option key={index} value={item.uid}>
+                          {item.nomeCompleto}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+              <Col span={5}>
                 <div>
-                  <div style={{ width: '100%' }}>PRODUTOR:</div>
-                  <Select allowClear placeholder='SELECIONAR' style={{ width: 300 }} onChange={e => {
-                    setCorretor(e ? e : null);
+                  <div style={{ width: '100%' }}>SEGURADORA:</div>
+                  <Select allowClear placeholder='SELECIONAR' style={{ width: '100%' }} onChange={e => {
+                    setSeguradora(e ? e : null);
                   }}
                   showSearch
                   optionFilterProp="children"
@@ -221,53 +282,47 @@ const Seguro = () => {
                   filterSort={(optionA, optionB) =>
                     optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
                   }
-                  value={corretor}
+                  value={seguradora}
                   >
-                    <Select.Option value={'null'}>{corretora.razao_social}</Select.Option>
-                    {corretores?.sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto)).map((item, index) => (
+                    {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
                       <Select.Option key={index} value={item.uid}>
-                        {item.nomeCompleto}
+                        {item.razao_social}
                       </Select.Option>
                     ))}
                   </Select>
                 </div>
-              </>
-            )}
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div>
-              <div style={{ width: '100%' }}>SEGURADORA:</div>
-              <Select allowClear placeholder='SELECIONAR' style={{ width: '100%' }} onChange={e => {
-                setSeguradora(e ? e : null);
-              }}
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              filterSort={(optionA, optionB) =>
-                optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-              }
-              value={seguradora}
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
               >
-                {seguradoras?.sort((a, b) => a.razao_social.localeCompare(b.razao_social)).map((item, index) => (
-                  <Select.Option key={index} value={item.uid}>
-                    {item.razao_social}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div>
-              <div style={{ width: '100%' }}>ADESÃO:</div>
-              <DatePicker.YearPicker maxLength={4} style={{ width: '100%' }} allowClear type='text' value={anoAdesao} placeholder='ANO' onChange={(e) => setAnoAdesao(e)} />
-            </div>
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+              <Col span={4}>
+                <div>
+                  <div style={{ width: '100%' }}>ADESÃO:</div>
+                  <DatePicker.YearPicker maxLength={4} style={{ width: '100%' }} allowClear type='text' value={anoAdesao} placeholder='ANO' onChange={(e) => setAnoAdesao(e)} />
+                </div>
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+            </Row>
           </Col>
           <Divider style={{ borderColor: '#d1d1d1', marginBottom: 15 }} />
           <Col span={24}
@@ -279,52 +334,126 @@ const Seguro = () => {
               textAlign: 'center'
             }}
           >
-            <div
-              style={{ marginLeft: 20, marginRight: 20, border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            <div style={{ width: 160 }}>
-              <div style={{ width: '100%' }}>SEGURADO:</div>
-              <Input style={{ width: 200 }} allowClear type='text' value={segurado} placeholder='SEGURADO' onChange={(e) => {
-                setSegurado(maskOnlyLetters(e.target.value));
-
-                if(e.target.value) {
-                  setPlaca('');
-                  setDate(null);
-                }
-              }} />
-            </div>
-            <div
-              style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
-            />
-            {cpf.length === 0 && (
-              <>
+            <Row style={{ width: '100%' }}>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+              <Col span={5}>
                 <div>
-                  <div style={{ width: '100%' }}>PLACA:</div>
-                  <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='PLACA' onChange={(e) => {
-                    setPlaca(String(e.target.value).toUpperCase());
-                    
+                  <div style={{ width: '100%' }}>SEGURADO:</div>
+                  <Input style={{ width: '100%' }} allowClear type='text' value={segurado} placeholder='SEGURADO' onChange={(e) => {
+                    setSegurado(maskOnlyLetters(e.target.value));
+
                     if(e.target.value) {
+                      setPlaca('');
+                      setCPF('');
                       setDate(null);
-                      setSegurado('');
                     }
                   }} />
                 </div>
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
                 <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
                 />
-              </>
-            )}
-            {placa.length === 0 && (
-              <>
-                <div>
-                  <div style={{ width: '100%' }}>CPF:</div>
-                  <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='CPF' onChange={(e) => setCPF(maskCPF(e.target.value))} />
-                </div>
+              </Col>
+              <Col span={5}>
+                {cpf.length === 0 && (
+                  <div>
+                    <div style={{ width: '100%' }}>PLACA:</div>
+                    <Input maxLength={7} style={{ width: '100%' }} allowClear type='text' value={placa} placeholder='PLACA' onChange={(e) => {
+                      setPlaca(String(e.target.value).toUpperCase());
+                      
+                      if(e.target.value) {
+                        setDate(null);
+                        setSegurado('');
+                      }
+                    }} />
+                  </div>
+                )}
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
                 <div
-                  style={{ marginLeft: 20, marginRight: 20  , border: '.5px solid #d1d1d1', height: '50px', width: 1, alignItems: 'center', display: 'flex' }}
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
                 />
-              </>
-            )}
+              </Col>
+              <Col span={5}>
+                {placa.length === 0 && (
+                  <div>
+                    <div style={{ width: '100%' }}>CPF:</div>
+                    <Input style={{ width: '100%' }} type='tel' value={cpf} allowClear placeholder='CPF' onChange={(e) => setCPF(maskCPF(e.target.value))} />
+                  </div>
+                )}
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+              <Col span={4}>
+                {cpf.length === 0 && (
+                  <div>
+                    <div style={{ width: '100%' }}>PLACA PREMIADA:</div>
+                    <Input maxLength={3} style={{ width: '100%' }} allowClear type='text' value={placaPremiada} placeholder='PLACA PREMIADA' onChange={(e) => {
+                      setPlacaPremiada(String(e.target.value).toUpperCase());
+                      
+                      if(e.target.value) {
+                        setCorretor(null);
+                        setSeguradora(null);
+                        setAnoAdesao('');
+                        setSegurado('');
+                        setPlaca('');
+                        setCPF('');
+                        setDate(null);
+                        setSegurado('');
+                      }
+                    }} />
+                  </div>
+                )}
+              </Col>
+              <Col span={1}
+                style={{
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  display: 'flex'
+                }}
+              >
+                <div
+                  style={{ border: '.5px solid #d1d1d1', height: '100%', width: 1 }}
+                />
+              </Col>
+            </Row>
           </Col>
           <Divider style={{ borderColor: '#d1d1d1', marginBottom: 15 }} />
         </Row>
@@ -343,6 +472,7 @@ const Seguro = () => {
           seguros={seguros}
           setViewNewSeguro={setViewNewSeguro}
           businessInfo={businessInfo}
+          placaPremiada={placaPremiada}
         />
       </CardComponent>
     </LayoutAdmin>

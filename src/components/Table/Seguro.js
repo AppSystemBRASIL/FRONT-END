@@ -296,7 +296,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header, padding, cancel }) => {
+const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header, padding, cancel }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -309,7 +309,9 @@ const TableSeguro = ({ anoAdesao, segurado, corretor, seguradora, date, infinite
   const theme = useTheme();
 
   useEffect(() => {
-    if((cpf.length === 14) || (placa.length === 7)) {
+    if(placaPremiada?.length === 3) {
+      getCotacao('init');
+    }else if((cpf.length === 14) || (placa.length === 7)) {
       getCotacao('init');
     }else if(cpf.length === 0) {
       if(placa.length >= 3 || placa.length === 0) {
@@ -324,7 +326,7 @@ const TableSeguro = ({ anoAdesao, segurado, corretor, seguradora, date, infinite
     }else if(segurado?.length > 3) {
       getCotacao('init');
     }
-  }, [cpf, placa, seguradora, corretor, date, cancel, anoAdesao, segurado]);
+  }, [cpf, placa, seguradora, corretor, date, cancel, anoAdesao, segurado, placaPremiada]);
 
   useEffect(() => {
     getCotacao('init');
@@ -341,56 +343,60 @@ const TableSeguro = ({ anoAdesao, segurado, corretor, seguradora, date, infinite
 
     let ref = firebase.firestore().collection('seguros').where('ativo', '==', cancel === undefined ? true : !cancel);
 
-    if(date) {
-      ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
-      ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
-    }
-
-    if(placa?.length >= 4) {
-      ref = ref.orderBy('veiculo.placa', 'desc');
-    }
-
-    if(segurado?.length >= 3) {
-      ref = ref.orderBy('segurado.nome', 'desc');
-    }
-
-    ref = ref.orderBy(cancel ? 'cancelada' : 'seguro.vigencia', 'asc');
-
-    if(user.tipo !== 'corretor') {
-      ref = ref.where('corretora.uid', '==', corretora);
+    if(placaPremiada?.length === 3) {
+      ref = ref.where('veiculo.placaQuery', '==', String(placaPremiada));
     }else {
-      ref = ref.where('corretor.uid', '==', user.uid);
-    }
-
-    if(corretor) {
-      if(corretor === 'null') {
-        ref = ref.where('corretor', '==', null);
-      }else {
-        ref = ref.where('corretor.uid', '==', corretor);
+      if(date) {
+        ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
+        ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
       }
-    }
-
-    if(seguradora) {
-      ref = ref.where('seguradora.uid', '==', seguradora);
-    }
-
-    if(anoAdesao) {
-      ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao.year()));
-    }
-
-    if(segurado?.length > 3) {
-      ref = ref.where('segurado.nome', '>=', String(segurado).toUpperCase()).where('segurado.nome', '<=', String(segurado).toUpperCase() + '~');
-    }
-
-    if(cpf !== undefined && cpf.length === 14) {
-      ref = ref.where('segurado.cpf', '==', cpf);
-      ref = ref.orderBy('created', 'desc');
-    }else if(placa !== undefined && placa.length >= 4) {
-      ref = ref.where('veiculo.placa', '>=', String(placa).toUpperCase()).where('veiculo.placa', '<=', String(placa).toUpperCase() + '~');
-      ref = ref.orderBy('created', 'desc');
-    }else if((!init && lastData !== 0)) {
-      ref = ref.orderBy('created', 'asc');
-      ref = ref.startAfter(lastData);
+  
+      if(placa?.length >= 4) {
+        ref = ref.orderBy('veiculo.placa', 'desc');
+      }
+  
+      if(segurado?.length >= 3) {
+        ref = ref.orderBy('segurado.nome', 'desc');
+      }
+  
+      ref = ref.orderBy(cancel ? 'cancelada' : 'seguro.vigencia', 'asc');
+  
+      if(user.tipo !== 'corretor') {
+        ref = ref.where('corretora.uid', '==', corretora);
+      }else {
+        ref = ref.where('corretor.uid', '==', user.uid);
+      }
+  
+      if(corretor) {
+        if(corretor === 'null') {
+          ref = ref.where('corretor', '==', null);
+        }else {
+          ref = ref.where('corretor.uid', '==', corretor);
+        }
+      }
+  
+      if(seguradora) {
+        ref = ref.where('seguradora.uid', '==', seguradora);
+      }
+  
+      if(anoAdesao) {
+        ref = ref.where('segurado.anoAdesao', '==', String(anoAdesao.year()));
+      }
+  
+      if(segurado?.length > 3) {
+        ref = ref.where('segurado.nome', '>=', String(segurado).toUpperCase()).where('segurado.nome', '<=', String(segurado).toUpperCase() + '~');
+      }
+  
+      if(cpf !== undefined && cpf.length === 14) {
+        ref = ref.where('segurado.cpf', '==', cpf);
+        ref = ref.orderBy('created', 'desc');
+      }else if(placa !== undefined && placa.length >= 4) {
+        ref = ref.where('veiculo.placa', '>=', String(placa).toUpperCase()).where('veiculo.placa', '<=', String(placa).toUpperCase() + '~');
+        ref = ref.orderBy('created', 'desc');
+      }else if((!init && lastData !== 0)) {
+        ref = ref.orderBy('created', 'asc');
+        ref = ref.startAfter(lastData);
+      }
     }
 
     const unsubscribe = ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)  || (date && (date[0] && date[1]))) ? 10000 : limit || listLimitDefault)

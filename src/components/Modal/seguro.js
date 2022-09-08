@@ -365,6 +365,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         condutor: dataNewSeguro.condutor,
         veiculo: dataNewSeguro.veiculo,
         placa: dataNewSeguro?.placa || null,
+        placaQuery: dataNewSeguro?.placa ? `${dataNewSeguro?.placa[3]}${dataNewSeguro?.placa[5]}${dataNewSeguro?.placa[6]}` : null,
         modelo: dataNewSeguro.modelo
       },
       endereco: {
