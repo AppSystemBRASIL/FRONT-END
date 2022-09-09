@@ -996,7 +996,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
                 </div>
               ]
             }
-            render={(veiculo) => (
+            render={(veiculo, dados) => (
               <div className={!loadingData && 'skeleton'}>
                 {veiculo ? String(veiculo.placa).slice(0, 3)+'-'+String(veiculo.placa).slice(3, 10) : 'A AVISAR'}
               </div>
@@ -1183,87 +1183,89 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
             )}
           />
         )}
-        <Table.Column
-          width={200}
-          key='uid'
-          dataIndex='uid'
-          title={
-            [
-              <div style={{width: !loadingData && 70, height: !loadingData && 23}} className={!loadingData && 'skeleton'}>
-                {loadingData && (
-                  <center>
-                    AÇÃO
-                  </center>
-                )}
-              </div>
-            ]
-          }
-          render={(uid, dados) => dados.externo ? (
-            <center>
-              EXTERNO
-            </center>
-          ) : (
-            <>
-              {!uid ? (
-                <div className='skeleton' style={{ width: 70, height: 23 }} />
-              ) : (
-                <>
-                  {loadingData ? (
-                    <div
-                      className={!loadingData && 'skeleton'}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-around'
-                      }}
-                    >
-                      <Dropdown overlay={() => (
-                        <Menu>
-                          
-                          {dados.ativo === true && (
-                            <>
-                              <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
-                                ENDOSSO DO VEÍCULO | CONDUTOR
-                              </Menu.Item>
-                              <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
-                                ENDOSSO DO ENDEREÇO
-                              </Menu.Item>
-                              <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
-                                ENDOSSO DE CANCELAMENTO
-                              </Menu.Item>
-                            </>
-                          )}
-                          {dados.endossos?.length > 0 && (
-                            <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
-                              REGISTROS DE ENDOSSOS
-                            </Menu.Item>
-                          )}
-                          <Menu.Item icon={<FaCog />} onClick={async () => {
-                            await verAjuste(dados);
-                          }}>
-                            AJUSTE GERAL
-                          </Menu.Item>
-                        </Menu>
-                      )}>
-                        <Button block
-                          style={{
-                            border: '1px solid black',
-                            outline: 'none',
-                            color: 'black'
-                          }}
-                        >
-                          OPÇÕES <DownOutlined />
-                        </Button>
-                      </Dropdown>
-                    </div>
-                  ) : (
-                    <div className='skeleton' style={{ width: 70, height: 23 }} />
+        {((externo === undefined || externo === false) && corretor !== 'null') && (
+          <Table.Column
+            width={200}
+            key='uid'
+            dataIndex='uid'
+            title={
+              [
+                <div style={{width: !loadingData && 70, height: !loadingData && 23}} className={!loadingData && 'skeleton'}>
+                  {loadingData && (
+                    <center>
+                      AÇÃO
+                    </center>
                   )}
-                </>
-              )}
-            </>
-          )}
-        />
+                </div>
+              ]
+            }
+            render={(uid, dados) => dados.externo ? (
+              <center>
+                EXTERNO
+              </center>
+            ) : (
+              <>
+                {!uid ? (
+                  <div className='skeleton' style={{ width: 70, height: 23 }} />
+                ) : (
+                  <>
+                    {loadingData ? (
+                      <div
+                        className={!loadingData && 'skeleton'}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-around'
+                        }}
+                      >
+                        <Dropdown overlay={() => (
+                          <Menu>
+                            
+                            {dados.ativo === true && (
+                              <>
+                                <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
+                                  ENDOSSO DO VEÍCULO | CONDUTOR
+                                </Menu.Item>
+                                <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
+                                  ENDOSSO DO ENDEREÇO
+                                </Menu.Item>
+                                <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
+                                  ENDOSSO DE CANCELAMENTO
+                                </Menu.Item>
+                              </>
+                            )}
+                            {dados.endossos?.length > 0 && (
+                              <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
+                                REGISTROS DE ENDOSSOS
+                              </Menu.Item>
+                            )}
+                            <Menu.Item icon={<FaCog />} onClick={async () => {
+                              await verAjuste(dados);
+                            }}>
+                              AJUSTE GERAL
+                            </Menu.Item>
+                          </Menu>
+                        )}>
+                          <Button block
+                            style={{
+                              border: '1px solid black',
+                              outline: 'none',
+                              color: 'black'
+                            }}
+                          >
+                            OPÇÕES <DownOutlined />
+                          </Button>
+                        </Dropdown>
+                      </div>
+                    ) : (
+                      <div className='skeleton' style={{ width: 70, height: 23 }} />
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          />
+        )}
       </Table>
       {(infiniteData === false && viewButtonMore === true) && (
         <center>

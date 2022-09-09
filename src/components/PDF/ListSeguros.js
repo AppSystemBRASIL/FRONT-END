@@ -670,7 +670,6 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
-    alert(externo)
     const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA DE SEGUROS') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
