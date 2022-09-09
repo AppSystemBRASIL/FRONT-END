@@ -958,7 +958,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-                {segurado ? String(segurado.nome).split(' ').slice(0, 2).join(' ') : '000000000'}
+                {segurado ? String(segurado.nome).split(' ').slice(0, 2).join(' ') : '-----------------'}
               </div>
             </>
           )}
