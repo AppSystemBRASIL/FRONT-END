@@ -409,7 +409,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
       },
       ativo: true,
       uid: generateToken(),
-      tipo: 'veicular'
+      tipo: 'veicular',
+      externo: false
     };
 
     if(dataNewSeguro.corretorUid) {
