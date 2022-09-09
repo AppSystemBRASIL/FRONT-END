@@ -11,7 +11,7 @@ function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
 
-export default async function printListSeguros(seguros, corretora, filtros, comissao, type) {
+export default async function printListSeguros(seguros, corretora, filtros, comissao, type, externo) {
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
   let content = null;
@@ -161,7 +161,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
     }
 
 
-    const dadosBancarios = filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA DE SEGUROS') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
     });
@@ -350,8 +350,11 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         array.push(100);
       }
       array.push(65);
-      array.push(60);
-      array.push(20);
+      if(externo === undefined || externo === false) {
+        array.push(60);
+        array.push(20);
+      }
+      
       return array;
     }
   
@@ -379,22 +382,25 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         text: 'SEGURADORA',
         fontSize: 10,
       });
-      array.push({
-        text: 'PRÊMIO',
-        fontSize: 10,
-      });
-      array.push({
-        text: '%',
-        fontSize: 10,
-        alignment: 'center'
-      });
+      if(externo === undefined || externo === false) {
+        array.push({
+          text: 'PRÊMIO',
+          fontSize: 10,
+        });
+        array.push({
+          text: '%',
+          fontSize: 10,
+          alignment: 'center'
+        });
+      }
+
       return array;
     }
   
     function getTableList(item) {
       const array = [];
       array.push({
-        text: format(item.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
+        text: format(item.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
         fontSize: 10
       });
       array.push({
@@ -415,14 +421,16 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         text: item.seguradora.razao_social.split(' ')[0],
         fontSize: 10
       });
-      array.push({
-        text: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valores.premio),
-        fontSize: 10
-      });
-      array.push({
-        text: item.valores.percentual,
-        fontSize: 10
-      });
+      if(externo === undefined || externo === false) {
+        array.push({
+          text: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valores.premio),
+          fontSize: 10
+        });
+        array.push({
+          text: item.valores.percentual,
+          fontSize: 10
+        });
+      }
       return array;
     }
   
@@ -662,7 +670,8 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
-    const dadosBancarios = filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    alert(externo)
+    const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA DE SEGUROS') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
     });

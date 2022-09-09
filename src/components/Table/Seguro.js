@@ -296,7 +296,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, nameFirst, header, padding, cancel }) => {
+const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, header, padding, cancel, externo }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -341,7 +341,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
       await setSeguros([]); 
     }
 
-    let ref = firebase.firestore().collection('seguros').where('ativo', '==', cancel === undefined ? true : !cancel);
+    let ref = firebase.firestore().collection('seguros').where('ativo', '==', cancel === undefined ? true : !cancel).where('externo', '==', externo === undefined ? false : externo);
 
     if(placaPremiada?.length === 3) {
       ref = ref.where('veiculo.placaQuery', '==', String(placaPremiada));
@@ -425,7 +425,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
               objetos.push(item);
             }
           });
-  
+
           return objetos;
         });
 
@@ -952,18 +952,18 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
           }
           render={(segurado) => (
             <>
-              {loadingData && (
+              {(loadingData && segurado.anoAdesao) && (
                 <span style={{ fontSize: '.6rem', position: 'absolute', bottom: 5, left: 16 }}>
                   DESDE {segurado.anoAdesao}
                 </span>
               )}
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-                {segurado ? String(segurado.nome).split(' ').slice(0, nameFirst ? 1 : 3).join(' ') : '000000000'}
+                {segurado ? `${String(segurado.nome).split(' ').slice(0, 1).join(' ')} ${String(segurado.nome).split(' ').slice(-1)}` : '000000000'}
               </div>
             </>
           )}
         />
-        {(user.tipo === 'administrador' && !corretor) && (
+        {((user.tipo === 'administrador' && !corretor) && (externo === undefined || externo === false)) && (
           <Table.Column
             width={200}
             key='corretor'
@@ -1046,28 +1046,30 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
             </div>
           )}
         />
-        <Table.Column
-          width={300}
-          key='valores'
-          dataIndex='valores'
-          title={
-            [
-              <div className={!loadingData && 'skeleton'}>
-                PRÊMIO LÍQUIDO {!corretor && '| COMISSÃO'}
-              </div> 
-            ]
-          }
-          render={(valores, dados) => valores && (
-            <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
-              <div>
-                {Number(valores.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(valores.percentual).toFixed(0)}%
-                <br/>
-                <span style={{ fontSize: '.7rem' }}>COMISSÃO: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+        {((externo === undefined || externo === false) && corretor !== 'null') && (
+          <Table.Column
+            width={300}
+            key='valores'
+            dataIndex='valores'
+            title={
+              [
+                <div className={!loadingData && 'skeleton'}>
+                  PRÊMIO LÍQUIDO {!corretor && '| COMISSÃO'}
+                </div> 
+              ]
+            }
+            render={(valores, dados) => valores && (
+              <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
+                <div>
+                  {Number(valores.premio).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })} | {Number(valores.percentual).toFixed(0)}%
+                  <br/>
+                  <span style={{ fontSize: '.7rem' }}>COMISSÃO: {Number(valores.comissao).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}</span>
+                </div>
               </div>
-            </div>
-          )}
-        />
-        {(corretor !== 'null') && (
+            )}
+          />
+        )}
+        {((externo === undefined || externo === false) && corretor !== 'null') && (
           <Table.Column
             width={300}
             key='valores'
@@ -1079,7 +1081,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
                 </div> 
               ]
             }
-            render={(valores, dados) => (valores.corretor && valores.corretor.valor && valores.juros) && (
+            render={(valores, dados) => (valores?.corretor && valores?.corretor?.valor && valores?.juros) && (
               <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '1rem' }}>
                 <div>
                   {Number(valores.corretor.valor).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
@@ -1196,7 +1198,11 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
               </div>
             ]
           }
-          render={(uid, dados) => (
+          render={(uid, dados) => dados.externo ? (
+            <center>
+              EXTERNO
+            </center>
+          ) : (
             <>
               {!uid ? (
                 <div className='skeleton' style={{ width: 70, height: 23 }} />

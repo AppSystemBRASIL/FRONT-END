@@ -19,6 +19,11 @@ const router = [
         patchname: '/painel/seguros',
         icon: 'bx bx-file',
       },
+      {
+        title: 'SEGUROS EXTERNOS',
+        patchname: '/painel/seguros-externos',
+        icon: 'bx bx-file',
+      },
     ],
     roles: ['administrador', 'corretor', 'gestor']
   },
