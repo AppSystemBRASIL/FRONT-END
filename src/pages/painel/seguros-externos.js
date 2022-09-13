@@ -131,6 +131,24 @@ const Seguro = () => {
             position: 'relative'
           }}
         >
+          {(date && seguros.length > 0) && (
+            <span
+              style={{
+                position: 'absolute',
+                top: 15,
+                right: 15,
+                fontSize: '1.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                zIndex: 1
+              }}
+              onClick={printSeguros}
+            >
+              <FaPrint style={{ marginRight: 5 }} /> IMPRIMIR
+            </span>
+          )}
           <Col span={24}>
             <h1 style={{margin: 0, padding: 0, fontWeight: '700', color: '#444', textAlign: 'center', marginBottom: 10}}>SEGUROS EXTERNOS</h1>
           </Col>

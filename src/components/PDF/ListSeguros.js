@@ -344,10 +344,14 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
     function getTableListHeaderWidth() {
       const array = [];
       array.push(55);
-      array.push(25);
+      if(seguros[0].valores) {
+        array.push(25);
+      }
       array.push('*');
       if(!filtros.corretor) {
-        array.push(100);
+        if(seguros[0].valores) {
+          array.push(100);
+        }
       }
       array.push(65);
       if(externo === undefined || externo === false) {
@@ -364,19 +368,23 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         text: 'VIGÊNCIA',
         fontSize: 10,
       });
-      array.push({
-        text: 'ANO',
-        fontSize: 10,
-      });
+      if(seguros[0].valores) {
+        array.push({
+          text: 'ANO',
+          fontSize: 10,
+        });
+      }
       array.push({
         text: 'SEGURADO',
         fontSize: 10,
       });
       if(!filtros.corretor) {
-        array.push({
-          text: 'PRODUTOR',
-          fontSize: 10,
-        });
+        if(seguros[0].valores) {
+          array.push({
+            text: 'PRODUTOR',
+            fontSize: 10,
+          });
+        }
       }
       array.push({
         text: 'SEGURADORA',
@@ -403,19 +411,23 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         text: format(item.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
         fontSize: 10
       });
-      array.push({
-        text: item.segurado.anoAdesao,
-        fontSize: 10,
-      });
+      if(seguros[0].valores) {
+        array.push({
+          text: item.segurado.anoAdesao,
+          fontSize: 10,
+        });
+      }
       array.push({
         text: `${item.segurado.nome.split(' ').slice(0, 1)} ${item.segurado.nome.split(' ').slice(-1)}`,
         fontSize: 10
       });
       if(!filtros.corretor) {
-        array.push({
-          text: item.corretor && item.corretor.nome.split(' ').slice(0, 2).join(' '),
-          fontSize: 10
-        });
+        if(seguros[0].valores) {
+          array.push({
+            text: item.corretor && item.corretor.nome.split(' ').slice(0, 2).join(' '),
+            fontSize: 10
+          });
+        }
       }
       array.push({
         text: item.seguradora.razao_social.split(' ')[0],
@@ -535,7 +547,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           body: [
             [ 
               {
-                text: `TOTAL EM PRÊMIOS: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format([...seguros].reduce((a, b) => a + b.valores.premio, 0))}`,
+                text: seguros[0].valores && `TOTAL EM PRÊMIOS: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format([...seguros].reduce((a, b) => a + b?.valores?.premio || 0, 0))}`,
                 alignment: 'left',
               }
             ],
