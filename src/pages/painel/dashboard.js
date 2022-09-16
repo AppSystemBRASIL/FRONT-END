@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import LayoutAdmin from '../../components/Layout/Admin';
 
-import { Row, Col, DatePicker, Select, InputNumber, Button, Divider, Modal } from 'antd';
+import { Row, Col, DatePicker, Select, InputNumber, Divider } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
@@ -18,7 +18,7 @@ import {
   LineElement,
   Tooltip,
   Filler,
-  Legend,
+  Legend
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -93,7 +93,7 @@ const Dashboard = () => {
     setDataSeguros([]);
     setDataSegurosCancelados([]);
 
-    let ref = firebase.firestore().collection('seguros').where('corretora.uid', '==', businessInfo.uid);
+    let ref = firebase.firestore().collection('seguros').where('corretora.uid', '==', businessInfo.uid).where('externo', '==', false);
 
     if(seguradora) {
       ref = ref.where('seguradora.uid', '==', seguradora);
@@ -180,21 +180,21 @@ const Dashboard = () => {
 
 
   const totalSeguros = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
-  const totalPremioNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
+  const totalPremioNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b?.valores?.premio, 0)).reduce((a, b) => a + b, 0);
   const totalPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPremioNumber);
   const mediaPremioLiquido = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSeguros) || 0);
 
-  const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
+  const comissaoNumber = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSeguros.filter(e => e.seguro.vigencia >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.seguro.vigencia <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b?.valores?.comissao, 0)).reduce((a, b) => a + b, 0);
   const totalComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber);
   const mediaComissao = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumber / totalSeguros);
   const percentualComissao = (comissaoNumber / totalPremioNumber) * 100;
 
   const totalSegurosCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).length).reduce((a, b) => a + b, 0);
-  const totalPremioNumberCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0);
+  const totalPremioNumberCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b?.valores?.premio, 0)).reduce((a, b) => a + b, 0);
   const totalPremioLiquidoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPremioNumberCancelados);
   const mediaPremioLiquidoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.premio, 0)).reduce((a, b) => a + b, 0) / totalSegurosCancelados) || 0);
 
-  const comissaoNumberCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b.valores.comissao, 0)).reduce((a, b) => a + b, 0);
+  const comissaoNumberCancelados = labels.slice(!date ? 0 : new Date(date[0]).getDate() - 1, !date ? 31 : new Date(date[1]).getDate()).map((item) => dataSegurosCancelados.filter(e => e.cancelada >= startOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item))) && e.cancelada <= endOfDay(new Date(date ? date[0].getFullYear() : new Date().getFullYear(), date ? date[0].getMonth() : new Date().getMonth(), Number(item)))).reduce((a, b) => a + b?.valores?.comissao, 0)).reduce((a, b) => a + b, 0);
   const totalComissaoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumberCancelados);
   const mediaComissaoCancelados = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(comissaoNumberCancelados / totalSegurosCancelados);
   const percentualComissaoCancelados = ((comissaoNumberCancelados / totalPremioNumberCancelados) || 0) * 100;
