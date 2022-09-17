@@ -15,73 +15,84 @@ export default async function handler(req, res) {
 
   await ref.get()
   .then((response) => {
-    console.log(response.size)
+    console.log(response.size);
+
     if(!response.empty) {
-      response.forEach((item) => {
-        //firebase.firestore().collection('seguros').doc(item.data().uid).delete();
+      response.forEach(({ id }) => {
+        firebase.firestore().collection('seguros').doc(id).delete()
+        .then(() => {
+          console.log(id);
+        })
       })
     }
   });
 
-  /*
-    await firebase
-    .firestore()
-    .collection('seguros')
-    .where('ativo', '==', true)
-    .where('seguro.vigenciaFinal', '>=', new Date())
-    .get()
-    .then((response) => {
-      const array = [];
-      const arrayCorretor = [];
-      const arrayCorretora = [];
+  await firebase
+  .firestore()
+  .collection('seguros')
+  .where('ativo', '==', true)
+  .where('seguro.vigenciaFinal', '>=', new Date())
+  .where('externo', '==', false)
+  .get()
+  .then((response) => {
+    const array = [];
+    const arrayCorretor = [];
+    const arrayCorretora = [];
 
-      if(!response.empty) {
-        response.forEach((item) => {
-          const data = item.data();
+    console.log(response.size)
 
-          if(data.corretor) {
-            arrayCorretor.push(data.corretor.uid);
-          }
+    if(!response.empty) {
+      response.forEach((item) => {
+        const data = item.data();
 
-          if(data.corretora) {
-            arrayCorretora.push(data.corretora.uid);
-          }
+        if(data.corretor) {
+          arrayCorretor.push(data.corretor.uid);
+        }
 
-          array.push(data);
-        })
-      }
+        if(data.corretora) {
+          arrayCorretora.push(data.corretora.uid);
+        }
 
-      arrayCorretor.map(async (item) => {
-        const data = array.filter(e => e.corretor).filter(e => e.corretor.uid === item);
+        array.push(data);
+      })
+    }
 
-        const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
-        const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
+    arrayCorretor.map(async (item) => {
+      const data = array.filter(e => e.corretor).filter(e => e.corretor.uid === item);
 
-        await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
-          total: data.length,
-          valores: {
-            premio: premioValor,
-            comissao: comissaoValor,
-          }
-        }, { merge: true });
-      });
+      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
+      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
 
-      arrayCorretora.map(async (item) => {
-        const data = array.filter(e => e.corretora).filter(e => e.corretora.uid === item);
-
-        const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
-        const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
-
-        await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
-          total: data.length,
-          valores: {
-            premio: premioValor,
-            comissao: comissaoValor,
-          }
-        }, { merge: true });
+      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
+        total: data.length,
+        valores: {
+          premio: premioValor,
+          comissao: comissaoValor,
+        }
+      }, { merge: true })
+      .then(() => {
+        console.log(item)
       });
     });
-  */
+
+    arrayCorretora.map(async (item) => {
+      const data = array.filter(e => e.corretora).filter(e => e.corretora.uid === item);
+
+      const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
+      const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
+
+      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
+        total: data.length,
+        valores: {
+          premio: premioValor,
+          comissao: comissaoValor,
+        }
+      }, { merge: true })
+      .then(() => {
+        console.log(item)
+      });
+    });
+  });
   
   const date = new Date();
 
