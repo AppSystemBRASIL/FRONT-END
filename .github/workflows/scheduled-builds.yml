@@ -1,0 +1,14 @@
+# .github/workflows/scheduled-builds.yml
+name: Verificar seguros
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+jobs:
+  build:
+    name: Trigger Site Rebuild
+    runs-on: ubuntu-latest
+    steps:
+      - name: cURL request
+        # Hit the webhook endpoint to rebuild  from the "main" branch
+        run: curl -X POST -d {} https://<webhook-endpoint-url>
