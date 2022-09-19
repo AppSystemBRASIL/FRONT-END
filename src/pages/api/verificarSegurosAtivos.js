@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   ref = ref.where('seguro.vigenciaFinal', '<', new Date());
 
-  await ref.get()
+  ref.get()
   .then((response) => {
     if(!response.empty) {
       response.forEach(({ id }) => {
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
   });
 
-  await firebase
+  firebase
   .firestore()
   .collection('seguros')
   .where('ativo', '==', true)
@@ -50,13 +50,13 @@ export default async function handler(req, res) {
       })
     }
 
-    arrayCorretor.map(async (item) => {
+    arrayCorretor.map((item) => {
       const data = array.filter(e => e.corretor).filter(e => e.corretor.uid === item);
 
       const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
       const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
 
-      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
+      firebase.firestore().collection('relatorios').doc('seguros').collection('corretor').doc(item).set({
         total: data.length,
         valores: {
           premio: premioValor,
@@ -65,13 +65,13 @@ export default async function handler(req, res) {
       }, { merge: true });
     });
 
-    arrayCorretora.map(async (item) => {
+    arrayCorretora.map((item) => {
       const data = array.filter(e => e.corretora).filter(e => e.corretora.uid === item);
 
       const premioValor = data.reduce((accum, curr) => accum + curr.valores.premio, 0);
       const comissaoValor = data.reduce((accum, curr) => accum + curr.valores.comissao, 0);
 
-      await firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
+      firebase.firestore().collection('relatorios').doc('seguros').collection('corretora').doc(item).set({
         total: data.length,
         valores: {
           premio: premioValor,
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
   
   const date = new Date();
 
-  await firebase
+  firebase
   .firestore()
   .collection('postback')
   .doc('githubActions')
@@ -94,10 +94,4 @@ export default async function handler(req, res) {
   res.status(200).json({
     success: true
   });
-}
-
-export const config = {
-  api: {
-    
-  }
 }
