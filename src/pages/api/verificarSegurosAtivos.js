@@ -15,14 +15,9 @@ export default async function handler(req, res) {
 
   await ref.get()
   .then((response) => {
-    console.log(response.size);
-
     if(!response.empty) {
       response.forEach(({ id }) => {
-        firebase.firestore().collection('seguros').doc(id).delete()
-        .then(() => {
-          console.log(id);
-        })
+        firebase.firestore().collection('seguros').doc(id).delete();
       })
     }
   });
@@ -38,8 +33,6 @@ export default async function handler(req, res) {
     const array = [];
     const arrayCorretor = [];
     const arrayCorretora = [];
-
-    console.log(response.size)
 
     if(!response.empty) {
       response.forEach((item) => {
@@ -69,10 +62,7 @@ export default async function handler(req, res) {
           premio: premioValor,
           comissao: comissaoValor,
         }
-      }, { merge: true })
-      .then(() => {
-        console.log(item)
-      });
+      }, { merge: true });
     });
 
     arrayCorretora.map(async (item) => {
@@ -87,10 +77,7 @@ export default async function handler(req, res) {
           premio: premioValor,
           comissao: comissaoValor,
         }
-      }, { merge: true })
-      .then(() => {
-        console.log(item)
-      });
+      }, { merge: true });
     });
   });
   
@@ -107,4 +94,10 @@ export default async function handler(req, res) {
   res.status(200).json({
     success: true
   });
+}
+
+export const config = {
+  api: {
+    
+  }
 }

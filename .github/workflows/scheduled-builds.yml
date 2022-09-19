@@ -10,5 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cURL request
-        # Hit the webhook endpoint to rebuild  from the "main" branch
-        run: curl -X POST -d {} https://<webhook-endpoint-url>
+        run: curl -X POST -d {} https://xcarcorretora.com.br/api/verificarSegurosAtivos

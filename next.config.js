@@ -10,5 +10,11 @@ module.exports = {
     NEXT_PUBLIC_MESSAGINGSENDER_ID: '402899438373',
     NEXT_PUBLIC_APP_ID: '1:402899438373:web:1e9b8c64f444392b8228cc',
     NEXT_PUBLIC_PAGARME_KEY: 'ak_test_qrKH99i0vbHCkFKMXdOpYMVkv0DXfn'
+  },
+  httpAgentOptions: {
+    keepAlive: false,
+  },
+  serverRuntimeConfig: {
+    secondSecret: 99999999
   }
 }

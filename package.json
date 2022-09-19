@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_OPTIONS='--http-server-default-timeout=0' next start",
     "lint": "next lint",
     "git": "git add . && git commit -m 'commit' && git push"
   },
