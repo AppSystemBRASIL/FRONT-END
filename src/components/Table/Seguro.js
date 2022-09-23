@@ -348,8 +348,8 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
       ref = ref.where('veiculo.placaQuery', '==', String(placaPremiada));
     }else {
       if(date) {
-        ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
-        ref = ref.where(cancel ? 'cancelada' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
+        ref = ref.where(cancel ? 'cancelada' : externo ? 'seguro.vigenciaFinal' : 'seguro.vigencia', '>=', startOfDay(new Date(date[0].toDate())));
+        ref = ref.where(cancel ? 'cancelada' : externo ? 'seguro.vigenciaFinal' : 'seguro.vigencia', '<=', endOfDay(new Date(date[1].toDate())));
       }
   
       if(placa?.length >= 4) {
@@ -360,7 +360,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
         ref = ref.orderBy('segurado.nome', 'desc');
       }
   
-      ref = ref.orderBy(cancel ? 'cancelada' : 'seguro.vigencia', 'asc');
+      ref = ref.orderBy(cancel ? 'cancelada' : externo ? 'seguro.vigenciaFinal' : 'seguro.vigencia', 'asc');
   
       if(user.tipo !== 'corretor') {
         ref = ref.where('corretora.uid', '==', corretora);
