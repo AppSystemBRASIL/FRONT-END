@@ -281,7 +281,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     if(String(dataNewSeguro.cep).length === 9) {
       axios.get(`https://viacep.com.br/ws/${String(dataNewSeguro.cep).split('-').join('')}/json`, {
         headers: {
-          'content-type': 'application/json;charset=utf-8',
+          'content-type': 'application/json;charset=utf-8'
         },
       })
       .then((response) => {
