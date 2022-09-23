@@ -130,7 +130,7 @@ export default async function cotacaoPDF(dados, type) {
       bold: true,
       fontSize: 10,
     }, {
-      text: dados.segurado.cep,
+      text: dados.segurado.cep || dados.endereco.cep,
       fontSize: 10,
     }]);
   }
@@ -258,7 +258,7 @@ export default async function cotacaoPDF(dados, type) {
       bold: true,
       fontSize: 10,
     }, {
-      text: dados.seguro.vigencia,
+      text: typeof dados.seguro.vigencia === 'object' ? format(new Date(dados.seguro.vigenciaFinal.seconds * 1000), 'dd/MM/yyyy') : dados.seguro.vigencia,
       fontSize: 10,
     }])
   }
@@ -389,7 +389,6 @@ export default async function cotacaoPDF(dados, type) {
           [
             {
               text: 'DADOS DO VEÍCULO',
-              alignment: 'center',
               fontSize: 10,
               bold: true,
             },
@@ -412,57 +411,57 @@ export default async function cotacaoPDF(dados, type) {
 
   const bodyCondutor = [];
 
-  if(dados.condutor.nome) {
+  if(dados?.condutor?.nome) {
     bodyCondutor.push([{
       text: 'NOME',
       bold: true,
       fontSize: 10,
     }, {
-      text: String(dados.condutor.nome).toUpperCase(),
+      text: String(dados?.condutor?.nome).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.condutor.relacao) {
+  if(dados?.condutor?.relacao) {
     bodyCondutor.push([{
       text: 'RELAÇÃO COM O SEGURADO',
       bold: true,
       fontSize: 10,
     }, {
-      text: String(dados.condutor.relacao).toUpperCase(),
+      text: String(dados?.condutor?.relacao).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.condutor.cpf) {
+  if(dados?.condutor?.cpf) {
     bodyCondutor.push([{
       text: 'CPF',
       bold: true,
       fontSize: 10,
     }, {
-      text: dados.condutor.cpf,
+      text: dados?.condutor?.cpf,
       fontSize: 10,
     }]);
   }
 
-  if(dados.condutor.estadoCivil) {
+  if(dados?.condutor?.estadoCivil) {
     bodyCondutor.push([{
       text: 'ESTADO CIVIL',
       bold: true,
       fontSize: 10,
     }, {
-      text: String(dados.condutor.estadoCivil).toUpperCase(),
+      text: String(dados?.condutor?.estadoCivil).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.condutor.profissao) {
+  if(dados?.condutor?.profissao) {
     bodyCondutor.push([{
       text: 'PROFISSAO',
       bold: true,
       fontSize: 10,
     }, {
-      text: String(dados.condutor.profissao).toUpperCase(),
+      text: String(dados?.condutor?.profissao).toUpperCase(),
       fontSize: 10
     }]);
   }
@@ -498,74 +497,74 @@ export default async function cotacaoPDF(dados, type) {
 
   const bodyImovel = [];
 
-  if(dados.imovel.cep) {
+  if(dados?.imovel?.cep) {
     bodyImovel.push([{
       text: 'CEP',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.imovel.cep).toUpperCase(),
+      text: String(dados?.imovel?.cep).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.imovel.propriedadeImovel) {
+  if(dados?.imovel?.propriedadeImovel) {
     bodyImovel.push([{
       text: 'PROPRIEDADE DO IMÓVEL',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.imovel.propriedadeImovel).toUpperCase(),
+      text: String(dados?.imovel?.propriedadeImovel).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.imovel.tipoImovel) {
+  if(dados?.imovel?.tipoImovel) {
     bodyImovel.push([{
       text: 'TIPO DO IMÓVEL',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.imovel.tipoImovel).toUpperCase(),
+      text: String(dados?.imovel?.tipoImovel).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.imovel.usoImovel) {
+  if(dados?.imovel?.usoImovel) {
     bodyImovel.push([{
       text: 'USO DO IMÓVEL',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.imovel.usoImovel).toUpperCase(),
+      text: String(dados?.imovel?.usoImovel).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.imovel.valorImovel) {
+  if(dados?.imovel?.valorImovel) {
     bodyImovel.push([{
       text: 'VELOR DO IMÓVEL',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.imovel.valorImovel).toUpperCase(),
+      text: String(dados?.imovel?.valorImovel).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.imovel.valorMoveis) {
+  if(dados?.imovel?.valorMoveis) {
     bodyImovel.push([{
       text: 'VALOR DOS MÓVEIS',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.imovel.valorMoveis).toUpperCase(),
+      text: String(dados?.imovel?.valorMoveis).toUpperCase(),
       fontSize: 10,
     }]);
   }
@@ -600,86 +599,86 @@ export default async function cotacaoPDF(dados, type) {
 
   const bodyViagem = [];
 
-  if(dados.viagem.destino) {
+  if(dados?.viagem?.destino) {
     bodyViagem.push([{
       text: 'DESTINO',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.destino).toUpperCase(),
+      text: String(dados?.viagem?.destino).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.viagem.ida) {
+  if(dados?.viagem?.ida) {
     bodyViagem.push([{
       text: 'IDA',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.ida).toUpperCase(),
+      text: String(dados?.viagem?.ida).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.viagem.motivo) {
+  if(dados?.viagem?.motivo) {
     bodyViagem.push([{
       text: 'MOTIVO',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.motivo).toUpperCase(),
+      text: String(dados?.viagem?.motivo).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.viagem.origem) {
+  if(dados?.viagem?.origem) {
     bodyViagem.push([{
       text: 'ORIGEM',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.origem).toUpperCase(),
+      text: String(dados?.viagem?.origem).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.viagem.retorno) {
+  if(dados?.viagem?.retorno) {
     bodyViagem.push([{
       text: 'RETORNO',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.retorno).toUpperCase(),
+      text: String(dados?.viagem?.retorno).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.viagem.tipo) {
+  if(dados?.viagem?.tipo) {
     bodyViagem.push([{
       text: 'TIPO',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.tipo).toUpperCase(),
+      text: String(dados?.viagem?.tipo).toUpperCase(),
       fontSize: 10,
     }]);
   }
 
-  if(dados.viagem.transporte) {
+  if(dados?.viagem?.transporte) {
     bodyViagem.push([{
       text: 'TRANSPORTE',
       bold: true,
       fontSize: 10,
     },
     {
-      text: String(dados.viagem.transporte).toUpperCase(),
+      text: String(dados?.viagem?.transporte).toUpperCase(),
       fontSize: 10,
     }]);
   }
@@ -811,7 +810,6 @@ export default async function cotacaoPDF(dados, type) {
           [
             {
               text: 'AVALIAÇÃO DE RISCO',
-              alignment: 'center',
               fontSize: 10,
               bold: true,
             },

@@ -7,7 +7,7 @@ import TableSeguro from '../../components/Table/Seguro';
 import { maskCPF, maskOnlyLetters, maskYear } from '../../hooks/mask';
 
 import useAuth from '../../hooks/useAuth';
-import { FaPlus, FaPrint } from 'react-icons/fa';
+import { FaPrint } from 'react-icons/fa';
 
 import firebase from '../../auth/AuthConfig';
 

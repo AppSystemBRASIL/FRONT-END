@@ -21,7 +21,7 @@ import {
   Tooltip
 } from 'antd';
 
-import { FaCog, FaEye, FaFileAlt, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaCog, FaEye, FaFileAlt, FaPlus, FaPrint, FaTimes } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons';
@@ -40,6 +40,7 @@ import ModalSeguro from 'components/Modal/seguro';
 import axios from 'axios';
 
 import jsonComposto from '../../data/jsonComposto.json';
+import { verSolicitacaoCotacao } from 'functions';
 function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
@@ -1183,7 +1184,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
             )}
           />
         )}
-        {((externo === undefined || externo === false) && corretor !== 'null') && (
+        {(corretor !== 'null') && (
           <Table.Column
             width={200}
             key='uid'
@@ -1199,11 +1200,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
                 </div>
               ]
             }
-            render={(uid, dados) => dados.externo ? (
-              <center>
-                EXTERNO
-              </center>
-            ) : (
+            render={(uid, dados) => (
               <>
                 {!uid ? (
                   <div className='skeleton' style={{ width: 70, height: 23 }} />
@@ -1220,30 +1217,64 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
                       >
                         <Dropdown overlay={() => (
                           <Menu>
-                            
-                            {dados.ativo === true && (
+                            {dados?.externo ? (
                               <>
-                                <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
-                                  ENDOSSO DO VEÍCULO | CONDUTOR
+                                <Menu.Item icon={<FaPrint />} onClick={() => {
+                                  verSolicitacaoCotacao(dados);
+                                }}>
+                                  IMPRIMIR
                                 </Menu.Item>
-                                <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
-                                  ENDOSSO DO ENDEREÇO
+                                <Menu.Item icon={<FaTimes />} onClick={() => {
+                                  Modal.confirm({
+                                    title: 'DESEJA REALMENTE EXCLUIR',
+                                    content: 'Se você excluir o registro, o mesmo não poderá ser recuperado.',
+                                    cancelText: 'FECHAR',
+                                    okText: 'EXCLUIR',
+                                    okButtonProps: {
+                                      style: {
+                                        backgroundColor: theme.colors[businessInfo.layout.theme].primary,
+                                        color: 'white',
+                                        border: 'none'
+                                      }
+                                    },
+                                    onOk: async () => {
+                                      await firebase.firestore().collection('seguros').doc(uid).delete()
+                                      .then(() => {
+                                        window.location.reload();
+                                      });
+                                    }
+                                  })
+                                }}>
+                                  EXCLUIR
                                 </Menu.Item>
-                                <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
-                                  ENDOSSO DE CANCELAMENTO
+                              </>
+                            ) : (
+                              <>
+                                {dados.ativo === true && (
+                                  <>
+                                    <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'VEÍCULO')}>
+                                      ENDOSSO DO VEÍCULO | CONDUTOR
+                                    </Menu.Item>
+                                    <Menu.Item icon={<FaFileAlt />} onClick={() => endossoData(dados, 'ENDEREÇO')}>
+                                      ENDOSSO DO ENDEREÇO
+                                    </Menu.Item>
+                                    <Menu.Item icon={<FaFileAlt />} onClick={() => cancelarSeguro(dados)}>
+                                      ENDOSSO DE CANCELAMENTO
+                                    </Menu.Item>
+                                  </>
+                                )}
+                                {dados.endossos?.length > 0 && (
+                                  <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
+                                    REGISTROS DE ENDOSSOS
+                                  </Menu.Item>
+                                )}
+                                <Menu.Item icon={<FaCog />} onClick={async () => {
+                                  await verAjuste(dados);
+                                }}>
+                                  AJUSTE GERAL
                                 </Menu.Item>
                               </>
                             )}
-                            {dados.endossos?.length > 0 && (
-                              <Menu.Item icon={<FaFileAlt />} onClick={() => verEndossos(dados)}>
-                                REGISTROS DE ENDOSSOS
-                              </Menu.Item>
-                            )}
-                            <Menu.Item icon={<FaCog />} onClick={async () => {
-                              await verAjuste(dados);
-                            }}>
-                              AJUSTE GERAL
-                            </Menu.Item>
                           </Menu>
                         )}>
                           <Button block

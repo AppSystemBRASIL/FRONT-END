@@ -3,7 +3,7 @@ import { FaTimes, FaCheck } from 'react-icons/fa';
 
 import colors from '../../utils/colors';
 
-import { vincularSeguro, iniciarCotacao, apagarCotacao, concluirCotacao, verSeguro } from '../../functions';
+import { vincularSeguro, iniciarCotacao, apagarCotacao, verSeguro } from '../../functions';
 
 const Cotacao = ({ dados, setData }) => {
   return (
