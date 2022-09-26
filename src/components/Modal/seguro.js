@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { Modal, Row, Col, Select, Input, InputNumber, notification, Divider, Alert } from 'antd';
+import { Col, Divider, Input, InputNumber, Modal, notification, Row, Select } from 'antd';
 
 import useAuth from 'hooks/useAuth';
 
@@ -9,10 +9,10 @@ import { useTheme } from 'styled-components';
 import { addYears, endOfDay, format, setHours, setMinutes } from 'date-fns';
 import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskPercentual, maskPhone, maskPlaca, maskYear } from 'hooks/mask';
 
-import firebase from '../../auth/AuthConfig';
 import axios from 'axios';
-import { validarCelular, validarPlaca, validateCPF } from 'hooks/validate';
 import generateToken from 'hooks/generateToken';
+import { validarCelular, validateCPF } from 'hooks/validate';
+import firebase from '../../auth/AuthConfig';
 
 import jsonComposto from '../../data/jsonComposto.json';
 
@@ -189,7 +189,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
             vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
             premio: 0,
             franquia: 0,
-            percentual: 0,
+            percentual: '',
             anoAdesao: arrayFirst.segurado.anoAdesao,
             veiculo: arrayFirst.veiculo.veiculo,
             nome: arrayFirst.segurado.nome,
@@ -782,7 +782,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
         </Col>
         <Col span={4}>
           <label>PERCENTUAL: <span style={{ color: 'red' }}>*</span></label>
-          <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskPercentual(response.target.value)}))} onKeyPress={(e) => {
+          <Input id='percentualModal' maxLength={5} prefix='%' autoComplete='off' value={dataNewSeguro.percentual || ''} style={{ textTransform: 'uppercase' }} onChange={(response) => setDataNewSeguro(e => ({...e, percentual: maskPercentual(response.target.value || '')}))} onKeyPress={(e) => {
             if(e.code === 'Enter') {
               if(dataNewSeguro.comissao && dataNewSeguro.corretorUid) {
                 document.getElementById('percentualModalfsdfds').focus(); 
