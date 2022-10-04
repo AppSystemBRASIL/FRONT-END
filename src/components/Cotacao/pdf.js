@@ -92,7 +92,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.segurado.celular,
+    text: dados.segurado.celular || dados.segurado.telefone || dados.celular,
     fontSize: 10
   }]);
 
@@ -110,7 +110,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: String(dados.segurado.estadoCivil).toUpperCase(),
+    text: String(dados.segurado.estadoCivil || '').toUpperCase(),
     fontSize: 10,
   }]);
 
@@ -119,7 +119,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.segurado.cep || dados.endereco.cep,
+    text: dados.segurado.cep || dados.endereco.cep || '',
     fontSize: 10,
   }]);
 
@@ -128,7 +128,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: String(dados.endereco.estado).toUpperCase(),
+    text: String(dados.endereco.estado || '').toUpperCase(),
     fontSize: 10,
   }]);
 
@@ -137,7 +137,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: String(dados.endereco.cidade).toUpperCase(),
+    text: String(dados.endereco.cidade || '').toUpperCase(),
     fontSize: 10,
   }]);
 
@@ -146,7 +146,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: String(dados.segurado.cnh).toUpperCase(),
+    text: String(dados.segurado.cnh || '').toUpperCase(),
     fontSize: 10,
   }]);
 
@@ -155,7 +155,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.segurado.proprietario ? 'SIM' : 'NÃO'}`,
+    text: `${dados.segurado.proprietario === undefined ? '' : dados.segurado.proprietario ? 'SIM' : 'NÃO'}`,
     fontSize: 10,
   }]);
 
@@ -164,7 +164,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: String(dados.segurado.profissao).toUpperCase(),
+    text: String(dados.segurado.profissao || '').toUpperCase(),
     fontSize: 10,
   }]);
 
@@ -198,20 +198,11 @@ export default async function cotacaoPDF(dados, type) {
   const bodySeguro = [];
 
   bodySeguro.push([{
-    text: 'TIPO DO SEGURO',
-    bold: true,
-    fontSize: 10,
-  }, {
-    text: 'VEICULAR',
-    fontSize: 10,
-  }])
-
-  bodySeguro.push([{
     text: 'SEGURADORA',
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.seguro.seguradora,
+    text: dados.seguro.seguradora || dados.seguradora.razao_social,
     fontSize: 10,
   }])
 
@@ -229,7 +220,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.seguro.tipo === 'NOVO' ? null : `${dados.seguro.sinistro ? 'SIM' : 'NÃO'}`,
+    text: dados.seguro.tipo === undefined ? '' : dados.seguro.tipo === 'NOVO' ? null : `${dados.seguro.sinistro ? 'SIM' : 'NÃO'}`,
     fontSize: 10,
   }])
 
@@ -295,7 +286,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.veiculo.cep,
+    text: dados.veiculo.cepPernoite || dados.veiculo.cep || dados.segurado.cep || dados.endereco.cep || '',
     fontSize: 10,
   }])
 
@@ -304,7 +295,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.veiculo.financiado ? 'SIM' : 'NÃO'}`,
+    text: `${dados.veiculo.financiado === undefined ? '' : dados.veiculo.financiado ? 'SIM' : 'NÃO'}`,
     fontSize: 10,
   }])
 
@@ -313,7 +304,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.veiculo.blindado ? 'SIM' : 'NÃO'}`,
+    text: `${dados.veiculo.blindado === undefined ? '' : dados.veiculo.blindado ? 'SIM' : 'NÃO'}`,
     fontSize: 10,
   }])
 
@@ -322,7 +313,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.veiculo.kitGas ? 'SIM' : 'NÃO'}`,
+    text: `${dados.veiculo.kitGas === undefined ? '' : dados.veiculo.kitGas ? 'SIM' : 'NÃO'}`,
     fontSize: 10,
   }])
   
@@ -356,60 +347,50 @@ export default async function cotacaoPDF(dados, type) {
 
   const bodyCondutor = [];
 
-  if(dados?.condutor?.nome) {
-    bodyCondutor.push([{
-      text: 'NOME',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados?.condutor?.nome).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
+  bodyCondutor.push([{
+    text: 'NOME',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados?.condutor?.nome || '').toUpperCase(),
+    fontSize: 10,
+  }]);
 
-  if(dados?.condutor?.relacao) {
-    bodyCondutor.push([{
-      text: 'RELAÇÃO COM O SEGURADO',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados?.condutor?.relacao).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
+  bodyCondutor.push([{
+    text: 'RELAÇÃO COM O SEGURADO',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados?.condutor?.relacao || '').toUpperCase(),
+    fontSize: 10,
+  }]);
 
-  if(dados?.condutor?.cpf) {
-    bodyCondutor.push([{
-      text: 'CPF',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: dados?.condutor?.cpf,
-      fontSize: 10,
-    }]);
-  }
+  bodyCondutor.push([{
+    text: 'CPF',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: dados?.condutor?.cpf,
+    fontSize: 10,
+  }]);
 
-  if(dados?.condutor?.estadoCivil) {
-    bodyCondutor.push([{
-      text: 'ESTADO CIVIL',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados?.condutor?.estadoCivil).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
+  bodyCondutor.push([{
+    text: 'ESTADO CIVIL',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados?.condutor?.estadoCivil || '').toUpperCase(),
+    fontSize: 10,
+  }]);
 
-  if(dados?.condutor?.profissao) {
-    bodyCondutor.push([{
-      text: 'PROFISSAO',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados?.condutor?.profissao).toUpperCase(),
-      fontSize: 10
-    }]);
-  }
+  bodyCondutor.push([{
+    text: 'PROFISSAO',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados?.condutor?.profissao || '').toUpperCase(),
+    fontSize: 10
+  }]);
 
   if(bodyCondutor.length > 0) {
     details.push({
@@ -440,313 +421,63 @@ export default async function cotacaoPDF(dados, type) {
     })
   }
 
-  const bodyImovel = [];
-
-  if(dados?.imovel?.cep) {
-    bodyImovel.push([{
-      text: 'CEP',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.imovel?.cep).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.imovel?.propriedadeImovel) {
-    bodyImovel.push([{
-      text: 'PROPRIEDADE DO IMÓVEL',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.imovel?.propriedadeImovel).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.imovel?.tipoImovel) {
-    bodyImovel.push([{
-      text: 'TIPO DO IMÓVEL',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.imovel?.tipoImovel).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.imovel?.usoImovel) {
-    bodyImovel.push([{
-      text: 'USO DO IMÓVEL',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.imovel?.usoImovel).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.imovel?.valorImovel) {
-    bodyImovel.push([{
-      text: 'VELOR DO IMÓVEL',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.imovel?.valorImovel).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.imovel?.valorMoveis) {
-    bodyImovel.push([{
-      text: 'VALOR DOS MÓVEIS',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.imovel?.valorMoveis).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-  
-  if(bodyImovel.length > 0) {
-    details.push({
-      table: {
-        widths: ['30%', '70%'],
-        body: [
-          [
-            {
-              text: 'DADOS DO IMÓVEL',
-              alignment: 'center',
-              fontSize: 10,
-              bold: true,
-            },
-            {
-              text: null,
-              fontSize: 10,
-            }
-          ]
-        ]
-      }
-    });
-    details.push({
-      table: {
-        widths: ['30%', '70%'],
-        body: bodyImovel
-      }
-    })
-  }
-
-  const bodyViagem = [];
-
-  if(dados?.viagem?.destino) {
-    bodyViagem.push([{
-      text: 'DESTINO',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.destino).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.viagem?.ida) {
-    bodyViagem.push([{
-      text: 'IDA',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.ida).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.viagem?.motivo) {
-    bodyViagem.push([{
-      text: 'MOTIVO',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.motivo).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.viagem?.origem) {
-    bodyViagem.push([{
-      text: 'ORIGEM',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.origem).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.viagem?.retorno) {
-    bodyViagem.push([{
-      text: 'RETORNO',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.retorno).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.viagem?.tipo) {
-    bodyViagem.push([{
-      text: 'TIPO',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.tipo).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-
-  if(dados?.viagem?.transporte) {
-    bodyViagem.push([{
-      text: 'TRANSPORTE',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados?.viagem?.transporte).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
-  
-  if(bodyViagem.length > 0) {
-    details.push({
-      table: {
-        widths: ['30%', '70%'],
-        body: [
-          [
-            {
-              text: 'DADOS DA VIAGEM',
-              alignment: 'center',
-              fontSize: 10,
-              bold: true,
-            },
-            {
-              text: null,
-              fontSize: 10,
-            }
-          ]
-        ]
-      }
-    });
-    details.push({
-      table: {
-        widths: ['30%', '70%'],
-        body: bodyViagem
-      }
-    })
-  }
-
   const bodyRisco = [];
 
-  if(dados.riscos.condutorResideMenor) {
-    bodyRisco.push([{
-      text: 'COBERTURA 18/26 ANOS',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(dados.riscos.condutorResideMenor).toUpperCase(),
-      fontSize: 10,
-    }]);
-  }
+  bodyRisco.push([{
+    text: 'COBERTURA 18/26 ANOS',
+    bold: true,
+    fontSize: 10,
+  },
+  {
+    text: String(dados.riscos.condutorResideMenor || '').toUpperCase(),
+    fontSize: 10,
+  }]);
 
-  if(dados.riscos.usoVeiculo) {
-    bodyRisco.push([{
-      text: 'USO DO VEÍCULO',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.usoVeiculo).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
+  bodyRisco.push([{
+    text: 'USO DO VEÍCULO',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados.riscos.usoVeiculo || '').toUpperCase(),
+    fontSize: 10,
+  }])
 
-  if(dados.riscos.residenciaVeiculo) {
-    bodyRisco.push([{
-      text: 'RESIDE EM',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.residenciaVeiculo).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
+  bodyRisco.push([{
+    text: 'RESIDE EM',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados.riscos.residenciaVeiculo || '').toUpperCase(),
+    fontSize: 10,
+  }])
 
-  if(dados.riscos.garagemResidencia) {
-    bodyRisco.push([{
-      text: 'GARAGEM NA RESIDÊNCIA',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.garagemResidencia).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
+  bodyRisco.push([{
+    text: 'GARAGEM NA RESIDÊNCIA',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados.riscos.garagemResidencia || '').toUpperCase(),
+    fontSize: 10,
+  }])
 
-  if(dados.riscos.garagemTrabalho) {
-    bodyRisco.push([{
-      text: 'GARAGEM NO TRABALHO',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.garagemTrabalho).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
+  bodyRisco.push([{
+    text: 'GARAGEM NO TRABALHO',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados.riscos.garagemTrabalho || '').toUpperCase(),
+    fontSize: 10,
+  }])
 
-  if(dados.riscos.garagemEscola) {
-    bodyRisco.push([{
-      text: 'GARAGEM NA ESCOLA',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.garagemEscola).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
+  bodyRisco.push([{
+    text: 'GARAGEM NA ESCOLA',
+    bold: true,
+    fontSize: 10,
+  }, {
+    text: String(dados.riscos.garagemEscola || '').toUpperCase(),
+    fontSize: 10,
+  }])
 
-  if(dados.riscos.praticaEsporte) {
-    bodyRisco.push([{
-      text: 'PRATICARÁ ESPORTE RADICAL',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.praticaEsporteFrenquencia).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
-
-  if(dados.riscos.utilizaraMotocicleta) {
-    bodyRisco.push([{
-      text: 'UTILIZARÁ MOTOCICLETA',
-      bold: true,
-      fontSize: 10,
-    }, {
-      text: String(dados.riscos.utilizaraMotocicleta).toUpperCase(),
-      fontSize: 10,
-    }])
-  }
-  
   if(bodyRisco.length > 0) {
     details.push({
       table: {
@@ -774,211 +505,155 @@ export default async function cotacaoPDF(dados, type) {
     })
   }
 
-  const bodyBeneficiarios = [];
-
-  if(dados.beneficiarios?.quantidade > 0) {
-    bodyBeneficiarios.push([{
-      text: 'QUANTIDADE',
-      bold: true,
-      fontSize: 10,
-    },
-    {
-      text: String(`${dados.beneficiarios.quantidade} PESSOAS`).toUpperCase(),
-      fontSize: 10,
-    }]);
-
-    for(let i = 0; i < [...dados.beneficiarios.nascimento || []].length || 0; i++) {
-      bodyBeneficiarios.push([{
-        text: `${i+1} - NASCIMENTO`,
-        bold: true,
-        fontSize: 10,
-      },
-      {
-        text: String(`${dados.beneficiarios.nascimento[i]}`).toUpperCase(),
-        fontSize: 10,
-      }]);
+  details.push({
+    table: {
+      widths: ['100%'],
+      body: [
+        [
+          {
+            text: 'DADOS PARA FECHAMENTO',
+            alignment: 'center',
+            fontSize: 10,
+            bold: true,
+          }
+        ]
+      ]
     }
-  }
-
-  if(bodyBeneficiarios.length > 0) {
-    details.push({
-      table: {
-        widths: ['30%', '70%'],
-        body: [
-          [
-            {
-              text: 'BENEFÍCIARIOS',
-              fontSize: 10,
-              bold: true,
-            },
-            {
-              text: null,
-              fontSize: 10,
-            }
-          ]
-        ]
-      }
-    });
-
-    details.push({
-      table: {
-        widths: ['30%', '70%'],
-        body: bodyBeneficiarios
-      }
-    })
-  }
-
-  if(dados.tipo === 'seguro-veicular') {
-    details.push({
-      table: {
-        widths: ['100%'],
-        body: [
-          [
-            {
-              text: 'DADOS PARA FECHAMENTO',
-              alignment: 'center',
-              fontSize: 10,
-              bold: true,
-            }
-          ]
-        ]
-      }
-    },
-    {
-      table: {
-        widths: ['100%'],
-        body: [
-          [{
-            text: 'ENDEREÇO:',
+  },
+  {
+    table: {
+      widths: ['100%'],
+      body: [
+        [{
+          text: 'ENDEREÇO:',
+          bold: true,
+          fontSize: 10,
+          border: [true, true, true, true],
+        }]
+      ]
+    }
+  },
+  {
+    table: {
+      widths: ['33.33%', '33.33%', '33.33%'],
+      body: [
+        [
+          {
+            text: 'RG:',
             bold: true,
             fontSize: 10,
-            border: [true, true, true, true],
-          }]
-        ]
-      }
-    },
-    {
-      table: {
-        widths: ['33.33%', '33.33%', '33.33%'],
-        body: [
-          [
-            {
-              text: 'RG:',
-              bold: true,
-              fontSize: 10,
-              border: [true, false, false, true],
-            },
-            {
-              text: 'EMISSOR:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, false, true],
-            },
-            {
-              text: 'DATA DE EMISSÃO:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, true, true],
-            }
-          ]
-        ]
-      }
-    },
-    {
-      table: {
-        widths: ['34%', '16%', '16%', '34%'],
-        body: [
-          [
-            {
-              text: 'CPF:',
-              bold: true,
-              fontSize: 10,
-              border: [true, false, false, true],
-            },
-            {
-              text: 'BANCO:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, false, true],
-            },
-            {
-              text: 'AGÊNCIA:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, false, true],
-            },
-            {
-              text: 'DIA DA PARCELA:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, true, true],
-            }
-          ]
-        ]
-      }
-    },
-    {
-      table: {
-        widths: ['33.33%', '33.33%', '33.33%'],
-        body: [
-          [
-            {
-              text: 'N CARTÃO:',
-              bold: true,
-              fontSize: 10,
-              border: [true, false, false, true],
-            },
-            {
-              text: 'BANDEIRA:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, false, true],
-            },
-            {
-              text: 'VALIDADE:',
-              bold: true,
-              fontSize: 10,
-              border: [false, false, true, true],
-            }
-          ]
-        ]
-      }
-    },
-    {
-      table: {
-        widths: ['100%'],
-        body: [
-          [{
-            text: 'NOME NO CARTÃO:',
+            border: [true, false, false, true],
+          },
+          {
+            text: 'EMISSOR:',
             bold: true,
             fontSize: 10,
-            border: [true, false, true, true],
-          }]
+            border: [false, false, false, true],
+          },
+          {
+            text: 'DATA DE EMISSÃO:',
+            bold: true,
+            fontSize: 10,
+            border: [false, false, true, true],
+          }
         ]
-      }
-    },
-    {
-      table: {
-        widths: ['33%', '67%'],
-        body: [
-          [
-            {
-              text: `APÓLICE: ${dados?.seguro?.apolice || ''}`,
-              bold: true,
-              fontSize: 10,
-              border: [true, false, false, true],
-            },
-            {
-              text: `C.I: ${dados?.seguro?.ci || ''}`,
-              bold: true,
-              fontSize: 10,
-              border: [false, false, true, true],
-            }
-          ]
+      ]
+    }
+  },
+  {
+    table: {
+      widths: ['34%', '16%', '16%', '34%'],
+      body: [
+        [
+          {
+            text: 'CPF:',
+            bold: true,
+            fontSize: 10,
+            border: [true, false, false, true],
+          },
+          {
+            text: 'BANCO:',
+            bold: true,
+            fontSize: 10,
+            border: [false, false, false, true],
+          },
+          {
+            text: 'AGÊNCIA:',
+            bold: true,
+            fontSize: 10,
+            border: [false, false, false, true],
+          },
+          {
+            text: 'DIA DA PARCELA:',
+            bold: true,
+            fontSize: 10,
+            border: [false, false, true, true],
+          }
         ]
-      }
-    })
-  }
+      ]
+    }
+  },
+  {
+    table: {
+      widths: ['33.33%', '33.33%', '33.33%'],
+      body: [
+        [
+          {
+            text: 'N CARTÃO:',
+            bold: true,
+            fontSize: 10,
+            border: [true, false, false, true],
+          },
+          {
+            text: 'BANDEIRA:',
+            bold: true,
+            fontSize: 10,
+            border: [false, false, false, true],
+          },
+          {
+            text: 'VALIDADE:',
+            bold: true,
+            fontSize: 10,
+            border: [false, false, true, true],
+          }
+        ]
+      ]
+    }
+  },
+  {
+    table: {
+      widths: ['100%'],
+      body: [
+        [{
+          text: 'NOME NO CARTÃO:',
+          bold: true,
+          fontSize: 10,
+          border: [true, false, true, true],
+        }]
+      ]
+    }
+  },
+  {
+    table: {
+      widths: ['33%', '67%'],
+      body: [
+        [
+          {
+            text: `APÓLICE: ${dados?.seguro?.apolice || ''}`,
+            bold: true,
+            fontSize: 10,
+            border: [true, false, false, true],
+          },
+          {
+            text: `C.I: ${dados?.seguro?.ci || ''}`,
+            bold: true,
+            fontSize: 10,
+            border: [false, false, true, true],
+          }
+        ]
+      ]
+    }
+  })
 
   const docDefinitions = {
     pageSize: 'A4',
