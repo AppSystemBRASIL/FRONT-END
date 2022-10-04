@@ -343,6 +343,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
   }else if(!comissao) {
     function getTableListHeaderWidth() {
       const array = [];
+      array.push(15);
       array.push(55);
       if(seguros[0].valores) {
         array.push(25);
@@ -355,7 +356,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       }
       array.push(65);
       if(externo === undefined || externo === false) {
-        array.push(60);
+        //array.push(60);
         array.push(20);
       }
       
@@ -364,6 +365,11 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
   
     function getTableListHeader() {
       const array = [];
+      array.push({
+        text: '#',
+        alignment: 'center',
+        fontSize: 10,
+      });
       array.push({
         text: 'VIGÊNCIA',
         fontSize: 10,
@@ -391,10 +397,12 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         fontSize: 10,
       });
       if(externo === undefined || externo === false) {
-        array.push({
-          text: 'PRÊMIO',
-          fontSize: 10,
-        });
+        /*
+          array.push({
+            text: 'PRÊMIO',
+            fontSize: 10,
+          });
+        */
         array.push({
           text: '%',
           fontSize: 10,
@@ -405,8 +413,13 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
   
-    function getTableList(item) {
+    function getTableList(item, index) {
       const array = [];
+      array.push({
+        alignment: 'center',
+        text: index || '',
+        fontSize: 10
+      });
       array.push({
         text: format(item.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
         fontSize: 10
@@ -418,7 +431,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         });
       }
       array.push({
-        text: `${item.segurado.nome.split(' ').slice(0, 1)} ${item.segurado.nome.split(' ').slice(-1)}`,
+        text: `${item.segurado.nome.split(' ')[0]} ${['DE', 'DA', 'da', 'de'].includes(item.segurado.nome.split(' ')[1]) ? item.segurado.nome.split(' ')[2] : item.segurado.nome.split(' ')[1]}`,
         fontSize: 10
       });
       if(!filtros.corretor) {
@@ -434,13 +447,16 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         fontSize: 10
       });
       if(externo === undefined || externo === false) {
-        array.push({
-          text: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valores.premio),
-          fontSize: 10
-        });
+        /*
+          array.push({
+            text: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valores.premio),
+            fontSize: 10
+          });
+        */
         array.push({
           text: item.valores.percentual,
-          fontSize: 10
+          fontSize: 10,
+          alignment: 'center'
         });
       }
       return array;
@@ -510,25 +526,10 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       {
         table: {
           widths: getTableListHeaderWidth(),
-          body: [...seguros].map((item) => getTableList(item))
+          body: [...seguros].map((item, index) => getTableList(item, (index + 1)))
         }
       },
-      {
-        table: {
-          widths: '*',
-          border: null,
-          body: [
-            [ 
-              {
-                text: '',
-                alignment: 'left',
-                bold: true,
-              }
-            ],
-          ]
-        }
-      },
-      {
+      /*{
         table: {
           widths: '*',
           body: [
@@ -553,7 +554,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
             ],
           ]
         }
-      }
+      }*/
     ];
   }else {
     function getTableListHeaderWidth() {
