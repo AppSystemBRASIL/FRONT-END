@@ -22,10 +22,10 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       array.push(80);
       array.push(25);
       array.push(60);
-      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+      if(filtros.corretor !== 'XCAR CORRETORA') {
         array.push(60);
       }
-      array.push(filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? 70 : 60);
+      array.push(filtros.corretor === 'XCAR CORRETORA' ? 70 : 60);
       array.push(65);
       array.push('*');
       return array;
@@ -48,7 +48,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         fontSize: 10,
         alignment: 'center'
       });
-      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+      if(filtros.corretor !== 'XCAR CORRETORA') {
         array.push({
           text: 'COMISSÃO PRODUTOR',
           fontSize: 10,
@@ -90,7 +90,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         alignment: 'center',
         fontSize: 10
       });
-      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+      if(filtros.corretor !== 'XCAR CORRETORA') {
         array.push({
           text: !item.corretor ? '-----------' : new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(item.corretor.comissao.valor),
           alignment: 'center',
@@ -134,7 +134,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
         fontSize: 10,
       });
       
-      if(filtros.corretor !== 'XCAR CORRETORA DE SEGUROS') {
+      if(filtros.corretor !== 'XCAR CORRETORA') {
         array.push({
           text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format([...seguros].reduce((a, b) => a + b.corretor.comissao.valor, 0)),
           alignment: 'center',
@@ -161,7 +161,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
     }
 
 
-    const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA DE SEGUROS') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
     });
@@ -181,7 +181,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
                   marginTop: 5
                 },
                 {
-                  text: `RELATÓRIO DE SEGUROS ${type === 'estorno' ? 'CANCELADOS' : ''}`,
+                  text: `RELATÓRIO ${type === 'estorno' ? 'CANCELADOS' : ''}`,
                   alignment: 'left',
                   bold: true,
                   fontSize: 10,
@@ -259,7 +259,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           body: [
             [ 
               {
-                text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
+                text: `QUANTIDADE: ${[...seguros].length.toString().padStart(2, '0')}`,
                 alignment: 'left',
                 fontSize: 10
               }
@@ -343,7 +343,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
   }else if(!comissao) {
     function getTableListHeaderWidth() {
       const array = [];
-      array.push(15);
+      array.push(20);
       array.push(55);
       if(seguros[0].valores) {
         array.push(25);
@@ -477,7 +477,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
                   marginTop: 5
                 },
                 {
-                  text: 'RELATÓRIO DE SEGUROS',
+                  text: 'RELATÓRIO',
                   alignment: 'left',
                   bold: true,
                   fontSize: 10,
@@ -535,7 +535,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           body: [
             [ 
               {
-                text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
+                text: `QUANTIDADE: ${[...seguros].length.toString().padStart(2, '0')}`,
                 alignment: 'left',
               }
             ],
@@ -683,7 +683,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
       return array;
     }
 
-    const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA DE SEGUROS') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
+    const dadosBancarios = (externo === true || filtros.corretor === 'XCAR CORRETORA') ? null : await firebase.firestore().collection('usuarios').doc(seguros[0].corretor.uid).get()
     .then((response) => {
       return response.data().dadosBancarios;
     });
@@ -759,7 +759,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
           body: [
             [ 
               {
-                text: `QUANTIDADE DE SEGUROS: ${[...seguros].length.toString().padStart(2, '0')}`,
+                text: `QUANTIDADE: ${[...seguros].length.toString().padStart(2, '0')}`,
                 alignment: 'left',
               }
             ],
@@ -800,7 +800,7 @@ export default async function printListSeguros(seguros, corretora, filtros, comi
                     text: 'COMISSÃO A PAGAR: \n',
                   },
                   {
-                    text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(filtros.corretor === 'XCAR CORRETORA DE SEGUROS' ? 0 : [...seguros].reduce((a, b) => Number(b.valores.parcelas > 4 ? Number(b.valores.corretor.valor * juroComposto({
+                    text: new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(filtros.corretor === 'XCAR CORRETORA' ? 0 : [...seguros].reduce((a, b) => Number(b.valores.parcelas > 4 ? Number(b.valores.corretor.valor * juroComposto({
                       parcela: String(b.valores.parcelas),
                       percentual: String(b.valores.juros || 0)
                     })) : b.valores.corretor.valor) + a, 0)),
