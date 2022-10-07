@@ -7,7 +7,7 @@ import MaskedInput from 'antd-mask-input';
 import {
   Button, Col, Divider, Dropdown, Empty, Input, Menu,
   Modal, notification,
-  Popconfirm, Row, Select, Table, Tooltip
+  Popconfirm, Row, Select, Table, Tag, Tooltip
 } from 'antd';
 
 import {
@@ -1211,6 +1211,18 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
                                   verSolicitacaoCotacao(dados);
                                 }}>
                                   IMPRIMIR
+                                  {dados?.impresso && (
+                                    <Tag
+                                      style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        right: 0,
+                                        fontSize: 8
+                                      }}
+                                    >
+                                      impresso
+                                    </Tag>
+                                  )}
                                 </Menu.Item>
                                 <Menu.Item icon={<FaTimes />} onClick={() => {
                                   Modal.confirm({

@@ -6,6 +6,7 @@ import {
 
 import pdfSeguro from '../../components/Cotacao/pdf';
 
+
 export default async function verSeguro(props) {
   const typeProps = typeof props;
 
@@ -27,5 +28,10 @@ export default async function verSeguro(props) {
     data = props;
   }
 
+  if(data?.uid) {
+    firebase.firestore().collection('seguros').doc(data.uid).update({
+      impresso: true
+    })
+  }
   pdfSeguro(data);
 }
