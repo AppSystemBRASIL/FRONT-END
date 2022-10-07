@@ -1,46 +1,34 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
 import MaskedInput from 'antd-mask-input';
 
 import {
-  Table,
-  Button,
-  Empty,
-  Dropdown,
-  Menu,
-  Modal,
-  Divider,
-  Select,
-  Row,
-  Col,
-  Input,
-  notification,
-  Popconfirm,
-  Tooltip
+  Button, Col, Divider, Dropdown, Empty, Input, Menu,
+  Modal, notification,
+  Popconfirm, Row, Select, Table, Tooltip
 } from 'antd';
 
-import { FaCog, FaEye, FaFileAlt, FaPlus, FaPrint, FaTimes } from 'react-icons/fa';
 import {
   DownOutlined
 } from '@ant-design/icons';
+import { FaCog, FaEye, FaFileAlt, FaPlus, FaPrint, FaTimes } from 'react-icons/fa';
 
 import { v4 as uuid } from 'uuid';
 
-import _ from 'lodash';
 
+import ModalSeguro from 'components/Modal/seguro';
 import { endOfDay, format, formatDistanceStrict, startOfDay } from 'date-fns';
 import generateToken from 'hooks/generateToken';
-import { maskCEP, maskMoney, maskOnlyNumbers, maskDate, maskOnlyLetters } from 'hooks/mask';
+import { maskCEP, maskDate, maskMoney, maskOnlyLetters, maskOnlyNumbers } from 'hooks/mask';
 import { validarData } from 'hooks/validate';
 import { useTheme } from 'styled-components';
-import ModalSeguro from 'components/Modal/seguro';
 
 import axios from 'axios';
 
-import jsonComposto from '../../data/jsonComposto.json';
 import { verSolicitacaoCotacao } from 'functions';
+import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
   return jsonComposto[percentual][parcela];
 }
@@ -297,7 +285,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, header, padding, cancel, externo }) => {
+const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, header, pagination, cancel, externo }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -905,7 +893,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
       <ModalSeguro data={dataSeguroView} visible={visibleModalSeguro} setVisible={setVisibleModalSeguro} />
       <Table
         dataSource={seguros?.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal)}
-        pagination={padding === undefined ? false : padding}
+        pagination={pagination === undefined ? false : pagination}
         scroll={{ x: 'calc(100% - 0px)' }}
         locale={{
           emptyText: [

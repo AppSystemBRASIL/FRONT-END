@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { Col, DatePicker, Divider, Row, Select } from 'antd';
+import { useEffect, useState } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Input, DatePicker, Select, Divider, Button } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import useAuth from '../../hooks/useAuth';
 import { FaPaperPlane, FaPrint } from 'react-icons/fa';
+import useAuth from '../../hooks/useAuth';
 
 import firebase from '../../auth/AuthConfig';
 
@@ -340,7 +340,7 @@ const Seguro = () => {
             seguros={seguros}
             setViewNewSeguro={setViewNewSeguro}
             businessInfo={businessInfo}
-            padding={true}
+            pagination={true}
           />
         )}
       </CardComponent>

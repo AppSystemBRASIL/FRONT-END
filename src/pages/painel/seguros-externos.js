@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { Col, DatePicker, Divider, Input, Row, Select } from 'antd';
+import { useEffect, useState } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Input, DatePicker, Select, Divider } from 'antd';
 
 import TableSeguro from '../../components/Table/Seguro';
 
-import { maskCPF, maskOnlyLetters, maskYear } from '../../hooks/mask';
+import { maskCPF, maskOnlyLetters } from '../../hooks/mask';
 
-import useAuth from '../../hooks/useAuth';
 import { FaPrint } from 'react-icons/fa';
+import useAuth from '../../hooks/useAuth';
 
 import firebase from '../../auth/AuthConfig';
 
@@ -316,7 +316,7 @@ const Seguro = () => {
           cpf={cpf}
           placa={placa}
           user={user}
-          infiniteData={false}
+          infiniteData={true}
           corretora={corretora.uid}
           setSeguros={setSeguros}
           anoAdesao={anoAdesao}
@@ -326,6 +326,7 @@ const Seguro = () => {
           businessInfo={businessInfo}
           placaPremiada={placaPremiada}
           externo={true}
+          pagination={true}
         />
       </CardComponent>
     </LayoutAdmin>
