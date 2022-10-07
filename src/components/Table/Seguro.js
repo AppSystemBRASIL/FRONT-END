@@ -388,7 +388,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
       }
     }
 
-    const unsubscribe = ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)  || (date && (date[0] && date[1]))) ? 10000 : limit || listLimitDefault)
+    const unsubscribe = ref.limit(((cpf !== undefined && cpf.length === 14) || (placa !== undefined && placa.length === 7) || (corretor !== undefined && corretor !== null) || (seguradora !== undefined && seguradora !== null)  || (date && (date[0] && date[1]))) || externo ? 10000 : limit || listLimitDefault)
     .onSnapshot((snap) => {
       setViewButtonMore(false);
 
