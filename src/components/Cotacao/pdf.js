@@ -202,7 +202,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.seguro.seguradora || dados.seguradora.razao_social,
+    text: dados?.seguro?.seguradora || dados?.seguradora?.razao_social,
     fontSize: 10,
   }])
 
@@ -211,7 +211,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: typeof dados.seguro.vigencia === 'object' ? format(new Date(dados.seguro.vigenciaFinal.seconds * 1000), 'dd/MM/yyyy') : dados.seguro.vigencia,
+    text: !dados.seguro.vigencia ? '' : typeof dados.seguro.vigencia === 'object' ? format(new Date(dados.seguro.vigenciaFinal.seconds * 1000), 'dd/MM/yyyy') : dados.seguro.vigencia,
     fontSize: 10,
   }])
 

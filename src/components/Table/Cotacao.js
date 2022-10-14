@@ -1,28 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
 import {
-  Table,
-  Tag,
-  Button,
-  Empty,
-  Menu,
-  Dropdown
+  Button, Dropdown, Empty,
+  Menu, Table,
+  Tag
 } from 'antd';
 
 import {
   DownOutlined
 } from '@ant-design/icons';
 
-import { FaTimesCircle, FaFile, FaPlus, FaPrint } from 'react-icons/fa';
+import { FaFile, FaPlus, FaPrint, FaTimesCircle } from 'react-icons/fa';
 
 import _ from 'lodash';
 
 import { format } from 'date-fns';
 
-import { iniciarCotacao, apagarCotacao, vincularSeguro, verSolicitacaoCotacao, verSeguro } from '../../functions';
 import ModalSeguro from 'components/Modal/seguro';
+import { apagarCotacao, iniciarCotacao, verSeguro, verSolicitacaoCotacao, vincularSeguro } from '../../functions';
 
 const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
   const [loadingData, setLoadingData] = useState(false);
@@ -314,6 +311,18 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
                     <Menu>
                       <Menu.Item icon={<FaPrint />} onClick={() => verSolicitacaoCotacao(dados)}>
                         IMPRIMIR COTAÇÃO
+                        {dados?.impresso && (
+                          <Tag
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              right: 0,
+                              fontSize: 8
+                            }}
+                          >
+                            impresso
+                          </Tag>
+                        )}
                       </Menu.Item>
                       {dados.status === 2 ? (
                         <Menu.Item icon={<FaFile />} onClick={() => verSeguro(dados.uid)}>

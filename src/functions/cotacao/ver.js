@@ -29,9 +29,9 @@ export default async function verSeguro(props) {
   }
 
   if(data?.uid) {
-    firebase.firestore().collection('seguros').doc(data.uid).update({
+    firebase.firestore().collection('seguros').doc(data?.uid).set({
       impresso: true
-    })
+    }, { merge: true })
   }
   pdfSeguro(data);
 }

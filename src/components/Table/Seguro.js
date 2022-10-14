@@ -285,7 +285,7 @@ const ContentEndosso = ({ data, type, businessInfo, theme }) => {
   )
 }
 
-const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, header, pagination, cancel, externo }) => {
+const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora, date, infiniteData, limit, cpf, placa, corretora, user, seguros, setSeguros, businessInfo, header, pagination, cancel, externo, totalSegurados, totalSeguros }) => {
   const [loadingData, setLoadingData] = useState(false);
 
   const [lastData, setLastData] = useState(0);
@@ -892,6 +892,20 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
     <>
       <ModalSeguro data={dataSeguroView} visible={visibleModalSeguro} setVisible={setVisibleModalSeguro} />
       <Table
+        footer={() => (totalSeguros || totalSegurados) && (
+          <>
+            {totalSeguros && (
+              <div>
+                TOTAL DE SEGUROS: {String(totalSeguros).padStart(2, '0')}
+              </div>
+            )}
+            {totalSegurados && (
+              <div>
+                TOTAL DE SEGURADOS: {String(totalSegurados).padStart(2, '0')}
+              </div>
+            )}
+          </>
+        )}
         dataSource={seguros?.map(item => ({...item, key: generateToken() })).sort((a, b) => a.segurado.nome.toLowerCase().localeCompare(b.segurado.nome.toLowerCase())).sort((a, b) => a.seguro.vigenciaFinal - b.seguro.vigenciaFinal)}
         pagination={pagination === undefined ? false : pagination}
         scroll={{ x: 'calc(100% - 0px)' }}

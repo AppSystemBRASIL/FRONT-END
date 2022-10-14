@@ -327,6 +327,8 @@ const Seguro = () => {
           placaPremiada={placaPremiada}
           externo={true}
           pagination={true}
+          totalSegurados={[...new Set(seguros.map(item => String(item.segurado.cpf).split('-').join('').split('.').join('')))].length}
+          totalSeguros={seguros.length}
         />
       </CardComponent>
     </LayoutAdmin>
