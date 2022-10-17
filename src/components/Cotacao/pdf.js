@@ -155,7 +155,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.segurado.proprietario === undefined ? '' : dados.segurado.proprietario ? 'SIM' : 'NÃO'}`,
+    text: `${[undefined, null].includes(dados.segurado.proprietario) ? '' : dados.segurado.proprietario.toUpperCase()}`,
     fontSize: 10,
   }]);
 
@@ -220,7 +220,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: dados.seguro.tipo === undefined ? '' : dados.seguro.tipo === 'NOVO' ? null : `${dados.seguro.sinistro ? 'SIM' : 'NÃO'}`,
+    text: [undefined, null].includes(dados.segurado.proprietario) ? '' : dados.seguro.tipo === 'NOVO' ? null : `${dados.seguro.sinistro?.toUpperCase() || ''}`,
     fontSize: 10,
   }])
 
@@ -259,7 +259,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: String(dados.veiculo.veiculo).toUpperCase(),
+    text: String(dados?.veiculo?.veiculo || '').toUpperCase(),
     fontSize: 10,
   }])
 
@@ -295,7 +295,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.veiculo.financiado === undefined ? '' : dados.veiculo.financiado ? 'SIM' : 'NÃO'}`,
+    text: `${[undefined, null].includes(dados.veiculo.financiado) ? '' : dados?.veiculo?.financiado?.toUpperCase() || ''}`,
     fontSize: 10,
   }])
 
@@ -304,7 +304,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.veiculo.blindado === undefined ? '' : dados.veiculo.blindado ? 'SIM' : 'NÃO'}`,
+    text: `${[undefined, null].includes(dados.veiculo.blindado) ? '' : dados?.veiculo?.blindado?.toUpperCase() || ''}`,
     fontSize: 10,
   }])
 
@@ -313,7 +313,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${dados.veiculo.kitGas === undefined ? '' : dados.veiculo.kitGas ? 'SIM' : 'NÃO'}`,
+    text: `${[undefined, null].includes(dados.veiculo.kitGas) ? '' : dados?.veiculo?.kitGas?.toUpperCase() || ''}`,
     fontSize: 10,
   }])
   
