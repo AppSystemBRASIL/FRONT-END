@@ -4,8 +4,8 @@ import {
   notification
 } from 'antd';
 
+import pdfSeguroMore from '../../components/Cotacao/more';
 import pdfSeguro from '../../components/Cotacao/pdf';
-
 
 export default async function verSeguro(props) {
   const typeProps = typeof props;
@@ -33,5 +33,10 @@ export default async function verSeguro(props) {
       impresso: true
     }, { merge: true })
   }
-  pdfSeguro(data);
+  
+  if(data.tipo === 'veicular') {
+    pdfSeguro(data);
+  }else {
+    pdfSeguroMore(data);
+  }
 }
