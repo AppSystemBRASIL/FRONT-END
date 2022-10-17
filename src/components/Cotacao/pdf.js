@@ -277,7 +277,7 @@ export default async function cotacaoPDF(dados, type) {
     bold: true,
     fontSize: 10,
   }, {
-    text: `${(dados.veiculo.ano && dados.veiculo.modelo) ? `${dados.veiculo.ano} - ${dados.veiculo.modelo}` : ''}`,
+    text: `${dados?.veiculo?.modelo || ''}`,
     fontSize: 10,
   }])
 
