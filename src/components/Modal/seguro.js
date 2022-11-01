@@ -14,6 +14,7 @@ import generateToken from 'hooks/generateToken';
 import { validarCelular, validateCPF } from 'hooks/validate';
 import firebase from '../../auth/AuthConfig';
 
+import { utcToZonedTime } from 'date-fns-tz';
 import jsonComposto from '../../data/jsonComposto.json';
 
 function juroComposto({ parcela, percentual }) {
@@ -185,7 +186,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           const dataSeguro = {
             placa: arrayFirst.veiculo.placa,
             seguradora: arrayFirst.seguradora.uid,
-            vigencia: format(arrayFirst.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
+            vigencia: format(arrayFirst.seguro.vigencia.seconds * 1000, 'dd/MM/yyyy'),
             premio: 0,
             franquia: 0,
             percentual: '',
@@ -356,8 +357,8 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     const vigencia = dataNewSeguro.vigencia.split('/');
     const vigenciaData = new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]);
 
-    const vigenciaInicio = startOfDay(vigenciaData);
-    const vigenciaFinal = addYears(endOfDay(vigenciaInicio), 1);
+    const vigenciaInicio = utcToZonedTime(startOfDay(vigenciaData), 'America/Sao_Paulo');
+    const vigenciaFinal = utcToZonedTime(addYears(endOfDay(vigenciaInicio), 1), 'America/Sao_Paulo');
 
     const data = {
       seguradora: {
