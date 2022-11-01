@@ -6,7 +6,7 @@ import useAuth from 'hooks/useAuth';
 
 import { useTheme } from 'styled-components';
 
-import { addDays, addYears, endOfDay, format, startOfDay } from 'date-fns';
+import { addYears, endOfDay, format, startOfDay } from 'date-fns';
 import { maskCEP, maskCPF, maskDate, maskMoney, maskOnlyLetters, maskPercentual, maskPhone, maskPlaca, maskYear } from 'hooks/mask';
 
 import axios from 'axios';
@@ -357,7 +357,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     const vigenciaData = new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]);
 
     const vigenciaInicio = startOfDay(vigenciaData);
-    const vigenciaFinal = addYears(endOfDay(addDays(vigenciaInicio, 1)), 1);
+    const vigenciaFinal = addYears(endOfDay(vigenciaInicio), 1);
 
     const data = {
       seguradora: {
