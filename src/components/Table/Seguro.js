@@ -27,6 +27,7 @@ import { useTheme } from 'styled-components';
 
 import axios from 'axios';
 
+import { utcToZonedTime } from 'date-fns-tz';
 import { verSolicitacaoCotacao } from 'functions';
 import jsonComposto from '../../data/jsonComposto.json';
 function juroComposto({ parcela, percentual }) {
@@ -466,7 +467,7 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
             <Col span={12}>
               <b>DATA DE INICIO:</b>
               <br/>
-              {format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy')}
+              {format(utcToZonedTime(new Date(dados.seguro.vigencia.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy')}
             </Col>
             <Col span={12}>
               <b>DATA DO CANCELAMENTO:</b>
@@ -858,8 +859,8 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
       placa: dados.veiculo.placa,
       corretorUid: dados.corretor ? dados.corretor.uid : null,
       seguradora: dados.seguradora ? dados.seguradora.uid : null,
-      vigencia: format(dados.seguro.vigencia.toDate(), 'dd/MM/yyyy'),
-      vigenciaFinal: format(dados.seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy'),
+      vigencia: format(utcToZonedTime(new Date(dados.seguro.vigencia.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy'),
+      vigenciaFinal: format(utcToZonedTime(new Date(dados.seguro.vigenciaFinal.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy'),
       premio: Number(dados.valores.premio).toLocaleString('pt-br', {minimumFractionDigits: 2}),
       franquia: Number(dados.valores.franquia).toLocaleString('pt-br', {minimumFractionDigits: 2}),
       comissao: dados.valores.comissao,
@@ -1037,9 +1038,9 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
           }
           render={(seguro, dados) => seguro && (
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-              {format(seguro.vigencia.toDate(), 'dd/MM/yyyy')}
+              {format(utcToZonedTime(new Date(seguro.vigencia.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy HH:mm')}
               <br/>
-              <span style={{ fontSize: '.7rem' }}>ATÉ: {format(seguro.vigenciaFinal.toDate(), 'dd/MM/yyyy')}</span>
+              <span style={{ fontSize: '.7rem' }}>ATÉ: {format(utcToZonedTime(new Date(seguro.vigenciaFinal.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy HH:mm')}</span>
               {(dados.cancelada && !dados.ativo) && (
                 <>
                   <br/>

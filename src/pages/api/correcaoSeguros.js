@@ -1,3 +1,5 @@
+import { addYears, endOfDay, startOfDay } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import firebase from '../../auth/AuthConfig';
 
 
@@ -13,18 +15,22 @@ export default async function handler(req, res) {
       });
     });
 
-    /*
-      for(const item of array) {
-        if(item?.seguro?.vigencia) {
-          await firebase.firestore().collection('seguros').doc(item.uid).update({
-            seguro: {
-              vigencia: utcToZonedTime(startOfDay(new Date(item.seguro.vigencia.seconds * 1000)), 'America/Sao_Paulo'),
-              vigenciaFinal: utcToZonedTime(addYears(endOfDay(new Date(item.seguro.vigencia.seconds * 1000)), 1), 'America/Sao_Paulo'),
-            }
-          });
+    for(const item of array) {
+      const timestamp = startOfDay(new Date(item.seguro.vigencia.seconds * 1000));
+      const date = new Date(timestamp.getFullYear(), timestamp.getMonth(), timestamp.getDate());
+
+      const start = zonedTimeToUtc(startOfDay(date), 'America/Sao_Paulo');
+      const end = zonedTimeToUtc(addYears(endOfDay(date), 1), 'America/Sao_Paulo');
+
+      console.log(start + ' ' + end);
+
+      await firebase.firestore().collection('seguros').doc(item.uid).update({
+        seguro: {
+          vigencia: start,
+          vigenciaFinal: end,
         }
-      }
-    */
+      });
+    }
 
     return array;
   })

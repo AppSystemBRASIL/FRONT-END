@@ -14,7 +14,7 @@ import generateToken from 'hooks/generateToken';
 import { validarCelular, validateCPF } from 'hooks/validate';
 import firebase from '../../auth/AuthConfig';
 
-import { utcToZonedTime } from 'date-fns-tz';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import jsonComposto from '../../data/jsonComposto.json';
 
 function juroComposto({ parcela, percentual }) {
@@ -186,7 +186,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           const dataSeguro = {
             placa: arrayFirst.veiculo.placa,
             seguradora: arrayFirst.seguradora.uid,
-            vigencia: format(arrayFirst.seguro.vigencia.seconds * 1000, 'dd/MM/yyyy'),
+            vigencia: format(utcToZonedTime(new Date(arrayFirst.seguro.vigencia.seconds * 1000), 'America/Sao_Paulo'), 'dd/MM/yyyy'),
             premio: 0,
             franquia: 0,
             percentual: '',
@@ -355,10 +355,10 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
     }
 
     const vigencia = dataNewSeguro.vigencia.split('/');
-    const vigenciaData = new Date(vigencia[2], (vigencia[1] - 1), vigencia[0]);
+    const vigenciaData = new Date(Number(vigencia[2]), Number(Number(vigencia[1]) - 1), Number(vigencia[0]));
 
-    const vigenciaInicio = utcToZonedTime(startOfDay(vigenciaData), 'America/Sao_Paulo');
-    const vigenciaFinal = utcToZonedTime(addYears(endOfDay(vigenciaInicio), 1), 'America/Sao_Paulo');
+    const vigenciaInicio = zonedTimeToUtc(startOfDay(vigenciaData), 'America/Sao_Paulo');
+    const vigenciaFinal = zonedTimeToUtc(addYears(endOfDay(vigenciaData), 1), 'America/Sao_Paulo');
 
     const data = {
       seguradora: {
@@ -458,9 +458,7 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           outline: 'none'
         }
       },
-      onOk: async () => await firebase.firestore().collection('seguros').doc(data.uid).set({
-          ...data
-        }, { merge: true })
+      onOk: async () => await firebase.firestore().collection('seguros').doc(data.uid).set(data, { merge: true })
         .then(async () => {
           const premioValor = Number(String(dataNewSeguro.premio).split('.').join('').split(',').join('.'));
           const comissaoValor = dataNewSeguro.comissao;
@@ -590,7 +588,9 @@ export default function ModalSeguro({ data, visible, setVisible, callback }) {
           <Input
             readOnly
             autoComplete='off'
-            id='finalVigencia' format='DD/MM/yyyy' style={{ width: '100%' }}
+            id='finalVigencia'
+            format='DD/MM/yyyy'
+            style={{ width: '100%' }}
             value={!((!dataNewSeguro.vigencia ? '' : (dataNewSeguro.vigencia.split('/')[0] && dataNewSeguro.vigencia.split('/')[0].length === 2) && (dataNewSeguro.vigencia.split('/')[1] && dataNewSeguro.vigencia.split('/')[1].length === 2) && (dataNewSeguro.vigencia.split('/')[2] && dataNewSeguro.vigencia.split('/')[2].length === 4))) ? '' : (`${dataNewSeguro.vigencia.split('/')[0] && dataNewSeguro.vigencia.split('/')[0]}/${dataNewSeguro.vigencia.split('/')[1]}/${Number(dataNewSeguro.vigencia.split('/')[2]) + 1}`)}
             placeholder='00/00/0000'
           />

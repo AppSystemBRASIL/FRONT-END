@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import LayoutAdmin from '../../components/Layout/Admin';
 
-import { Row, Col, DatePicker, Select, InputNumber, Divider } from 'antd';
+import { Col, DatePicker, Divider, InputNumber, Row, Select } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
@@ -11,23 +11,18 @@ import moment from 'moment';
 import useAuth from '../../hooks/useAuth';
 
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-  Legend
+  CategoryScale, Chart as ChartJS, Filler,
+  Legend, LinearScale, LineElement, PointElement, Tooltip
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-import firebase from '../../auth/AuthConfig';
+import printListSeguros from 'components/PDF/ListSeguros';
 import { endOfDay, endOfMonth, startOfDay, startOfMonth } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
+import generateToken from 'hooks/generateToken';
 import { theme } from 'pages/_app';
 import { FaPrint } from 'react-icons/fa';
-import generateToken from 'hooks/generateToken';
-import printListSeguros from 'components/PDF/ListSeguros';
+import firebase from '../../auth/AuthConfig';
 
 export const options = {
   responsive: true
@@ -127,8 +122,8 @@ const Dashboard = () => {
           cancelada: item?.cancelada?.toDate() || null,
           seguro: {
             ...item.seguro,
-            vigencia: item.seguro.vigencia.toDate(),
-            vigenciaFinal: item.seguro.vigenciaFinal.toDate()
+            vigencia: utcToZonedTime(new Date(item.seguro.vigencia.toDate()), 'America/Sao_Paulo'),
+            vigenciaFinal: utcToZonedTime(new Date(item.seguro.vigenciaFinal.toDate()), 'America/Sao_Paulo')
           }
         }));
 
