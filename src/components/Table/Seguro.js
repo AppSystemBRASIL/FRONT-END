@@ -1038,9 +1038,9 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
           }
           render={(seguro, dados) => seguro && (
             <div className={!loadingData && 'skeleton'} style={{ lineHeight: 1 }}>
-              {format(utcToZonedTime(new Date(seguro.vigencia.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy HH:mm')}
+              {format(utcToZonedTime(new Date(seguro.vigencia.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy')}
               <br/>
-              <span style={{ fontSize: '.7rem' }}>ATÉ: {format(utcToZonedTime(new Date(seguro.vigenciaFinal.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy HH:mm')}</span>
+              <span style={{ fontSize: '.7rem' }}>ATÉ: {format(utcToZonedTime(new Date(seguro.vigenciaFinal.toDate()), 'America/Sao_Paulo'), 'dd/MM/yyyy')}</span>
               {(dados.cancelada && !dados.ativo) && (
                 <>
                   <br/>

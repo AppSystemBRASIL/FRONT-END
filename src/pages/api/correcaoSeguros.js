@@ -22,8 +22,6 @@ export default async function handler(req, res) {
       const start = zonedTimeToUtc(startOfDay(date), 'America/Sao_Paulo');
       const end = zonedTimeToUtc(addYears(endOfDay(date), 1), 'America/Sao_Paulo');
 
-      console.log(start + ' ' + end);
-
       await firebase.firestore().collection('seguros').doc(item.uid).update({
         seguro: {
           vigencia: start,
