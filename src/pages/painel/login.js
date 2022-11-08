@@ -160,7 +160,7 @@ const Login = () => {
     
     if(response && response.code){
       setLoadingType('error');
-    }else if(response && response.emailVerified){
+    }else if(response){
       setLoadingType('success');
     }else {
       setLoadingType('warning');

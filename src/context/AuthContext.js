@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
           }
         })
       }else {
-        firebase.firestore().collection('corretoras').where('site', '==', window.location.hostname).get()
+        firebase.firestore().collection('corretoras').where('site', '==', window.location.hostname === 'localhost' ? 'xcarcorretora.com.br' : window.location.hostname).get()
         .then((res) => {
           if(!res.empty) {
             res.forEach((item) => {
