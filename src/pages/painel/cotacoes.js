@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { Col, Input, Row, Select } from 'antd';
+import { useEffect, useState } from 'react';
 import LayoutAdmin, { CardComponent } from '../../components/Layout/Admin';
-import { Row, Col, Select, Input } from 'antd';
 
 import TableCotacao from '../../components/Table/Cotacao';
 
@@ -9,7 +9,7 @@ import { maskCPF } from '../../hooks/mask';
 import useAuth from '../../hooks/useAuth';
 
 const Cotacao = () => {
-  const { setCollapsedSideBar } = useAuth();
+  const { setCollapsedSideBar, businessInfo } = useAuth();
 
   const [cpf, setCPF] = useState('');
   const [status, setStatus] = useState(null);
@@ -88,7 +88,7 @@ const Cotacao = () => {
             )}
           </Col>
         </Row>
-        <TableCotacao status={status} infiniteData={true} cpf={cpf} />
+        <TableCotacao status={status} infiniteData={true} cpf={cpf} corretora={businessInfo.uid} />
       </CardComponent>
     </LayoutAdmin>
   );

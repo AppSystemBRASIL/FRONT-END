@@ -1,30 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
 import {
-  Table,
-  Tag,
-  Button,
-  Modal,
-  Empty,
-  Row,
-  Col,
-  Input,
-  Avatar,
-  Select,
-  Divider,
-  InputNumber
+  Avatar, Button, Col, Divider, Empty, Input, InputNumber, Modal, Row, Select, Table,
+  Tag
 } from 'antd';
 
 import {
   FileOutlined
 } from '@ant-design/icons';
 
-import { FaEye, FaPlus, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
+import { FaEnvelope, FaEye, FaPlus, FaWhatsapp } from 'react-icons/fa';
 
-import _ from 'lodash';
 import { format } from 'date-fns';
+import _ from 'lodash';
 
 import {
   maskCNPJ
@@ -32,7 +22,7 @@ import {
 
 import { statusPaymentColors, statusPaymentText } from '../../utils/statusPayment';
 
-const TableCotacao = ({ infiniteData, limit, status, cnpj }) => {
+const TableCorretora = ({ infiniteData, limit, status, cnpj }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [corretoras, setCorretoras] = useState([]);
 
@@ -392,4 +382,4 @@ const TableCotacao = ({ infiniteData, limit, status, cnpj }) => {
   )
 }
 
-export default TableCotacao;
+export default TableCorretora;
