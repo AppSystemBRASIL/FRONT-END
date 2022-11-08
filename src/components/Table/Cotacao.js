@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 import ModalSeguro from 'components/Modal/seguro';
 import { apagarCotacao, iniciarCotacao, verSeguro, verSolicitacaoCotacao, vincularSeguro } from '../../functions';
 
-const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
+const TableCotacao = ({ infiniteData, limit, status, cpf, corretora }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [cotacoes, setCotacoes] = useState([]);
 
@@ -50,6 +50,8 @@ const TableCotacao = ({ infiniteData, limit, status, cpf }) => {
     }else if(cpf !== undefined && cpf.length === 14 && status === null) {
       ref = ref.where('cpf', '==', cpf);
     }
+
+    ref = ref.where('corretora.uid', '==', corretora)
 
     ref = ref.orderBy('created', 'desc');
 

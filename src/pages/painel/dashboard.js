@@ -427,7 +427,7 @@ const Dashboard = () => {
         </Col>
         <Col span={24}>
           <CardComponent>
-            <TableCotacao />
+            <TableCotacao corretora={businessInfo.uid} />
           </CardComponent>
         </Col>
       </Row>
