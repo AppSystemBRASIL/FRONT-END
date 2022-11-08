@@ -34,7 +34,7 @@ const Cotacao = () => {
   }, [status]);
 
   if(!businessInfo) {
-    return;
+    return null;
   }
 
   return (
