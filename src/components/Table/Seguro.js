@@ -895,12 +895,12 @@ const TableSeguro = ({ placaPremiada, anoAdesao, segurado, corretor, seguradora,
       <Table
         footer={() => (totalSeguros || totalSegurados) && (
           <>
-            {totalSeguros && (
+            {(totalSeguros) && (
               <div>
                 TOTAL DE SEGUROS: {String(totalSeguros).padStart(2, '0')}
               </div>
             )}
-            {totalSegurados && (
+            {(totalSegurados) && (
               <div>
                 TOTAL DE SEGURADOS: {String(totalSegurados).padStart(2, '0')}
               </div>
