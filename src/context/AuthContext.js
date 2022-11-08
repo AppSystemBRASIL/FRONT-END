@@ -77,40 +77,38 @@ export const AuthProvider = ({ children }) => {
 
       firebase.auth().onAuthStateChanged((user) => {
         if(user) {
-          if(user.emailVerified){
-            const docRef = firebase.firestore().collection('usuarios').doc(user.uid);
+          const docRef = firebase.firestore().collection('usuarios').doc(user.uid);
 
-            docRef.get().then((doc) => {
-              if(doc.exists){
-                const docRef1 = firebase.firestore().collection('corretoras').doc(doc.data().corretora.uid);
+          docRef.get().then((doc) => {
+            if(doc.exists){
+              const docRef1 = firebase.firestore().collection('corretoras').doc(doc.data().corretora.uid);
 
-                docRef1.get().then((doc1) => {
-                  if(doc1.exists){
-                    if(doc.data().corretora.verified) {
-                      const dataCorretora = doc1.data();
-                      setCorretora(data => ({...data, ...dataCorretora}));
+              docRef1.get().then((doc1) => {
+                if(doc1.exists){
+                  if(doc.data().corretora.verified) {
+                    const dataCorretora = doc1.data();
+                    setCorretora(data => ({...data, ...dataCorretora}));
 
-                      setBusinessInfo(dataCorretora);
+                    setBusinessInfo(dataCorretora);
 
-                      setUser(data => ({...data, emailVerified: user.emailVerified, ...doc.data()}));
-                      setLogged(true);
-                    }else {
-                      notification.warn({
-                        message: 'PERFIL EM ANÁLISE',
-                        description: 'AGUARDE A CORRETORA FAZER A ANÁLISE DO SEU PERFIL. FIQUE NO AGUARDO DO EMAIL QUE IREMOS ENVIA-LO.'
-                      });
-                      
-                      signOut();
-                    }
+                    setUser(data => ({...data, emailVerified: user.emailVerified, ...doc.data()}));
+                    setLogged(true);
                   }else {
+                    notification.warn({
+                      message: 'PERFIL EM ANÁLISE',
+                      description: 'AGUARDE A CORRETORA FAZER A ANÁLISE DO SEU PERFIL. FIQUE NO AGUARDO DO EMAIL QUE IREMOS ENVIA-LO.'
+                    });
+                    
                     signOut();
                   }
-                });
-              }else {
-                signOut();
-              }
-            });
-          }
+                }else {
+                  signOut();
+                }
+              });
+            }else {
+              signOut();
+            }
+          });
         }else {
           setTimeout(() => {
             if(!logoutFunction) {
