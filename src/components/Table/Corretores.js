@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import firebase from '../../auth/AuthConfig';
 
 import {
-  Table,
-  Empty,
-  Button,
-} from 'antd';
-import {
   EyeOutlined
 } from '@ant-design/icons';
+import {
+  Button, Empty, Table
+} from 'antd';
 
-import _ from 'lodash';
 import { maskPhone } from 'hooks/mask';
 import useAuth from 'hooks/useAuth';
+import _ from 'lodash';
 import { useTheme } from 'styled-components';
 
 const TableCorretores = ({ setView, setData }) => {
@@ -33,6 +31,8 @@ const TableCorretores = ({ setView, setData }) => {
   const getCotacao = async (init) => {
     let ref = firebase.firestore()
     .collection('usuarios').where('tipo', '==', 'corretor');
+
+    ref = ref.where('corretora.uid', '==', businessInfo.uid);
 
     ref
     .onSnapshot((snap) => {
