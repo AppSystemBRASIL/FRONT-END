@@ -1,11 +1,11 @@
 import { createContext, useEffect, useState } from 'react';
 import firebase from '../auth/AuthConfig';
 
-import verifyCode from '../auth/errors';
-import { notification, Modal, Input, ConfigProvider } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ConfigProvider, Input, Modal, notification } from 'antd';
 import Router from 'next/router';
 import { useTheme } from 'styled-components';
+import verifyCode from '../auth/errors';
 
 const AuthContext = createContext();
 

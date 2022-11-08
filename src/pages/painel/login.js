@@ -1,24 +1,17 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import Head from 'next/head';
 import { Alert, Button, Image, notification, Select } from 'antd';
+import Head from 'next/head';
+import { Fragment, useEffect, useState } from 'react';
 
 import {
-  FaEnvelope,
-  FaLock,
-  FaEye,
-  FaEyeSlash,
-  FaBusinessTime,
-  FaUserAlt,
-  FaIdCard,
-  FaPhoneAlt
+  FaBusinessTime, FaEnvelope, FaEye,
+  FaEyeSlash, FaIdCard, FaLock, FaPhoneAlt, FaUserAlt
 } from 'react-icons/fa';
 
 import styled from 'styled-components';
 
-import Colors from '../../utils/colors';
 
-import useAuth from '../../hooks/useAuth';
 import Router from 'next/router';
+import useAuth from '../../hooks/useAuth';
 
 import firebase from '../../auth/AuthConfig';
 
