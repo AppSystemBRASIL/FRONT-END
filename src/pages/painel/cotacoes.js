@@ -33,6 +33,10 @@ const Cotacao = () => {
     }
   }, [status]);
 
+  if(!businessInfo) {
+    return;
+  }
+
   return (
     <LayoutAdmin title='COTAÇÕES'>
       <CardComponent>
