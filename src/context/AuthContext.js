@@ -172,14 +172,16 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, senha) => {
     try {
       return await firebase.auth().signInWithEmailAndPassword(email, senha).then((response) => {
-        if(!response.user.emailVerified){
-          response.user.sendEmailVerification();
+        /*
+          if(!response.user.emailVerified){
+            response.user.sendEmailVerification();
 
-          notification.warn({
-            message: 'VERIFICAÇÃO DE EMAIL',
-            description: 'Você ainda não fez a verificação de perfil no seu email.'
-          });
-        }
+            notification.warn({
+              message: 'VERIFICAÇÃO DE EMAIL',
+              description: 'Você ainda não fez a verificação de perfil no seu email.'
+            });
+          }
+        */
         return response.user;
       });
     }catch(error) {
