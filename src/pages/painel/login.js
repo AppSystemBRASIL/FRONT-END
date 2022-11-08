@@ -161,6 +161,7 @@ const Login = () => {
     if(response && response.code){
       setLoadingType('error');
     }else if(response){
+      console.log(response)
       setLoadingType('success');
     }else {
       setLoadingType('warning');
