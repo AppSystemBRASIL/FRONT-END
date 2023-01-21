@@ -2,7 +2,7 @@ module.exports = {
   reactStrictMode: true,
   env: {
     ENVIRONMENT: 'development',
-    //NEXT_PUBLIC_UID_CORRETORA: 'X0hXIOdA5pOkyLquPIxj',
+    NEXT_PUBLIC_UID_CORRETORA: 'X0hXIOdA5pOkyLquPIxj',
     NEXT_PUBLIC_API_KEY: 'AIzaSyAlGCcQx9S7SmvxAArZ3tvnH1ee8FwvmUY',
     NEXT_PUBLIC_AUTH_DOMAIN: 'appsystembrasil-seguro.firebaseapp.com',
     NEXT_PUBLIC_PROJECT_ID: 'appsystembrasil-seguro',

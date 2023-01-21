@@ -1,10 +1,9 @@
 {
   "name": "appsystem-seguro-brasil",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider next dev",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider next build",
     "start": "NODE_OPTIONS='--http-server-default-timeout=0' next start",
     "lint": "next lint",
     "git": "git add . && git commit -m 'commit' && git push"
@@ -44,5 +43,6 @@
   "devDependencies": {
     "eslint": "7.30.0",
     "eslint-config-next": "11.0.1"
-  }
+  },
+  "private": true
 }
