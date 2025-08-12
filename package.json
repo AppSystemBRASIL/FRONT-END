@@ -1,12 +1,12 @@
 {
   "name": "appsystem-seguro-brasil",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "scripts": {
     "dev": "NODE_OPTIONS=--openssl-legacy-provider next dev",
     "build": "NODE_OPTIONS=--openssl-legacy-provider next build",
-    "start": "NODE_OPTIONS='--http-server-default-timeout=0' next start",
+    "start": "node --http-server-default-timeout=0 ./node_modules/.bin/next start",
     "lint": "next lint",
-    "git": "git add . && git commit -m 'commit' && git push"
+    "deploy": "git add . && git commit -m 'commit' && git push"
   },
   "dependencies": {
     "antd": "^4.16.6",
